@@ -212,7 +212,7 @@ a scenario with two nodes.) Run the same thing:
 
 On this terminal also, you'll see the node parameters as below:
 
-````
+```
 root@node1-1:~/phase-1-code# ./CRTS_CR -a 10.13.1.1
 linux; GNU C++ version 4.8.2; Boost_105400; UHD_003.008.002-86-g566dbc2b
 
@@ -232,7 +232,7 @@ Virtual Network Interface Settings:
     Target IP:                         10.0.0.3
     Traffic pattern:                   stream
     Average throughput:                2000000.00
-````
+```
 
 On the terminal where the controller process is running, you'll also see 
 
