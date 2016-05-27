@@ -21,17 +21,18 @@ The experiment we are going to reproduce considers RTT fairness in two cases:
 
 The results of our experiment are not consistent with the  published result.
 
+The congestion window behavior shown in the original paper is not consistent with HSTCP. After a loss event, HSTCP should decrease a small portion of congestion window, but in the window plot from the original paper it always halves the congestion window.
+
+The original paper states that HSTCP congestion window converges faster and achieves RTT fairness with *large* buffer size. I did not see this effect on the GENI testbed. In some experiment trials I get an opposite result, suggesting that a *large* buffer leads to RTT unfairness and a *small* buffer helps HSTCP congestion window converge:
 
 ![](/blog/content/images/2016/05/mz-overbuffered.svg)
 
 ![](/blog/content/images/2016/05/mz-underbuffered.svg)
 
+Furthermore, the behavior of two TCP flows varies from one trial to another. Sometimes we observe RTT unfairness and other times we don't, even when the experiment conditions are identical. Based on this, we suggest that it is not meaningful to show a "representative" experiment run for this particular experiment, and that to draw conclusions regarding RTT fairness under different buffer sizes we would have to run a very large number of experiment trials and show aggregate results.
 
-The original paper states that HSTCP congestion window converges faster and achieves greater RTT fairness with *large* buffer size. However, the congestion window behavior shown is not consistent with HSTCP, e.g., after loss event, HSTCP should decrease a small portion of congestion window, but in the window plot from the original paper it always halves the congestion window.
 
-As the figures show, on the GENI testbed I get the opposite result, which suggests that a *small* buffer helps HSTCP congestion window converge. 
-
-The last finding is that CUBIC (not considered in the original paper, which was from 2004) shows a faster window convergence in both small and large buffer case, which indicates CUBIC has a better RTT fairness than HSTCP in this specific experiment.
+The last finding is that CUBIC (not considered in the original paper, which was from 2004) typically shows a faster window convergence in both small and large buffer case, which suggests CUBIC has a better RTT fairness than HSTCP in this specific experiment.
 
 
 ## Run My Experiment ##
