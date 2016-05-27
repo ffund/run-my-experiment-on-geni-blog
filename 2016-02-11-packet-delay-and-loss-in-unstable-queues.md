@@ -28,12 +28,15 @@ $$ T = \frac{m}{\mu} $$
 where _m_ is the size of the queue and &mu; is the service rate of the queue.
 
 
-
 ## Results
 
-Below is graph showing expected results. Three experiments were performed and the peak delay of each queue size was plotted against its corresponding queue size. 
-(The peak delay was used because it most closely represents how long a packet arriving at a full queue would have to wait. In our experiment &rho; is not infinite so not all packets arrive at a full queue.)
+Below is graph showing our experiment results. Three experiments were performed and the peak delay of each queue size was plotted against its corresponding queue size. 
+
 ![](/blog/content/images/2016/02/Peakdelaygraph.png)
+
+Even though the utilization was not much greater than 1 (&rho; = 1.25), the worst-case delay observed in a 10-second experiment was the same as what we would expect from a queue with &rho; = &infin;.
+
+(The peak delay most closely represents how long a packet arriving at a full queue would have to wait. In our experiment &rho; is not infinite so not all packets arrive at a full queue.)
 
 We also use peak delay to avoid the transient effects that occurred at the beginning of the experiment. The queue slowly filled up until the delay reached a steady state value.
 
