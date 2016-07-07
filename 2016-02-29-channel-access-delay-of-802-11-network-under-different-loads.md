@@ -99,19 +99,19 @@ The 25th, 50th, and 75th percentile values for the delay (in ms) of each network
 
 SSH into witestlab.poly.edu at the beginning of your reserved time. (If you were already logged in at the beginning of your reserved time, log out and then log back in again.)
 
-This experiment requires three wireless "nodes". The instructions here assume you are using node4, node5, and node6. These three nodes were chosen because their WiFi and WiMAX signal quality is acceptable for this experiment. If those are [not available](http://witestlab.poly.edu/site/activity/node-status) at the time of your reservation, choose any three nodes of those numbered 1-13, and modify the instructions accordingly.
+This experiment requires three wireless "nodes". The instructions here assume you are using node4, node7, and node8. These three nodes were chosen because their WiFi and WiMAX signal quality is acceptable for this experiment. If those are [not available](http://witestlab.poly.edu/site/activity/node-status) at the time of your reservation, choose any three nodes of those numbered 1-13, and modify the instructions accordingly.
 
 
 Load the baseline disk image onto the nodes with the following command:
 
 ```
-omf load -i baseline-witest.ndz -t omf.witest.node4,omf.witest.node5,omf.witest.node6
+omf load -i baseline-witest.ndz -t omf.witest.node4,omf.witest.node7,omf.witest.node8
 ```
 
 When the disk load process finishes successfully, turn the nodes on:
 
 ```
-omf tell -a on -t omf.witest.node4,omf.witest.node5,omf.witest.node6
+omf tell -a on -t omf.witest.node4,omf.witest.node7,omf.witest.node8
 ```
 
 
@@ -150,8 +150,8 @@ Verify that you have connectivity between the nodes, e.g. run
 
 ```
 ping -c 5 192.168.0.4
-ping -c 5 192.168.0.5
-ping -c 5 192.168.0.6
+ping -c 5 192.168.0.7
+ping -c 5 192.168.0.8
 ```
 
 from any one node.
@@ -190,26 +190,26 @@ ping -c 5 10.43.4.200
 
 First we are going to measure the round-trip delay on the network when there is no load.
 
-On node6, send a series of pings to node5 over the WiFi network:
+On node7, send a series of pings to node8 over the WiFi network:
 
 
 ```
-ping -i 0.001 -c 2000 192.168.0.5 | tee wifipings.txt
+ping -i 0.001 -c 2000 192.168.0.8 | tee wifipings.txt
 ```
 
 The results will be displayed on the terminal and also redirected to a file "wifipings.txt".
 
-Then, also on node6, send a series of pings to node5 over the WiMAX network:
+Then, also on node7, send a series of pings to node8 over the WiMAX network:
 
 ```
-ping -i 0.001 -c 2000 10.43.4.5 | tee wmxpings.txt
+ping -i 0.001 -c 2000 10.43.4.8 | tee wmxpings.txt
 ```
 
 ### Delay with load
 
 Now we will measure the delay of each network when there is other traffic (load) on the network.
 
-On node5, run
+On node8, run
 
 ```
 iperf -s -i 1
@@ -220,13 +220,13 @@ to prepare it to receive this other traffic. Leave this running.
 We will initiate the other traffic flow ("load") from node4. On node4, run
 
 ```
-iperf -c 192.168.0.5 -i 1 -t 60
+iperf -c 192.168.0.8 -i 1 -t 60
 ```
 
-While that is running, run the ping test on node6 again:
+While that is running, run the ping test on node7 again:
 
 ```
-ping -i 0.001 -c 2000 192.168.0.5 | tee wifipings-load.txt  
+ping -i 0.001 -c 2000 192.168.0.8 | tee wifipings-load.txt  
 ```
 
 Now we will repeat this test on the WiMAX network.
@@ -234,13 +234,13 @@ Now we will repeat this test on the WiMAX network.
 On node4, run
 
 ```
-iperf -c 10.43.4.5 -i 1 -t 60
+iperf -c 10.43.4.8 -i 1 -t 60
 ```
 
-While that is running, run the ping test on node6 again:
+While that is running, run the ping test on node7 again:
 
 ```
-ping -i 0.001 -c 2000 10.43.4.5 | tee wmxpings-load.txt  
+ping -i 0.001 -c 2000 10.43.4.8 | tee wmxpings-load.txt  
 ```
 
 
@@ -251,10 +251,10 @@ Open a new terminal and log in to witestlab.poly.edu with your GENI wireless use
 Transfer the ping output files from your node to the WITest console:
 
 ```
-scp root@node6:/root/wifipings.txt .
-scp root@node6:/root/wmxpings.txt .
-scp root@node6:/root/wifipings-load.txt .
-scp root@node6:/root/wmxpings-load.txt .
+scp root@node7:/root/wifipings.txt .
+scp root@node7:/root/wmxpings.txt .
+scp root@node7:/root/wifipings-load.txt .
+scp root@node7:/root/wmxpings-load.txt .
 
 ```
 

@@ -80,7 +80,9 @@ This will load the following topology onto your canvas:
 
 and will also pre-install the bitcoin tools onto the nodes. Click on "Site 1", then bind to any InstaGENI aggregate and reserve your resources.
 
-Once your resources are ready to log in, open five  terminals, and in each, log in to one node.
+Once your resources are ready to log in, open five  terminals, and in each, log in to one node. (You may have to wait a few minutes after the nodes come up for it to finish installing the Bitcoin software.)
+
+### Set up Bitcoin network
 
 Run the following on each node:
 
@@ -113,9 +115,11 @@ Verify that each node sees all the others with
 bitcoin-cli -regtest getpeerinfo
 ```
 
+### Generate blocks
+
 Now that all our peers are connected, we are going to generate blocks, and watch them get propagated through the network.
 
-Generate a block on any one node with
+Generate a block on node-0 with
 
 ```
 bitcoin-cli -regtest generate 1
@@ -162,7 +166,7 @@ Now that there are 101 blocks in the blockchain, if you run
 bitcoin-cli -regtest getbalance
 ```
 
-on the node that generated the first block, you should see that it has earned 50 bitcoins for its troubles. The other nodes still have a balance of zero, until the blocks they contributed are, in turn, confirmed.
+on node-0 - the node that generated the first block - you should see that it has earned 50 bitcoins for its troubles. The other nodes still have a balance of zero, until the blocks they contributed are, in turn, confirmed.
 
 If you run
 
@@ -170,7 +174,7 @@ If you run
 bitcoin-cli -regtest listunspent
 ```
 
-on that node, you should see further details about its unspent bitcoins:
+on node-0, you should see further details about its unspent bitcoins:
 
 ```
 [
@@ -187,10 +191,7 @@ on that node, you should see further details about its unspent bitcoins:
 
 ```
 
-
-```
-bitcoin-cli -regtest getbalance
-```
+### Fork the network
 
 Now we are going to split our Bitcoin network, allow unconnected parts of the network to generate blocks, and see what happens when they reconnect.
 
@@ -304,7 +305,7 @@ however, the specific blocks in their blockchains will vary. Compare the 121st b
 bitcoin-cli -regtest getblockhash 121
 ```
 
-Let's reconcile the conflict. On any node, run
+Let's reconcile the conflict. On node-0, run
 
 ```
 bitcoin-cli -regtest getblockhash 121
@@ -319,6 +320,106 @@ bitcoin-cli -regtest getblockcount
 bitcoin-cli -regtest getblockhash 121
 ```
 
-to see how the network has "agreed" on a specific blockchain, with identical blocks, and abandoned what has become the shorter blockchain.
+on all the nodes to see how the network has "agreed" on a specific blockchain, with identical blocks, and abandoned what has become the shorter blockchain.
+
+### Bitcoin transactions
+
+At this point, some of your Bitcoin nodes should have spendable bitcoins. Now we'll see how the network requires multiple confirmations, in order to guard against double spending.
+
+On each node, check your balance with 
+
+```
+bitcoin-cli -regtest getbalance  
+```
+
+Now, we will send some bitcoins from node-0 to node-4.
+
+On node-4, run
+
+```
+bitcoin-cli -regtest getnewaddress
+```
+
+to get a new Bitcoin address.
+
+Then, on node-0, run
+
+```
+bitcoin-cli -regtest sendtoaddress ADDRESS 10.00
+```
+
+
+where ADDRESS is the address you generated in the previous step, to send 10 bitcoins to node-4. This command will return a transaction ID.
+
+Now, if you run 
+
+```
+bitcoin-cli -regtest getbalance
+```
+
+on node-0, you should see that slightly more than 10 bitcoins have been deducted from this node's balance. This includes the 10 bitcoins that will be sent to node-4, and a small transaction fee.
+
+However, if you run 
+
+```
+bitcoin-cli -regtest getbalance
+```
+
+on node-4, you will see that its balance has *not* increased. The transaction hasn't been embedded in the blockchain yet, so as far as the rest of the network is concerned, it doesn't exist. 
+
+Let's generate six blocks on node-1 and see what this does with respect to our transaction. On node-1, run
+
+```
+bitcoin-cli -regtest generate 6
+```
+
+Now, on node-4, run
+
+```
+bitcoin-cli -regtest getbalance
+```
+and you should see that it has been incremented by 10.
+
+The node that embedded the transaction in the blockchain, node-1, should have earned a transaction fee. However, this fee is not confirmed yet, so if you run 
+
+```
+bitcoin-cli -regtest getbalance
+```
+
+on node-1, it won't have earned that fee yet. However, if you run 
+
+```
+bitcoin-cli -regtest generate 100
+```
+
+on node-2, the block containing the transaction will be confirmed, and when you run
+
+
+```
+bitcoin-cli -regtest getbalance
+```
+
+on node-1, the transaction fee should now be reflected in its balance. You can also run
+
+```
+bitcoin-cli -regtest listunspent
+```
+
+on node-1, and look for the transaction for which it has earned a little more than 50 bitcoins, e.g.:
+
+```
+  {
+    "txid": "efa54bb99286436ac5ecc3c1f83cf4937eabf621d75de2ada78360bb98b9a1ed",
+    "vout": 0,
+    "address": "mjbHJkmvcZVmvQ13qctGuXw7oo67v5nFnQ",
+    "scriptPubKey": "2102ee35c878387d17d57094cddb3ca0120c6717f3fbc3b4742251b3073d4d530ad1ac",
+    "amount": 50.00003840,
+    "confirmations": 106,
+    "spendable": true
+  }, 
+```
+
+
+### Clean up
 
 Please delete your resources in the GENI Portal when you're done, to free them up for other experimenters!
