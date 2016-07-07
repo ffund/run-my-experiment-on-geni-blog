@@ -4,7 +4,7 @@
 <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="Site 1"/>
 <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="default-vm"/>
 <services xmlns="http://www.geni.net/resources/rspec/3">
-<execute xmlns="http://www.geni.net/resources/rspec/3" command="sudo apt-get update; sudo apt-get -y install lynx isc-dhcp-client" shell="/bin/sh"/>
+<execute xmlns="http://www.geni.net/resources/rspec/3" command="sudo apt-get update; sudo apt-get -y install lynx isc-dhcp-client; sudo wget -O /etc/dhcp/dhclient.conf https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/dns_spoofing_dhclient.conf" shell="/bin/sh"/>
 </services>
 <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-0">
 <ip xmlns="http://www.geni.net/resources/rspec/3" address="10.10.1.21" type="ipv4" netmask="255.255.255.0"/>
