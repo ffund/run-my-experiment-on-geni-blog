@@ -26,7 +26,7 @@
 <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="Site 1"/>
 <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="default-vm"/>
 <services xmlns="http://www.geni.net/resources/rspec/3">
-<execute xmlns="http://www.geni.net/resources/rspec/3" command="sudo apt-get update; sudo apt-get -y install dnsmasq dsniff apache2" shell="/bin/sh"/>
+<execute xmlns="http://www.geni.net/resources/rspec/3" command="sudo apt-get update; sudo apt-get -y install dnsmasq dsniff" shell="/bin/sh"/>
 </services>
 <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-2">
 <ip xmlns="http://www.geni.net/resources/rspec/3" address="10.10.1.254" type="ipv4" netmask="255.255.255.0"/>
