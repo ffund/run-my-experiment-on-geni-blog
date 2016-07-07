@@ -57,7 +57,7 @@ We are going to run two versions of this experiment: the statistical multiplexin
 
 ### Reserve resources
 
-Use [this RSpec](https://nyu.box.com/shared/static/zn9ij1eq12rqupwq19u715t5odqu5eog.xml) to reserve the two-queue topology. (In the GENI Portal, in your slice, click "Add Resources", then "Choose RSpec" from file. After loading the RSpec, bind it to a *different* InstaGENI site):
+Use [this RSpec](https://nyu.box.com/shared/static/zn9ij1eq12rqupwq19u715t5odqu5eog.xml) to reserve the two-queue topology. (In the GENI Portal, in your slice, click "Add Resources", then "Choose RSpec" from file. After loading the RSpec, bind it to an InstaGENI site):
 
 ![](/blog/content/images/2016/02/two-queues.png)
 

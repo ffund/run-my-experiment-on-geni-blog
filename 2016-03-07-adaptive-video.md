@@ -8,6 +8,8 @@ To reproduce this experiment on GENI, you will need an account on the [GENI Port
 
 ## Background
 
+### About adaptive video
+
 Streaming video content is typically delivered to Internet users as follows:
 
 * User's device keeps a video buffer (at the application layer)
@@ -61,6 +63,8 @@ For example, the client might request the following representations for the firs
 The cumulative set of decisions made by the client is called a decision policy. The decision policy is a set of rules that determine which representation to request, based on some kind of client state - for example, what the current download rate is, or how much video is currently stored in the buffer.
 
 The decision policy is not specified in the DASH standard. Many decision policies have been proposed by researchers, each promising to deliver better quality than the next!
+
+### In this experiment 
 
 You will run a series of experiments trying to evaluate 3 DASH rate adaptation policies. 
 
@@ -611,6 +615,31 @@ echo 'export TERM=xterm' >> /usr/local/bin/vlc
 echo 'vlc_app "$@"' >> /usr/local/bin/vlc
 chmod +x /usr/local/bin/vlc
 ```
+
+
+## Notes and References
+
+The VLC DASH plugin in this experiment is described in:
+
+Christopher Müller and Christian Timmerer. 2011. A VLC media player plugin enabling dynamic adaptive streaming over HTTP. In *Proceedings of the 19th ACM international conference on Multimedia (MM '11)*. ACM, New York, NY, USA, 723-726. ([URL](http://dx.doi.org/10.1145/2072298.2072429))
+
+The version of this plugin that measurements to an OML database is described in:
+
+Fraida Fund, Cong Wang, Yong Liu, Thanasis Korakis, Michael Zink and Shivendra S. Panwar. 2013. Performance of DASH and WebRTC Video Services for Mobile Users. In *Proceedings of the 2013 20th International Packet Video Workshop*. San Jose, CA, 1-8. ([URL](http://dx.doi.org/ 10.1109/PV.2013.6691455))
+
+and its source code is available via SVN:
+
+```
+svn co http://witestlab.poly.edu/repos/omlapps/vlc/vlc-2.1.0-git
+```
+
+A README describing its installation is available [here](http://witestlab.poly.edu/svn/filedetails.php?repname=omlapps&path=%2Fvlc%2FREADME.txt). 
+
+The DASH dataset used in this experiment is described in:
+
+Stefan Lederer, Christopher Müller, and Christian Timmerer. 2012. Dynamic adaptive streaming over HTTP dataset. In *Proceedings of the 3rd Multimedia Systems Conference (MMSys '12)*. ACM, New York, NY, USA, 89-94. ([URL](http://dx.doi.org/10.1145/2155555.2155570))
+
+and is available at [this link](http://www-itec.uni-klu.ac.at/dash/?page_id=207) (it's the one referred to as the "older version of our MPEG-DASH dataset".)
 
 
 
