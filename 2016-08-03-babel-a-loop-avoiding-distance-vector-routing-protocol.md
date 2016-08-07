@@ -85,6 +85,7 @@ In the example above, it's `node-7.babel.ch-geni-net.instageni.umkc.edu`. In a b
 
 ![](/blog/content/images/2016/08/babelweb-1.png)
 
+
 Now, we'll start `babeld` on the rest of the topology. Log in to each of the other nodes, and run
 
 ```

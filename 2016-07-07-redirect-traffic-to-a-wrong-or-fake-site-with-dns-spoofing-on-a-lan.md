@@ -33,16 +33,16 @@ DNS spoofing is easiest when both the attacker and victim are on the same LAN. H
 
 Here is an example of a normal DNS lookup which returns a correct address for google.com from the "good" server on the LAN:
 
-![](/blog/content/images/2016/07/normal-dns.gif)
+<iframe width="420" height="315" src="https://www.youtube.com/embed/1ZdeiulDB9U" frameborder="0" allowfullscreen></iframe>
 
 In the next example, we use ARP spoofing for the attacker to impersonate the DNS server, and respond to DNS queries with a wrong IP address. As a result, the client is redirected to DuckDuckGo when it tries to use Google:
 
-![](/blog/content/images/2016/07/arp-spoofing.gif)
+<iframe width="420" height="315" src="https://www.youtube.com/embed/TJ4Inhd_cOM" frameborder="0" allowfullscreen></iframe>
 
 Finally, we use a DHCP masquerade attack to similar effect. When the client looks for an IP address from DHCP, the attacker responds with an offer before the "good" server and is configured to be the client's nameserver. When the client tries to get an IP address for Google, the attacker returns the IP address for DuckDuckGo instead:
 
+<iframe width="420" height="315" src="https://www.youtube.com/embed/RFcZiE4ygF8" frameborder="0" allowfullscreen></iframe>
 
-![](/blog/content/images/2016/07/dhcp-masquerade.gif)
 
 ## Run my experiment
 
