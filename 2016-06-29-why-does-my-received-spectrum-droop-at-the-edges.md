@@ -1,9 +1,9 @@
 
 The aim of this experiment is to explain the "spectral droop" described in many questions on the GNU Radio and USRP mailing lists. 
 
-It should take about 30 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, either the sb2, sb3, or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
+It should take about 30 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless on the sb3 at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on the sb2, sb3, or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org) and you must run this experiment during your reserved time.
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on the sb3 sandbox at [ORBIT](http://geni.orbit-lab.org) and you must run this experiment during your reserved time.
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -104,7 +104,7 @@ We will see a much flatter spectrum in a display of received ambient noise when 
 
 ## Run my experiment
 
-Make a reservation on one of the SDR sandboxes on the [ORBIT testbed](http://geni.orbit-lab.org/). We wrote these instructions for sb3, but sb7 and sb2 also have USRP N210 devices.
+Make a reservation on the sb3 sandbox on the [ORBIT testbed](http://geni.orbit-lab.org/), which has two nodes with USRP N210 devices.
 
 During the reserved time slot, SSH into your testbed, e.g. `sb3.orbit-lab.org`, using your GENI wireless username and keys.
 
@@ -114,9 +114,8 @@ Once you are on the testbed console, load a baseline SDR disk image onto a node 
 omf load -i baseline-sdr.ndz -t node1-1.sb3.orbit-lab.org
 ```
 
-If you're using something other than sb3, modify the command above accordingly. 
 
-When this process finishes, turn on the node using the command (again, modified for sb2 or sb7 if necessary):
+When this process finishes, turn on the node using the command:
 
 ```
 omf tell -a on -t node1-1.sb3.orbit-lab.org
