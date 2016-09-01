@@ -365,6 +365,16 @@ After finish the experiment and if you do not need to check them anymore please 
 
 ## Notes
 
+### Gists
+
+The following gists are used in the "short" version of the experiment:
+
+* The RSpec, which includes postboot commands to install and set up the necessary software: [pie-v-red-rspec.xml](https://gist.github.com/ffund/24e5bf500524ed87d0c18ab73d6a649e)
+* The shell script for installing and configuring software on the router: [pie-v-red-router-setup.sh](https://gist.github.com/ffund/d5d3f444ae6112ebd9bdd45cf70b37ec)
+* The shell script for installing and configuring software on the "server" nodes: [pie-v-red-install.sh](https://gist.github.com/ffund/6e5c5d3de62a0a73caea3f9ed7f8e2a6)
+* The shell script that runs on the "client" nodes to execute the experiment: [run-pie-v-red-experiment.sh](https://gist.github.com/ffund/2515f9cb5f735fadde7237ca29df0722)
+* The shell script that runs on the router to execute the experiment: [run-pie-v-red-experiment-router.sh](https://gist.github.com/ffund/547e6257cb3a3f6c52d2885b30483fcc)
+* The gnuplot script for visualizing the results in an ASCII art plot: [plot-ping-delay.gp](https://gist.github.com/ffund/28fd27106225984183a766aa8dc886a2)
 
 ### External sources
 

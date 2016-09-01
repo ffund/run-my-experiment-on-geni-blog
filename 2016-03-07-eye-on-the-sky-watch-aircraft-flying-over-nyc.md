@@ -26,7 +26,7 @@ You can read more about ADS-B in its [Wikipedia page](https://en.wikipedia.org/w
 
 ## Results
 
-If you don't have X11 forwarding, you can see the results in a table, like this:
+You can see the results in a table, like this:
 
 ```
 Hex     Mode  Sqwk  Flight   Alt    Spd  Hdg    Lat      Long   Sig  Msgs   Ti-
@@ -37,7 +37,7 @@ A923A9  S                     9175                                7     3   27
 
 ```
 
-If you have X11 forwarding, you can see a display like this:
+You can also see a display like this:
 
 ![](/blog/content/images/2016/02/dump1090.png)
 
@@ -66,7 +66,7 @@ omf tell -a on -t omf.witest.node1
 # omf tell -a on -t omf.witest.node17
 ```
 
-Wait for the node to come online. Then log in, e.g.
+Wait for the node to come online (this may take a couple of minutes). Then log in, e.g.
 
 ```
 ssh root@node1  
@@ -91,6 +91,9 @@ export https_proxy="https://10.0.0.200:3128"
 
 # Remove other RTL-SDR driver, if it is loaded
 modprobe -r dvb_usb_rtl28xxu
+# If it returns
+# FATAL: Module dvb_usb_rtl28xxu not found.
+# that's OK - you can ignore this error
 
 git clone https://github.com/steve-m/librtlsdr  
 cd librtlsdr  
@@ -158,28 +161,30 @@ Depending on various factors (weather, traffic in the air), you may be able to s
 
 for a while.
 
-If you do find some aircraft transmitting latitude and longitude coordinates, and you have X-11 forwarding on your laptop, you can even plot them on a map. Try running
+If you do find some aircraft transmitting latitude and longitude coordinates, you can plot them on a map. Try running
 
 ```
 ./dump1090 --aggressive --fix --interactive --net
 ```
 
-on the node. Then, in a local console (i.e. on your laptop), run
+on the node. 
+
+Also, open another terminal, and in that terminal, use SSH to tunnel your local port 8080 to the node on which you are running `dump1090`. The syntax is
+
 
 ```
-ssh -XC4c arcfour,blowfish-cbc GENI-WIRELESS-USERNAME@witestlab.poly.edu
+ssh -L 8080:NODE:8080 USERNAME@witestlab.poly.edu
 ```
 
-substituting your own GENI wireless username for "GENI-WIRELESS-USERNAME". Run 
+For example, if I am using node1 and my username at WITest is ffund, I would run
 
 ```
-google-chrome
+ssh -L 8080:node1:8080 ffund@witestlab.poly.edu
 ```
 
-and, when the browser loads, visit port 8080 on the node that you're running dump1090 on. For example, if you are using node17, you would put
+and leave that terminal running. Then, open a browser and visit
 
-```
-http://node17:8080/
-```
+http://localhost:8080/
+
 
 in the URL bar. Center the map around NYC and you'll see the flight paths of aircraft that include latitude and longitude information in their messages.

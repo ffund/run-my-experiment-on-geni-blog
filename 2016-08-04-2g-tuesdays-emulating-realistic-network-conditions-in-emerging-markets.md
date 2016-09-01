@@ -67,7 +67,7 @@ Then, will will configure the local host from which we run the experiment (e.g. 
 
 Web traffic will go from the laptop browser, through the VPN tunnel, over the link between OpenVPN and Squid - where we will shape the traffic - and then on to the Internet. The reverse traffic will follow the same path in reverse.
 
-First, create a new slice in the GENI Portal, and then click "Add Resources". Load the Rspec in [this gist](https://gist.github.com/ffund/2f43862ceebef6596b538112db75029c) from the URL: [https://git.io/v6qDh](https://git.io/v6qDh) 
+First, create a new slice in the GENI Portal, and then click "Add Resources". Load the Rspec in [this gist](https://gist.github.com/ffund/2f43862ceebef6596b538112db75029c) from the URL: [https://git.io/viUtO](https://git.io/viUtO) 
 
 (You can load the Rspec directly from the URL in the "Choose Rspec" area.) This will load the following topology in your canvas:
 
@@ -125,7 +125,9 @@ secret static.key
 route 10.91.1.0 255.255.255.0
 ```
 
-but replace the word `HOSTNAME` with the actual hostname of the "openvpn" node on GENI (provided by the portal).
+but replace the word `HOSTNAME` with the actual hostname of the "openvpn" node on GENI (provided by the portal). For example, in the following image, the hostname is `openvpn.realistic-atc.ch-geni-net.genirack.nyu.edu`:
+
+![](/blog/content/images/2016/08/2g-hostname.png)
 
 Then run
 
@@ -180,7 +182,7 @@ You can find similar instructions for other browsers online.
 
 To verify that your browser is using the proxy, visit http://amibehindaproxy.com/ and make sure it shows "Your IP address" as 10.8.0.2, and that you are using a proxy (the proxy address and name will vary depending on what InstaGENI site you are using).
 
-![](/blog/content/images/2016/08/atc-proxy.png)
+![](/blog/content/images/2016/08/2g-proxy.png)
 
 
 Now, we will set up ATC on the gateway node according to the instructions [here](https://github.com/facebook/augmented-traffic-control) and [here](http://facebook.github.io/augmented-traffic-control/).
@@ -260,7 +262,7 @@ Then update the Django DB:
 python manage.py migrate
 ```
 
-and start it will
+and start it with
 
 ```
 python manage.py runserver 0.0.0.0:8000
@@ -319,3 +321,8 @@ Now, go to the browser that you set up to use a proxy, and try browsing the Inte
 
 <iframe width="420" height="315" src="https://www.youtube.com/embed/VG2tfQC5Rg8" frameborder="0" allowfullscreen></iframe>
 
+When you're finished, release your resource in the GENI Portal to free them for use by other experimenters!
+
+## Notes
+
+Traffic shaping at high data rates may not work very well with a virtual machine. For this reason, we use a Raw PC for the "openvpn" node. However, because a Raw PC is a scarce resource, it may be somewhat difficult to successfully reserve your topology.

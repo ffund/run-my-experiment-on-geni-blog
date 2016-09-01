@@ -33,7 +33,7 @@ While the tolerance may be small when expressed in ppm, this offset is also mult
 
 ## Results
 
-The following series of images show the received signal on a USRP2, when a tone is transmitted from another USRP2 at 750, 1250, 1750, 2250, 2750, 3250, and 3750 MHz, respectively.
+The following series of images show the received signal on a USRP2, when a tone is transmitted from another USRP2 at 750, 1250, 1750, 2250, 2750, 3250, 3750, and 4250 MHz respectively.
 
 For a transmitted signal at 750 MHz, the received signal is close to the expected center frequency. However, as the center frequency increases, the effect of the frequency offset increases as well, with the total offset at 4.25 GHz clocking in at over 50 kHz.
 
@@ -57,7 +57,7 @@ The USRP2 has an oscillator rated at [20 ppm](http://gnuradio.org/redmine/projec
 
 ![](/blog/content/images/2016/08/usrpn210-offset-1.png)
 
-We can see that even at this high frequency, there is very little offset with the more accurate oscillator.
+We can see that even at this high frequency, there is very little offset with the more accurate oscillator. (Of course, some USRP2 devices will also have very little offset; the tolerance rating describes the _maximum_ error a device may have, but an individual device may have much less.)
 
 ## Run my experiment
 
@@ -72,9 +72,7 @@ omf load -i baseline-sdr.ndz -t system:topo:all
 ```
 
 
-If you're using something other than sb3, modify the command above accordingly. 
-
-When this process finishes, turn on the node using the command (again, modified for sb2 or sb7 if necessary):
+When this process finishes, turn on the node using the command:
 
 ```
 omf tell -a on -t system:topo:all
