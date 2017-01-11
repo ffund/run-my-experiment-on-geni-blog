@@ -223,27 +223,10 @@ ldconfig
 cd
 
 pip install pyrtlsdr
-
-wget https://raw.githubusercontent.com/keenerd/rtl-sdr-misc/master/heatmap/flatten.py
 ```
 
 
-Then we need to find an FM radio station.  Run
-
-```
-rtl_power -f 88.1M:108.1M:1M -e 30s -1 fm_stations_1.csv
-rtl_power -f 88.3M:107.3M:1M -e 30s -1 fm_stations_3.csv
-rtl_power -f 88.5M:107.5M:1M -e 30s -1 fm_stations_5.csv
-rtl_power -f 88.7M:107.7M:1M -e 30s -1 fm_stations_7.csv
-rtl_power -f 88.9M:107.9M:1M -e 30s -1 fm_stations_9.csv
-
-cat fm_stations_1.csv fm_stations_3.csv fm_stations_5.csv fm_stations_7.csv fm_stations_9.csv > fm_stations.csv
-python flatten.py fm_stations.csv  | sort -t"," -k2n
-```
-
-to get a list of FM radio stations, sorted by received signal power. Choose an FM radio station that seems to have a high received signal power. (You may have to try more than one station before you find one that works.)
-
-Now we're ready to start listening to some FM radio.
+Now we're ready to start listening to some FM radio. Specifically, since we're using WINLAB, we'll listen in on 88.7 FM, [Rutgers Radio](http://radio.rutgers.edu/).
 
 Run
 
@@ -270,10 +253,10 @@ sdr = RtlSdr()
 
 ```
 
-In the next command, choose the frequency of a station that appears to be received with high power at your location. In this example, we have used 100.3MHz:
+In the next command, we will specify the frequency at which to capture samples. We will use 88.7MHz, Rutgers Radio:
 
-```
-F_station = int(100.3e6)  # Pick a radio station  
+```python
+F_station = int(88.7e6)   # Rutgers Radio  
 F_offset = 250000         # Offset to capture at  
 # We capture at an offset to avoid DC spike
 Fc = F_station - F_offset # Capture center frequency  
@@ -539,23 +522,18 @@ ssh root@node6-1
 Set up the necessary software environment with
 
 ```
-wget https://nyu.box.com/shared/static/fvhcwp3x4xn40nlhdteoa53bcb3kpkpq.sh -O fm-radio-setup.sh
+wget https://git.io/vPy2w -O fm-radio-setup.sh
 bash fm-radio-setup.sh
-wget https://nyu.box.com/shared/static/rnhwmnghxem56yyn0904mz0iir1k2z31 -O fm-radio.py 
+wget https://git.io/vPy2M -O fm-radio.py 
 ```
 
 Then run 
 
 ```
-python fm-radio.py FREQ
-```
-
-where FREQ is the frequency of the FM radio station you want to listen to, e.g. 
-
-```
 python fm-radio.py 88.7e6
 ```
 
+to capture [Rutgers Radio](http://radio.rutgers.edu/) at 88.7 FM (88.7 MHz).
 
 Transfer files to your computer with
 
@@ -576,3 +554,5 @@ This experiment was developed on the following software versions:
  * scipy 0.13.3-1build1
  * pyrtlsdr 0.2.0
  * librtlsdr from github with most recent commit hash 8b4d755ba1b889510fba30f627ee08736203070d
+
+The setup script and Python script can be found in [this gist](https://gist.github.com/ffund/1d0fb274f5772c1c908d1ea7e66c992e). 

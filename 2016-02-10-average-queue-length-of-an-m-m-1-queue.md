@@ -62,7 +62,7 @@ To start, create a new slice on the [GENI portal](https://portal.geni.net/). Cre
 
 ![](http://witestlab.poly.edu/~ffund/el7353/images/jacks-topology.png)
 
-Use the "Auto IP" tool to automatically assign appropriate IPs. Then choose an InstaGENI aggregate and log in to your resources. (Alternatively, you may download [this RSpec](https://nyu.box.com/shared/static/qkalwq3z2jbmr6gi5yy7a3weuvy1i40o.xml) and then load the RSpec into the GENI Portal from the file.)
+Use the "Auto IP" tool to automatically assign appropriate IPs. Then choose an InstaGENI aggregate and log in to your resources. Alternatively, you may download [this RSpec](https://gist.github.com/ffund/d147dfe585d6b78dfb8ec7b8bab5bb3c) and then load the RSpec into the GENI Portal from the file. Or, you can load the RSpec directly from this URL: [https://git.io/vPyaO](https://git.io/vPyaO)
 
 To generate traffic with exponentially distributed interarrival times and exponentially distributed packet sizes, we will use the [D-ITG traffic generator](http://traffic.comics.unina.it/software/ITG/) ([manual available here](http://traffic.comics.unina.it/software/ITG/manual/).) You will need to install D-ITG on your client and server nodes. Log in to each and run
 
@@ -91,7 +91,7 @@ tc -p -s -d qdisc show dev eth2
 For convenience, we've written a script that runs this at regular intervals and records the queue information together with the timestamp. You can download this script file on the router node and then make it executable with 
 
 ```
-wget https://nyu.box.com/shared/static/9jvrpcizebihgkrjen64y39y6r590oxc.sh -O queuemonitor.sh
+wget https://git.io/v6KVn -O queuemonitor.sh
 chmod a+x queuemonitor.sh
 ```
 

@@ -50,7 +50,7 @@ The following books were recommended for the terms "frog" and "prince":
 
 ## Run my experiment
 
-On the GENI portal we'll use Jacks to reserve several Exogeni VMs. In a new slice, click "Add Resources", scroll down to the "Choose RSpec" section and select the "URL" option. Copy the [URL](https://raw.githubusercontent.com/rollingcoconut/hadoopExprOnGeni/master/rspec.xml) of the RSpec (http://tinyurl.com/h4eftjj) and enter it into the text box for the URL field, then click "Select".
+On the GENI portal we'll use Jacks to reserve several Exogeni VMs. In a new slice, click "Add Resources", scroll down to the "Choose RSpec" section and select the "URL" option. Copy the [URL](https://raw.githubusercontent.com/rollingcoconut/hadoopExprOnGeni/master/rspec.xml) of the RSpec (https://git.io/vXcEJ) and enter it into the text box for the URL field, then click "Select".
 
 
 It will load the following topology:

@@ -72,7 +72,7 @@ ffund01@node-4:~$ bitcoin-cli -regtest getblockhash 121
 
 ## Run my experiment
 
-Download the following [RSpec](https://nyu.box.com/shared/static/909a0f291t9df8xhnughgdcghdr1carh.xml). In the GENI Portal, load this RSpec in a new slice (click "Add resources", scroll down to "Use RSpec", and choose "From File.")
+Download the following [RSpec](https://gist.githubusercontent.com/ffund/5b5165df52c342b7bd163d3c7ca76855/raw/70f6fb663a86dbe35a1d9bdc262428444e0f3d19/bitcoin.xml). In the GENI Portal, load this RSpec in a new slice (click "Add resources", scroll down to "Use RSpec", and choose "From File.")
 
 This will load the following topology onto your canvas:
 
