@@ -49,14 +49,14 @@ In this experiment, we will see how multiple confirmations are required before a
 
 ## Results
 
-In this experiment, we allow a fork to develop in a Bitcoin network. One side of the network has one has for the last block in the chain:
+In this experiment, we allow a fork to develop in a Bitcoin network. One side of the network has one hash for the last block in the chain:
 
 ```
 ffund01@node-4:~$ bitcoin-cli -regtest getblockhash 121
 5eaf42996bc3062e96f096eee12131f34f1e48c137eb4cfe2e9cf75f5a4826fc
 ```
 
-while the other side of the network has another
+while the other side of the network has another:
 
 ```
 ffund01@node-0:~$ bitcoin-cli -regtest getblockhash 121

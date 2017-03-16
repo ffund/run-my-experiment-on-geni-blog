@@ -217,7 +217,7 @@ Now that the AP is up, Alice, Bob, and Mallory are ready to connect to it. On *e
 
 ```
 apt-get update
-apt-get -y install isc-dhcp-client
+apt-get -y --force-yes install isc-dhcp-client
 modprobe ath9k
 ifconfig wlan0 up
 ```

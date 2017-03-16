@@ -111,9 +111,9 @@ INFO:shinysdr:ShinySDR is ready.
 INFO:shinysdr:Visit http://localhost:8100/nfZ2UMGc6olYz_7bJKq3aQ/
 ```
 
-Visit the URL in your web browser. Tune to 2.48 GHz and adjust the options so that you can see some noise at the bottom of the display:
+Visit the URL using your local Google Chrome web browser. Tune to 2.48 GHz and adjust the options so that you can see some noise at the bottom of the display:
 
-![](/blog/content/images/2016/09/shinysdr-none-1.png)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YT7hchUqN4U" frameborder="0" allowfullscreen></iframe>
 
 Now we'll send some traffic. On one of the transmitters, run
 

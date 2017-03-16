@@ -21,7 +21,7 @@ Slowloris is a type of denial of service attack that operates at Layer 7 (the ap
 
 It achieves this by opening as many connections to the target web server as it can, and holding them open as long as possible by sending a partial request, and adding to it periodically (to keep the connection alive) but never completing it. Affected servers use threads to handle each concurrent connection, and have a limit on the total number of threads. Under slowloris attack, the pool of threads is consumed by the attacker and the service will deny connection attempts from legitimate users.
 
-Slowloris was used in 2009 against Iranian government servers during protests related to the elections.   ideal for attacks on servers in places where there’s a concern about there being enough bandwidth for a brute-force DDoS to succeed, or where there’s concern about the collateral damage to other users on the same network. That’s why Slowloris was used against Iranian servers during the protests around the Iranian elections in 2009.
+Slowloris was used in 2009 against Iranian government servers during protests related to the elections that year.
 
 
 ## Results
