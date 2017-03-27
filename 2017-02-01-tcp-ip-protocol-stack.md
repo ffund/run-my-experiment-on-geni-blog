@@ -12,7 +12,28 @@ It should take about 60 minutes to run this experiment.
 To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
 
 
+## Background
 
+TCP/IP, the protocol stack that is used in communication over the Internet and most other computer networks, has a five-layer architecture. From the bottom up, these layers and their primary responsibilities are:
+
+1. **Physical layer**: responsible for transmitting bits as a physical signal over some medium, e.g. sending electrical signals over a cable, or transmitting an electromagnetic wave  over a wireless link.
+2. **Link layer** (also called the data link layer or network access layer): responsible for transferring data between devices that are on the same network. This includes (local) addressing, arbitrating access to a shared medium, and checking for (and sometimes correcting) errors that occurred during physical transmission.
+3. **Network layer** (also called Internet layer): responsible for transferring data between different networks. This includes (global) addressing and routing.
+4. **Transport layer**: responsible for end-to-end communication. The two most common protocols at this layer are UDP, which provides a basic datagram service with no reliability guarantees, and TCP, which provides flow control, connection establishment, and reliable data delivery.
+5. **Application layer**: defines that protocols that are used by processes on the end hosts. For example: [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol), [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol), [SSH](https://en.wikipedia.org/wiki/Secure_Shell). 
+
+
+![](/blog/content/images/2017/03/tcpip-layers.svg)
+<small><i>Image from Willian Stallings, "Data and Computer Communications"</i></small>
+
+At each layer, addresses or other identifiers are used in that layer's packet header in order to designate a particular networking device, an end host, or a process or service. For example, consider the image above, where Application X on Host A connects to Application X on Host B: 
+
+* Using the interface between the application layer and transport layer (the [socket API](https://en.wikipedia.org/wiki/Network_socket)), Host A will establish a connection to Application X on Host B using Host B's **IP address** (network layer address) and the **TCP port number** (transport layer identifier) that Application X is using. 
+* When packets are received at host B, the transport layer will look at the destination port number in the TCP header to identify which application to  deliver it to. 
+* At the network layer, Host A, Host B, and Router J will determine which link to send packets on according to the destination **IP address** in the packet's IP header. (For example, Router J is connected to two networks; it uses the destination IP address of a packet to determine whether to send it out on Network 1 or Network 2.)
+* The **MAC address** identifies the "local" destination of a packet (i.e. the destination that is on the same network). For example, Host A, which is on Network 1, sends data to Host B through Router J, which is also on Network 1. The destination MAC address in the link layer header of packets from Host A to Host B will be Router J's MAC address.
+
+In this experiment, we will establish a connection like the one in the image above, and examine the addresses and identifiers used at each layer of the protocol stack.
 
 ## Run my experiment
 
