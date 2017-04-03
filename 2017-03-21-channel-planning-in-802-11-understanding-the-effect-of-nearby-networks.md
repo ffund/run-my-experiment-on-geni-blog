@@ -1,6 +1,6 @@
 When neighboring 802.11 networks operate on the same channel, they compete with one another to use the shared medium. In this experiment, you will observe the effect on throughput when neighboring cells operate on the same channel vs. on non-interfering channels.
 
-It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on GENI during a reservation. 
+It should take about 2 hours to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on GENI during a reservation. 
 
 To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on the outdoor testbed at [ORBIT](http://geni.orbit-lab.org) and you must run this experiment during your reserved time.  (You may alternatively use the sb4 testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingsb4onorbit) to the instructions.)
 
