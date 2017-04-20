@@ -1,5 +1,3 @@
-# TCP congestion control in lossy wireless networks
-
 This experiment shows some of the basic issues affecting TCP congestion control in lossy wireless networks. 
 
 It should take about 60-90 minutes to run, but you will need to have [reserved that time](http://witestlab.poly.edu/respond/sites/witest/tutorial/make-a-reservation) in advance. This experiment uses wireless resources (specifically, on the [WITest](http://witestlab.poly.edu/) testbed), and you can only use wireless resources on GENI during a reservation.

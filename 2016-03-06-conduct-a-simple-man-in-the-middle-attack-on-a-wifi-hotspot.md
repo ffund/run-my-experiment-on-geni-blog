@@ -310,6 +310,84 @@ Mallory can then open an FTP or SSH connection to Bob using Alice's credentials.
 
 ## Notes
 
+### Exercise
+
+This experiment highlights the danger of sending data "in the clear" (i.e. unencrypted) over an insecure medium.
+
+Using encryption makes it much more difficult for a malicious attacker to capture credentials send over an insecure medium.
+
+To see how this works, try using SFTP - secure FTP - in place of FTP. Leave Ettercap (and the ARP spoofing) running on the Mallory node, and on Alice, run
+
+```
+sftp alice@192.168.0.4
+```
+
+to connect to Bob using secure FTP. When prompted, log in with the password you set for "alice". 
+
+Look at what appears in the Ettercap window. Are Alice's credentials visible to Mallory?
+
+
+Similarly, compare telnet and SSH, two applications used for remote login.  On Bob, install telnet with
+
+```
+apt-get update
+apt-get install xinetd telnetd
+```
+
+Then, still on Bob, create the telnet configuration file with
+
+```
+nano /etc/xinetd.d/telnet
+```
+
+Paste the following into the file:
+
+```
+# default: on
+# description: telnet server
+service telnet
+{
+disable = no
+flags = REUSE
+socket_type = stream
+wait = no
+user = root
+server = /usr/sbin/in.telnetd
+log_on_failure += USERID
+}
+```
+
+Then hit Ctrl+O and Enter to save the file, and Ctrl+X to exit nano. Finally, restart the service on Bob with
+
+```
+service xinetd restart
+```
+
+Make sure Ettercap and both ARP spoofing processes are still running on Mallory. To attempt a telnet login, on Alice run
+
+```
+telnet 192.168.0.4
+```
+
+then give your username (alice) and password that you set up earlier when prompted.  Look at the Ettercap window - are Alice's credentials captured?
+
+Repeat the remote login with SSH. On Alice, run
+
+```
+ssh alice@192.168.0.4
+```
+
+and give Alice's password when prompted. Look at the Ettercap window - are Alice's credentials captured?
+
+In your submission,
+
+* Show what is captured by Ettercap when Alice uses each of the four applications: FTP, SFTP, telnet, and SSH. (Make sure to indicate which output came from which application.) In the output, **<font 
+style="background-color: yellow">highlight</font>** Alice's username and password wherever they appear. (Note that they may appear one letter at a time, in separate packets, or all together in one packet.)
+* For each of the four applications, use your experiment results to explain whether credentials can be captured by a malicious user when using an insecure medium (like a public WiFi hotspot, or an unsecured WiFi network with no password). 
+* Which file transfer application - FTP or SFTP - is more secure? Which remote login application - telnet or SSH - is more secure?
+
+### Using other testbeds
+
 You can also run this experiment on any group of four nodes on the "grid" testbed on ORBIT. The "grid" testbed is generally in high demand, however.
 
 To use another wireless testbed besides for ORBIT or WITest, you may need to install some software or do some other configuration steps that are already prepared on the `wifi-experiment.ndz` disk image on ORBIT/WITest.
