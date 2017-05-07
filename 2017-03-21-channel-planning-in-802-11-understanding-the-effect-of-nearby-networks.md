@@ -354,6 +354,17 @@ In the [Prepare the testbed](#preparethetestbed) section:
 ```
 sb4.orbit-lab.org
 ```
+*  When you first log in to the "sb4" console, you should [reset sb4's programmable attenuation matrix](http://www.orbit-lab.org/wiki/Hardware/bDomains/cSandboxes/dSB4) to zero attenuation between all pairs of nodes. From the "sb4" console, run
+
+```
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/setAll?att=0"
+
+
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=1&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=2&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=3&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=4&port=1"
+```
 
 * Load the disk image onto node1-3, node1-4, node1-5, node1-6, node1-7, node1-8 on sb4:
 

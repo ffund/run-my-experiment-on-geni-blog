@@ -38,17 +38,19 @@ Using a firewall to limit the number of connections from a single host is more s
 
 ![](/blog/content/images/2016/03/apache_iptables.svg)
 
-Finally, we found that the nginx web server is resistant to slowloris (even without a firewall limiting the number of connections per host) because of its non-blocking approach, which supports a high level of concurrency:
+Finally, we found that the nginx web server is resistant to slowloris (even without a firewall limiting the number of connections per host) because of its non-blocking approach, which supports a higher level of concurrency:
 
 ![](/blog/content/images/2016/03/nginx_no_mitigation.svg)
 
 ## Run my experiment
 
-Create a topology with two nodes connected by a link, like this:
+In the GENI Portal, create a new slice, and load the [RSpec](https://gist.github.com/ffund/b9b69d4a118d009761a7aca664f0324a) from the following URL: [https://git.io/v9ftJ](https://git.io/v9ftJ)
+
+This will load a topology with two nodes connected by a link, like this:
 
 ![](/blog/content/images/2016/03/slowloris.png)
 
-and use the Auto IP tool to assign IP addresses. Reserve these resources on an InstaGENI aggregate.
+Click on "Site 1" and choose an InstaGENI aggregate, then reserve these resources.
 
 When your nodes are ready to log in, SSH into the server node and run 
 
@@ -105,17 +107,22 @@ service available:   NO
 
 means that the DoS attack on the web server was successful.
 
-This test will run for 120 seconds. While this is running, try to access the web page again on the server node by running
+This test will run for 120 seconds. After about half a minute, while the test is still running, try to access the web page again on the server node by running
 
 ```
 lynx http://server
 ```
 
-and verify that it is not responsive. Also, if you run
+and verify that it is not responsive:
+
+![](/blog/content/images/2017/04/slowloris-no.png)
+
+Also, if you run
 
 ```
 netstat -anp | grep :80 | grep ESTABLISHED 
 ```
+
 
 on the server, you will see many TCP connections to port 80 in the ESTABLISHED state, a hallmark of this kind of attack.
 
@@ -144,7 +151,7 @@ Now we'll run the slowloris attack again. On the client, run
 slowhttptest -c 1000 -H -g -o apache_lowrate_client -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
 ```
 
-Wait about 15 seconds and then check the service availability by running lynx again on the server. When the test finishes (after 120 seconds), transfer the "apache\_lowrate\_client.html" file to your laptop with SCP and open it in a browser. Open this file with a web browser. You should see an image similar to the second one in the [Results](#results) section, indicating that even when the attacker has very little available bandwidth, the attack can still be successful.
+Wait about 30 seconds and then check the service availability by running lynx again on the server. When the test finishes (after 120 seconds), transfer the "apache\_lowrate\_client.html" file to your laptop with SCP and open it in a browser. Open this file with a web browser. You should see an image similar to the second one in the [Results](#results) section, indicating that even when the attacker has very little available bandwidth, the attack can still be successful.
 
 
 Remove the rate limiting traffic shaper on the client with
@@ -171,7 +178,7 @@ On the client, run
 slowhttptest -c 1000 -H -g -o apache_iptables -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
 ```
 
-and then run 
+and then, after half a minute, run 
 
 ```
 lynx http://server
@@ -183,11 +190,15 @@ on the server to check the availability of the service. Even when slowhttptest r
 service available:   NO
 ```
 
-we can still load the page in lynx on the server. This is because the service is only unavailable to the malicious user. The firewall does not affect a non-malicious user.
+we can still load the page in lynx on the server:
+
+![](/blog/content/images/2017/04/slowloris-ok.png)
+
+This is because the service is only unavailable to the malicious user. The firewall does not affect a non-malicious user.
 
 Transfer the file "apache\_iptables.html" to your laptop with SCP and open it in a browser. Compare it to the third figure in the [Results](#results) section.
 
-While this mitigation makes a slowloris attack unusable from one host, it still would not protect against a distributed slowloris attack, however. Also, if the number of allowed connections per host is set too low, it might limit connections from clients behind a NAT or a proxy.
+While this mitigation prevents a slowloris attack that is launched from only one host, it still would not protect against a distributed slowloris attack, with many participants each consuming a smaller number of connections. Also, if the number of allowed connections per host is set too low, it might limit connections from clients behind a NAT or a proxy, which share the same IP address.
 
 
 Use
@@ -202,7 +213,7 @@ We are going to try one more way to mitigate this attack: changing the applicati
 
 The Apache web server allocates a worker thread for each connection, allowing a slow or idle connection to block an entire thread. When the total number of worker threads is exhausted, then no new connection are accepted.
 
-In contrast, the nginx web server has a non-blocking design, in which worker threads are not assigned to connections on a one-to-one basis. Instead, a thread will dynamically serve a connection only when there is data to send or receive for that connection. This makes it more resistant to the slowloris attack at Layer 7 (although it may still be possible to launch a low-rate attack that exhaust the total number of connections possible at a lower level.)
+In contrast, the nginx web server has a non-blocking design, in which worker threads are not assigned to connections on a one-to-one basis. Instead, a thread will dynamically serve a connection only when there is data to send or receive for that connection. This makes it more resistant to the slowloris attack at Layer 7 (although it may still be possible to launch a low-rate attack that exhausts the total number of connections possible at a lower level, such as the total number of file descriptors available to the operating system.)
 
 On the server node, stop the Apache server with
 
@@ -224,15 +235,17 @@ Run the attack from the client again, with
 slowhttptest -c 1000 -H -g -o nginx_no_mitigation -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120  
 ```
 
-and on the server, run
+and after 30 seconds, run
 
 ```
 lynx http://server
 ```
 
-where you should see a Welcome to nginx page.
+on the server. Here, you should see a "Welcome to nginx" page:
 
-When the attack finishes, transfer the "nginx\_no\_mitigation.html" file to your laptop with SCP and open it in a browser. While you may see some brief outage, you should find that the service generally remains available (even to the malicious attacker) despite a large number of established connections (as in the fourth figure in the [Results](#results) section.)
+![](/blog/content/images/2017/04/slowloris-nginx.png)
+
+When the attack finishes, transfer the "nginx\_no\_mitigation.html" file to your laptop with SCP and open it in a browser. While you may see some brief outage, you should find that the service generally remains available (even to the malicious attacker) despite a large number of established connections (as in the fourth figure in the [Results](#results) section.) Due to the different in application design, this web server is less vulnerable to the slowloris attack.
 
 Please delete your resources in the GENI Portal when you're done, to free them up for other experimenters!
 

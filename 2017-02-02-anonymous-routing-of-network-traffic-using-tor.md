@@ -46,62 +46,59 @@ In this experiment, we verify that the client's location is known to the server 
 Without using Tor, when accessing the webserver that returns the client's IP address, we see:
 
 ```
-Remote address: 192.168.5.100
+Remote address: 192.168.3.100
 Forwarded for:
 ```
-192.168.5.100 is an IP address assigned to the client, indicating that its location is not protected.
+192.168.3.100 is an IP address assigned to the client, indicating that its location is not protected.
 
 When accessing the same webserver using Tor, we see that it returns the IP address of the exit relay, e.g.
 
 ```
-Remote address: 192.168.2.1
+Remote address: 192.168.12.2
 Forwarded for:
 ```
 indicating that the client's location is unknown to the server.
 
 The following is an example to see that the location and traffic between a client and server can be seen by a person spying on the network, when the Tor network is not used. 
 
-<iframe width="710" height="480" src="https://www.youtube.com/embed/4sOm61x4rAI" frameborder="0" allowfullscreen></iframe>
+<iframe width="710" height="480" src="https://www.youtube.com/embed/FQYir-nN870" frameborder="0" allowfullscreen></iframe>
 
-This next example is a similar experiment to the previous example, but this time we are using the Tor network to send our client's traffic to the server. In this case, depending on the part of the network which we listen to using tcpdump, we can only see certain pieces of information about the client and server's location, and the data being communicated between the two. An important conclusion to arrive upon here is that no one node in the network can see all the information, which makes it difficult for an attacker to see who is communicating with who.
+This next example is a similar experiment to the previous example, but this time we are using the Tor network to send our client's traffic to the server. In this case, depending on the part of the network which we listen to using tcpdump, we can only see certain pieces of information about the client and server's location, and the data being communicated between the two. An important conclusion to arrive upon here is that no one node in the network can see all the information, which makes it difficult for an attacker to link who is communicating with who.
 
-<iframe width="710" height="480" src="https://www.youtube.com/embed/c4Ujb1IimQg" frameborder="0" allowfullscreen></iframe>
+<iframe width="710" height="480" src="https://www.youtube.com/embed/MW2thBcGjw0" frameborder="0" allowfullscreen></iframe>
 
-In this last example, we use a function of Tor called Tor Arm, which is a monitor interface that displays useful information that a Tor relay can see and knows. Using Tor Arm, we monitor which Tor relays are being used to create a circuit in the Tor network to pass traffic as a client downloads a large file from the server. In the beginning we use the curl function to access the web server in order to see which Tor relay is the exit relay that accesses the web server.
+In this last example, we use a function called nload, which allows us to see all of the interfaces used by a node, and whether there is traffic going through that interface. We also use a function of Tor called Tor Arm, which is a monitor interface that displays useful information that a Tor relay can see and knows. In the beginning we use the curl function to access the web server in order to see which Tor relay is the exit relay that accesses the web server. Then Using nload, we monitor which Tor relays are being used to create a circuit in the Tor network to pass traffic as a client downloads a large text file from the server. Lastly, we use Tor Arm to find which specific circuit is the one that we are using.
 
-<iframe width="710" height="480" src="https://www.youtube.com/embed/VWoUo4lUgdg" frameborder="0" allowfullscreen></iframe>
+<iframe width="710" height="480" src="https://www.youtube.com/embed/idtKkaXIVO8" frameborder="0" allowfullscreen></iframe>
 
 ## Run my experiment
 
 First, reserve resources for the experiment. We will use the following topology:
 
-![](/blog/content/images/2017/02/ToyTopology.png)
+![](/blog/content/images/2017/04/basic-tor-topology-1.svg)
 
-In the GENI Portal, create a new slice. Load the RSpec from the following URL: [https://raw.githubusercontent.com/tfukui95/tor-experiment/master/Toy\_Exp\_Using\_Tor\_request\_rspec.xml](https://raw.githubusercontent.com/tfukui95/tor-experiment/master/Toy_Exp_Using_Tor_request_rspec.xml)
-
+In the GENI Portal, create a new slice. Load the RSpec from the following URL: [https://raw.githubusercontent.com/tfukui95/tor-experiment/master/basic-tor-topology.xml](https://raw.githubusercontent.com/tfukui95/tor-experiment/master/basic-tor-topology.xml). 
  
+This topology is modeled after the Electronic Frontier Foundation example above: the client terminal is the user, the webserver is the Site, router-1 is the first ISP on the user side, router-3 is the second ISP on the Site side, and router-2 represents the rest of the Internet. The hacker who has access to the user’s network views the network from the point of view of router-1. The NSA sees the network from the perspective of router-1, router-2, and router-3. The relays and directory server make up the Tor network. By following the EFF example, we will be able to see each player’s view of the network.
+
 After the topology is loaded onto your canvas, click "Site", and choose an InstaGENI site to reserve our resources from. Then press Reserve Resources. When all VMs are green in the slice page, meaning that the whole topology is ready to be used, we will continue on to our next step of installing Tor onto each VM.
 
 ### Installing the Tor Software
 
-To start, we install Tor on all of the nodes *except* the web server using the
-following steps:
+**Do you want to set up the private Tor network quickly? Skip to the [tl;dr version](#tldrversion)**
+
+To start, we install Tor on all of the nodes *except* the web server using the following steps:
 
 ```
-sudo sh -c 'echo "deb http://deb.torproject.org/torproject.org trusty main" >> /etc/apt/sources.list'
-sudo sh -c 'echo "deb-src http://deb.torproject.org/torproject.org trusty main" >> /etc/apt/sources.list'
+sudo sh -c 'echo "deb http://deb.torproject.org/torproject.org $(lsb_release -c -s) main" >> /etc/apt/sources.list'
+sudo sh -c 'echo "deb-src http://deb.torproject.org/torproject.org $(lsb_release -c -s) main" >> /etc/apt/sources.list'
 
 sudo gpg --keyserver keys.gnupg.net --recv 886DDD89
 sudo gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | sudo apt-key add -
 
 sudo apt-get update
-sudo apt-get -y install tor deb.torproject.org-keyring vim curl tor-arm
+sudo apt-get --force-yes install tor deb.torproject.org-keyring vim curl tor-arm
 ```
-
-An important point to note here, is that the code to get the repository from
-Torproject differs depending on the version of Ubuntu that you are using. In my
-case, I am using Ubuntu 14.04. If you are using an older or newer version,
-look online for the correct code for your version.
 
 ### Setting up the Web Server
 
@@ -112,8 +109,7 @@ sudo apt-get update
 sudo apt-get -y install apache2 php5 libapache2-mod-php5
 ```
 
-Then, we will set up a simple PHP script that returns the client's IP addresses
-as the homepage of the web server"
+Then, we will set up a simple PHP script that returns the client's IP addresses as the homepage of the web server
 
 ```
 sudo rm /var/www/html/index.html
@@ -135,6 +131,14 @@ In order to monitor when someone tries to access the webserver, run:
 sudo tail -f /var/log/apache2/access.log
 ```
 
+When the client accesses the webserver, on the webserver terminal we can see the following:
+
+```
+192.168.3.100 - - [28/Apr/2017:19:39:46 -0500] "GET / HTTP/1.1" 200 216 "-" "curl/7.35.0"
+```
+
+which shows that the client accessed the webserver.
+
 ### Setting up the Directory Authority
 
 Directory authorities help Tor clients learn the addresses of relays that make up the Tor network. Specifically, via the Tor documentation [[4](#references)]:
@@ -146,14 +150,10 @@ Directory authorities help Tor clients learn the addresses of relays that make u
 First, stop any currently running Tor process:
 
 ```
-sudo /etc/init.d/tor stop
+sudo pkill -9 tor
 ```
 
-In previous attempts, we had trouble using the DataDirectory, because it was
-owned by the debian-tor user and group. So we are going to run some commands as
-debian-tor.
-
-First, run
+Next, run
 
 ```
 sudo -u debian-tor mkdir /var/lib/tor/keys
@@ -174,8 +174,9 @@ Nov 23 12:27:31.540 [notice] Your Tor server's identity key fingerprint is
 3A32 4849 E290 3315 96BB 6217
 ```
 
-Now we'll create a configuration file for the directory authority. First, get
-the two fingerprints:
+Since the debian package of Tor is owned by the debian-tor user and group. We ran the above commands as debian-tor.
+
+Now we'll create a configuration file for the directory authority. First, get the two fingerprints:
 
 ```
 finger1=$(sudo cat /var/lib/tor/keys/authority_certificate  | grep fingerprint | cut -f 2 -d ' ')
@@ -219,7 +220,7 @@ ControlPort 9051
 Address 192.168.1.4
 DirPort 7000
 # An exit policy that allows exiting to IPv4 LAN
-ExitPolicy accept 192.168.1.0/24:*
+ExitPolicy accept 192.168.0.0/16:*
 
 AuthoritativeDirectory 1
 V3AuthoritativeDirectory 1
@@ -232,8 +233,7 @@ EOL"
 ```
 
 
-Note: See [[5](#references)] for background on writing a multi-line file with variables, and
-[[6](#references)] for background on using cat to write a multi-line file to a protected file.
+Note: See [[5](#references)] for background on writing a multi-line file with variables, and [[6](#references)] for background on using cat to write a multi-line file to a protected file.
 
 Use
 
@@ -243,23 +243,19 @@ sudo cat /etc/tor/torrc
 
 to make sure that the correct variables are written to the config file.
 
-Since the router and client config files also need the directory server's
-fingerprints in them, we'll generate them on the directory server (which
-knows its own fingerprints). We'll download them to the individual router
-and client nodes and customize them later.
+Since the relay and client config files also need the directory server's fingerprints in them, we'll generate them on the directory server (which knows its own fingerprints). We'll download them to the individual relay and client nodes and customize them later.
 
-First, install apache2, in order to write the router config file and store it
-on the web
+First, install apache2, in order to write the relay config file and store it on the web
 
 ```
 sudo apt-get update
 sudo apt-get -y install apache2 php5 libapache2-mod-php5
 ```
 
-Next write the router config file with
+Next write the relay config file with
 
 ```
-sudo bash -c "cat >/var/www/html/router.conf <<EOL
+sudo bash -c "cat >/var/www/html/relay.conf <<EOL
 TestingTorNetwork 1
 DataDirectory /var/lib/tor
 RunAsDaemon 1
@@ -279,19 +275,14 @@ OrPort 5000
 ControlPort 9051
 
 # An exit policy that allows exiting to IPv4 LAN
-ExitPolicy accept 192.168.1.0/24:*
-ExitPolicy accept 192.168.2.0/24:*
-ExitPolicy accept 192.168.3.0/24:*
-ExitPolicy accept 192.168.4.0/24:*
+ExitPolicy accept 192.168.0.0/16:*
 EOL"
 ```
 
-This config file created on the directory authority creates a generic config
-file for all routers, which can then be copied over to a router. The file is
-saved in `/var/www/html/router.conf` and can be seen by
+This config file created on the directory authority creates a generic config file for all relays, which can then be copied over to a relay. The file is saved in `/var/www/html/relay.conf` and can be seen by
 
 ```
-sudo cat /var/www/html/router.conf
+sudo cat /var/www/html/relay.conf
 ```
 
 Then, write the client config file with
@@ -317,13 +308,11 @@ ControlPort 9051
 EOL"
 ```
 
-This config file created on the directory authority creates a generic config
-file for a client. The file is saved in `/var/www/html/client.conf` and can be seen by
+This config file created on the directory authority creates a generic config file for a client. The file is saved in `/var/www/html/client.conf` and can be seen by
 
 ```
 cat /var/www/html/client.conf
 ```
-
 
 Finally, start Tor with
 
@@ -344,10 +333,9 @@ Nov 09 11:03:02.000 [debug] parse_dir_authority_line(): Trusted 100 dirserver
 at 192.168.1.4:7000 (CA36BEB3CDA5028BDD7B1E1F743929A81E26A5AA)
 ```
 
-which is promising - it seems to indicated that we are using our directory
-authority at 192.168.1.4 (the current host).
+which is promising - it seems to indicated that we are using our directory authority at 192.168.1.4 (the current host).
 
-### Setting up a Router
+### Setting up a Relay
 
 First, stop any currently running Tor process:
 
@@ -369,27 +357,25 @@ Nov 23 12:34:00.137 [notice] Your Tor server's identity key fingerprint is
 5FCA 8518 2869 FBFA A7C1 5B4C
 ```
 
-Now, download the generic router config file that we created on the
-directory server:
+Now, download the generic relay config file that we created on the directory server:
 
 ```
-sudo wget -O /etc/tor/torrc http://directoryserver/router.conf
+sudo wget -O /etc/tor/torrc http://directoryserver/relay.conf
 ```
 
-Now, we'll add some extra config settings that are different on each router node: the nickname and the address(es).
+Now, we'll add some extra config settings that are different on each relay node: the nickname and the address.
 
-Add the nickname and address(es) with
+Add the nickname and address with
 
 ```
 HOSTNAME=$(hostname -s)
 echo "Nickname $HOSTNAME" | sudo tee -a /etc/tor/torrc
 ADDRESS=$(hostname -I | tr " " "\n" | grep "192.168")
-for A in $ADDRESS; do
-  echo "Address $A" | sudo tee -a /etc/tor/torrc
-done
+echo "Address $ADDRESS" | sudo tee -a /etc/tor/torrc
 ```
 
-Now, if you look at the contents of the config file on the router:
+Now, if you look at the contents of the config file on the relay:
+
 ```
 sudo cat /etc/tor/torrc
 ```
@@ -397,42 +383,31 @@ sudo cat /etc/tor/torrc
 you should see a couple of lines like
 
 ```
-Nickname router1
-Address 192.168.1.2
+Nickname relay1
+Address 192.168.12.2
 ```
 
 at the end.
 
-Finally, start the Tor service on the router node with
+Finally, start the Tor service on the relay node with
 
 ```
 sudo /etc/init.d/tor restart
 ```
 
-On the directory server, check if it has been made aware of the newly
-added router by searching for its nickname in the log file. For example,
-if the router's nickname is `relay1`, check that it has been recognized
-on the directory server with
+We can check to see if the routers are beginning to be made aware of each other on the private Tor network by accessing the info.log file which we defined earlier in the torrc configuration file of each node. If each of the routers is to be made aware of each other, a TLS handshake must take place. For example if we want to check whether relay3 has recognized relay2 and has performed a handshake, on the relay3 terminal we run:
 
 ```
-sudo cat /var/log/tor/debug.log | grep "relay1"
+sudo cat /var/log/tor/info.log | grep "192.168.12.2"
+We should see some output like:
+Apr 18 13:25:12.000 [info] channel_tls_process_versions_cell(): Negotiated version 4 with 192.168.12.2:5000; Sending cells: CERTS
+Apr 18 13:25:12.000 [info] channel_tls_process_certs_cell(): Got some good certificates from 192.168.12.2:5000: Authenticated it.
+Apr 18 13:25:12.000 [info] channel_tls_process_auth_challenge_cell(): Got an AUTH_CHALLENGE cell from 192.168.12.2:5000: Sending authentication
+Apr 18 13:25:12.000 [info] channel_tls_process_netinfo_cell(): Got good NETINFO cell from 192.168.12.2:5000; OR connection is now open, using protocol version 4. Its ID digest is 4EDC07C69A02236F13A8C6E0261F23B618D5ED19. Our address is apparently 192.168.13.2.
 ```
 
-You should see some output like
+We can see that first the version is negotiated, and then relay3 sends a CERTS cell. After receiving a CERTS cell and AUTH_CHALLENGE from relay2, relay3 authenticates, and then both send a NETINFO cell, confirming their location and timestamp. We can see that the following handshake that they have used to establish their connection is the In-Protocol handshake.
 
-```
-Nov 23 13:06:29.000 [debug] router_parse_list_from_string(): Read router
-'$D2EB9948027BF5795FCA85182869FBFAA7C15B4C~router1 at 192.168.1.2', purpose 'general'
-Nov 23 13:06:29.000 [debug] dirserv_single_reachability_test(): Testing reachability
-of router1 at 192.168.1.2:5000.
-Nov 23 13:06:29.000 [info] dirserv_add_descriptor(): Added descriptor from 'router1'
-(source: 192.168.1.2): Descriptor accepted.
-Nov 23 13:06:29.000 [info] dirserv_orconn_tls_done(): Found router
-$D2EB9948027BF5795FCA85182869FBFAA7C15B4C~router1 at 192.168.1.2 to be reachable
-at 192.168.1.2:5000. Yay.
-```
-
-Repeat all of the above commands for all of the router nodes that you create.
 
 ### Setting up a Client
 
@@ -456,8 +431,7 @@ Nov 23 13:25:30.877 [notice] Your Tor server's identity key fingerprint is
 E812 913A 9B19 62BD 84BA BFFF
 ```
 
-Download the client config file (that we created on the directory
-server) to the default Tor config file location with:
+Download the client config file (that we created on the directory server) to the default Tor config file location with:
 
 ```
 sudo wget -O /etc/tor/torrc http://directoryserver/client.conf
@@ -469,9 +443,7 @@ Add the nickname and address(es) with
 HOSTNAME=$(hostname -s)
 echo "Nickname $HOSTNAME" | sudo tee -a /etc/tor/torrc
 ADDRESS=$(hostname -I | tr " " "\n" | grep "192.168")
-for A in $ADDRESS; do
-  echo "Address $A" | sudo tee -a /etc/tor/torrc
-done
+echo "Address $ADDRESS" | sudo tee -a /etc/tor/torrc
 ```
 
 Finally, start the Tor service on the client node with
@@ -482,51 +454,43 @@ sudo /etc/init.d/tor restart
 
 ## Testing the Private Tor Network
 
-In order to clearly see the benefits of using the Tor network, we must first
-run a test to see what information can be seen by a hacker when not using Tor.
+In order to clearly see the benefits of using the Tor network, we must first run a test to see what information can be seen by a hacker when not using Tor.
 
 ### Testing the Network Without Using Tor
 
-In order to access the webserver without going through the Tor network, we
-simply run
+In order to access the webserver without going through the Tor network, we simply run
 
 ```
 curl http://webserver/
 ```
 
-and verify that the server returns the client's IP address. You should see
-something like
+and verify that the server returns the client's IP address. You should see something like
 
 ```
-Remote address: 192.168.5.100
+Remote address: 192.168.3.100
 Forwarded for:
 ```
 
-From this we can see how that the webserver is telling us that the VM that
-accessed the webserver is the client, which shows that the client and webserver
-are directly communicating with each other.
+From this we can see how that the webserver is telling us that the VM that accessed the webserver is the client, which shows that the client and webserver are directly communicating with each other.
 
-Next we will be using Tcpdump to watch the traffic on the network. We want
-Tcpdump to both display the output to screen while also saving the output to a
-file. The following is the format
+Next we will be using Tcpdump to watch the traffic on the network. We want Tcpdump to both display the output to screen while also saving the output to a file. The following is the format
 
 ```
-sudo tcpdump -s 1514 -i any 'port <port_num>' -U -w - | tee <name_file>.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port <port_num>' -U -w - | tee <name_file>.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
 where "port\_num" is the specific port number to access, and "name\_file" is the name that you want to save the file as.
 
-Since we are not using the Tor network, we will be listening on port 80 which
-is the most common HTTP port. Have two client terminals opened, and on one, start listening through port 80 by running
+Since we are not using the Tor network, we will be listening on port 80 which is the most common HTTP port. Have two client terminals opened, and on one, start listening through port 80 by running
 
 ```
-sudo tcpdump -s 1514 -i any 'port 80' -U -w - | tee clientnotor.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee clientnotor.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
 On the web server terminal also listen through port 80 by running
 
 ```
-sudo tcpdump -s 1514 -i any 'port 80' -U -w - | tee servernotor.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee servernotor.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
 On the other client terminal, access the webserver by running
@@ -538,13 +502,11 @@ curl http://webserver/
 On both terminals that are listening on the network, we should see something like
 
 ```
-IP 192.168.5.100.38826 > 192.168.5.200.80
-IP 192.168.5.200.80 > 192.168.5.100.38826
+IP 192.168.3.100.38826 > 192.168.2.200.80
+IP 192.168.2.200.80 > 192.168.3.100.38826
 ```
 
-which shows how we can see that the client and webserver are communicating
-directly with each other. On the right-hand side of the output we should see
-something like
+which shows how we can see that the client and webserver are communicating directly with each other. On the right-hand side of the output we should see something like
 
 ```
 MGET./.HTTPS/1.1..User-Agent:.curl/7.35.0..Host:.webserver..Accept:. */*
@@ -553,10 +515,10 @@ MGET./.HTTPS/1.1..User-Agent:.curl/7.35.0..Host:.webserver..Accept:. */*
 which is a request to access the webserver, and something like
 
 ```
-Content-Length:.47..Content-Type:.text/html....Remote.address:.192.168.5.100.Forwarded.for:...
+Content-Length:.47..Content-Type:.text/html....Remote.address:.192.168.3.100.Forwarded.for:...
 ```
 
-which is the output of the curl command that we ran earlier. This shows how we can see exactly what traffic they are passing to each other. We can conclude how communicating only through HTTP allows a person spying on this network to see who is communicating with who, and what specifically is being communicated. This form is communication is very risky and prone to getting your information stolen.
+which is the output of the curl command that we ran earlier. This shows how we can see exactly what traffic they are passing to each other. If any other node in between the client and webserver, for example router-1, listens on port 80, they can also see the same traffic. We can conclude how communicating only through HTTP allows a person spying on this network to see who is communicating with who, and what specifically is being communicated. This form is communication is very risky and prone to getting your information stolen.
 
 ### Testing the Network Using Tor
 
@@ -571,13 +533,11 @@ curl -x socks5://127.0.0.1:9050/ http://webserver/
 and verify that when using the Tor network (through the SOCKS proxy), the server does not know the client's IP address; it returns the IP address of the exit relay. You should see something like
 
 ```
-Remote address: 192.168.2.1
+Remote address: 192.168.11.2
 Forwarded for:
 ```
 
-Clearly the returned address is not the client's IP address, but the IP
-address of a Tor relay that we set up. This relay is the exit relay of the
-circuit that is being used.
+Clearly the returned address is not the client's IP address, but the IP address of a Tor relay that we set up. This relay is the exit relay of the circuit that is being used.
 
 We can see who and when someone accesses the webserver by running
 
@@ -586,129 +546,111 @@ sudo su
 tail -f /var/log/apache2/access.log
 ```
 
-and then running the curl command again.
+and then running the curl command again. We should see an output like the following:
 
-Our next step is to figure out which Tor circuit is being used to access the
-webserver. This can be done using Tor Arm (anonymizing relay monitor), a program
-which serves as a terminal status monitor of Tor [[7](#references)]. Arm provides useful
-statistics such as bandwidth, cpu, and memory usage, as well as known
-connections, and the Tor configuration file.
+```
+192.168.3.100 - - [28/Apr/2017:19:39:46 -0500] "GET / HTTP/1.1" 200 216 "-" "curl/7.35.0"
+```
 
-First we run Arm on each of the Tor relays including the client and the directory
-server.
+Our next step is to figure out which Tor circuit is being used to access the webserver. This can be done using Tor Arm (anonymizing relay monitor), a program which serves as a terminal status monitor of Tor [[7](#references)]. Arm provides useful statistics such as bandwidth, cpu, and memory usage, as well as known connections, and the Tor configuration file. Another program which we will use is nload, which allows us to see whenever there is traffic going through a specific interface.
+
+First on router-2, we install nload, then start running it
+
+```
+sudo apt-get update
+sudo apt-get install nload
+nload
+``` 
+
+We install nload on router-2 because router-2 is connected with all of the Tor relays, therefore we can identify which specific Tor relays are being used by observing the traffic that router-2 can see.
+
+Next we will generate a large text file on the webserver. On the webserver run
+
+```
+sudo su
+base64 /dev/urandom | head -c 10000000 > /var/www/html/file.txt
+```
+
+Now from the client terminal we will download the large text file from the webserver
+
+```
+curl -x socks5://127.0.0.1:9050/ -s http://webserver/file.txt > /dev/null
+```
+
+There will be no output on the screen for the client as it is downloading. However on router-2 which is running nload, we should see something similar to the following on some of the interfaces as we flip through each interface:
+
+```
+.||..|||||....|||||    Max: 9.28 MBit/s
+.###################|  Curr: 0.00 Bit/s
+```
+
+This signifies that the interface is being used. To figure out which interface correlates to which relay in the Tor network, we look at the IP address of the interface:
+
+* 192.168.11.1 -> relay1
+* 192.168.12.1 -> relay2
+* 192.168.13.1 -> relay3
+* 192.168.1.1 -> directoryserver
+* 192.168.15.1 -> relay5
+* 192.168.16.1 -> relay6
+
+The other interfaces can be ignored, such as the one for 192.168.10.2, which is the interface for router-1 or router-3. The three relays in which you see that there is traffic going through are the relays being used in the Tor network to access the website and through which the file is being downloaded. In order to see which circuit specifically is being used, we use Tor Arm. Run Arm on the client:
 
 ```
 sudo -u debian-tor arm
 ```
 
-We can see a running display of bandwidth, cpu, and memory usage. On the client's
-Arm window, if we flip to the second page we can see the Tor circuits that are
-available to pass traffic. In order to figure out which circuit is being used,
-we need to pass traffic through the network and observe which Tor relays are
-also passing that same traffic. To do this, we will generate a large file on the
-webserver, to be downloaded by the client to allow enough time for us to observe
-each relay's Arm window to see the passing traffic.
-
-Now we will generate a large file from the webserver. On the webserver run
-
-```
-sudo truncate -s 2G /var/www/html/large
-```
-
-Now from the client terminal we will download a large file from the webserver
-
-```
-curl -x socks5://127.0.0.1:9050/ -s http://webserver/large > /dev/null
-```
-
-There will be no output on the screen for the client as it is downloading.
-However on the other client terminal you should observe that the client is
-downloading a file. Other than the Arm window of the client, you should notice a
-similar pattern in three other relay terminals. These three relays are the
-relays being used in the Tor network to access the website and through which
-the file is being downloaded. In order to see which circuit specifically is
-being used, move to the second page of the Arm window of the client to see a
-list of connections that the client knows. Since we found out which relay is
-serving as the exit node before, we should be able to see the circuit that lists
-that information. Make sure that the other two relays are also listed as the
-guard and middle relays. This circuit is the one that is being used to pass
-the client's traffic to the webserver, and vice-versa.
-
+We can see a running display of bandwidth, cpu, and memory usage. On the client's Arm window, if we flip to the second page we can see the Tor circuits that are available to pass traffic. Since we found out which relay is serving as the exit node before, we should be able to see the circuit that lists that information. Make sure that the other two relays are also listed as the guard and middle relays. This circuit is the one that is being used to pass the client's traffic to the webserver, and vice-versa.
 
 ### Using Tcpdump to Watch Traffic
 
-We will again be using tcpdump to listen to the network at different locations.
-We will require three terminals for the clients for this part. On one, run
+We will again be using tcpdump to listen to the network at different locations. We will require two terminals for the clients for this part. On one, run
 
 ```
 sudo tcpdump -s 1514 -i any 'port 9050' -U -w - | tee client9050.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
-to watch the traffic that is going through the SOCKS proxy port 9050, and then
-save what it sees in a pcap file called client9050.pcap (see [[8](#references)]). The SOCKS proxy is the
-proxy that is used for the client and the onion proxy to communicate with each
-other. This communication is a loop-back interface, in other words the
-communication occurs in the local ethernet. On another client terminal run
+to watch the traffic that is going through the SOCKS proxy port 9050, and then save what it sees in a pcap file called client9050.pcap (see [[8](#references)]). The SOCKS proxy is the proxy that is used for the client and the onion proxy to communicate with each other. This communication is a loop-back interface, in other words the communication occurs in the local Ethernet. On router-1 run
 
 ```
-sudo tcpdump -s 1514 -i any 'port 5000' -U -w - | tee client5000.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 5000' -U -w - | tee ISPone5000.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
-to watch the traffic through port 5000, which is the port to listen on the Tor
-network. This would mean that we would be listening on any traffic that is
-being transferred from the client to the Tor network. Specifically, this
-communication would be between the client and the entry relay that is being
-used when the traffic enters the Tor network.
+to watch the traffic through port 5000, which is the port to listen on the Tor network. This would mean that we would be listening on any traffic that is being transferred from the client to the Tor network. Specifically, this communication would be between the client and the entry relay that is being used when the traffic enters the Tor network.
 
 Next on each relay that is being used in the circuit, run
 
 ```
-sudo tcpdump -s 1514 -i any 'port 5000' -U -w - | tee $(hostname -s).pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 5000' -U -w - | tee $(hostname -s).pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
-where **$(hostname -s)** will be converted to the name of the specific relay
-that you are working with. For example, if using tcpdump on relay1, the file
-that tcpdump will write to will be relay1.pcap. This tcpdump function will
-watch the traffic that is going through the OR port 5000, and then save what it
-sees in a pcap file.
+where **$(hostname -s)** will be converted to the name of the specific relay that you are working with. For example, if using tcpdump on relay1, the file that tcpdump will write to will be relay1.pcap. This tcpdump function will
+watch the traffic that is going through the OR port 5000, and then save what it sees in a pcap file.
 
-We must perform one extra step for the exit relay, and that is to open another
-terminal and have the relay listen on port 80, which is the most commonly used
-port for HTTP. On the new terminal run
+On router-3, we listen on port 80, which is the most commonly used port for HTTP. Listening on port 80 at router-3 represents the traffic after having going through the Tor network, and before reaching the webserver. We run
 
 ```
-sudo tcpdump -s 1514 -i any 'port 80' -U -w - | tee exitrelay.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee ISPtwo80.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
 to start listening on the network through port 80.
 
-Lastly we must also set up the web server to have it listen for traffic as well.
-On the web server terminal run
+Lastly we must also set up the web server to have it listen for traffic as well. On the web server terminal run
 
 ```
-sudo tcpdump -s 1514 -i any 'port 80' -U -w - | tee webserver.pcap | tcpdump -nnxxXSs 1514 -r -
+sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee webserver.pcap | tcpdump -nnxxXSs 1514 -r -
 ```
 
 to start listening for traffic on port 80.
 
-Now at this point we should have seven terminals listening on a network. These
-terminals are the two client terminals, terminals for the three ORs being used
-in the circuit, an extra exit relay terminal, and the web server terminal.
+Now at this point we should have seven terminals listening on a network. These terminals are the client, router-1, three ORs being used in the circuit, router-3 terminal, and the web server.
 
-Next on the third client terminal, we run
+Next on the second client terminal, we run
 
 ```
-curl -x socks5://127.0.0.1:9050/ http://webserver/
+curl -x socks5://127.0.0.1:9050/ -s http://webserver/file.txt > / dev/null
 ```
 
-to access the webserver. Since we are using the Tor network to access the site,
-the three ORs must have seen some kind of traffic passing through it. Now let
-us take a look at what the client and each OR saw. Stop the tcpdump process
-with Ctrl^C. When we stop tcpdump, a file is created with the traffic that was
-seen passing through. If you want to access the saved file to see the traffic
-on Wireshark's interface, follow the steps in the following section. Otherwise,
-as we listen on the network, the traffic that we can see will be outputted on
-the display of each terminal.
+to download the large text file on the webserver. Since we are using the Tor network to access the site, the three ORs must have seen some kind of traffic passing through it. Now let us take a look at what the client and each OR saw. Stop the tcpdump process with Ctrl^C. When we stop tcpdump, a file is created with the traffic that was seen passing through. If you want to access the saved file to see the traffic on Wireshark's interface, follow the steps in the section about setting up Wireshark. Otherwise, as we listen on the network, the traffic that we can see will be outputted on the display of each terminal.
 
 ### Summary of Experiment
 
@@ -723,6 +665,52 @@ client address is no longer known.
 * The nodes which can see the unencrypted packet data are the nodes at the beginning and the end of the circuit. In order words, the nodes that are inside the Tor network cannot see the packet contents, because the information is encrypted while traveling inside the Tor network, and the ends of the circuit cannot decrypt Tor encryption so the information must be unencrypted at the ends.
 
 One of the most important conclusions to arrive upon from this experiment is that when using the Tor network, there is no one node that knows the whole mapping of the circuit. Therefore even if one node, say for example one of the Tor relays gets taken control over, the relay only knows who gave it the packet and who it needs to send it to, and nothing else. As long as no too many nodes get taken over, anonymity will definitely stay intact. This is the power of Tor, in being able to cloak client and web server communication as well as their locations and actual packet contents while the packet traverses through the Tor network.
+
+## tl;dr version
+
+These instructions will show you how to save the script file from my [Github](https://github.com/tfukui95/tor-experiment) for each of the nodes, to quickly set up the Tor network. 
+
+The order in which the VMs are set up is very important. Making sure that the directory server is set up first before any of the other nodes is vital for the private Tor network to be set up properly, as the Tor configuration files for the rest of the nodes are first created in the directory server. Once the directory server is set up, the order of setup of the other VMs is flexible. 
+
+To setup the directory server, go to the directory server VM and run
+
+```
+wget https://raw.githubusercontent.com/tfukui95/tor-experiment/master/wfp-directoryserver.sh
+bash wfp-directoryserver.sh
+```
+You will have to enter a password when prompted, then hit Enter, re-enter the password, and hit Enter again to finish the setup:
+
+```
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+```
+
+After that is finished, let us setup the webserver, relays, and client VMs. On the webserver run
+
+```
+wget https://raw.githubusercontent.com/tfukui95/tor-experiment/master/wfp-webserver.sh
+bash wfp-webserver.sh
+```
+
+On each of the relays run
+
+```
+wget https://raw.githubusercontent.com/tfukui95/tor-experiment/master/wfp-router.sh
+bash wfp-router.sh
+```
+
+Lastly on the client VM run
+
+```
+wget https://raw.githubusercontent.com/tfukui95/tor-experiment/master/wfp-client.sh
+bash wfp-client.sh
+```
+
+Now that all the VMs are setup, reconfirm that the private Tor network is up and running by using Tor Arm on each of the nodes:
+
+```
+sudo -u debian-tor arm
+```
 
 ## Notes
 
@@ -745,18 +733,13 @@ sudo -u debian-tor arm
 Use the left and right arrow keys to switch between different screens.
 Use `q` to quit.
 
-There are other methods in which we can see the information that is being
-passed along the circuit of the Tor network. However these methods require
-additional installations of programs, and will be listed in this section as an
+There are other methods in which we can see the information that is being passed along the circuit of the Tor network. However these methods require additional installations of programs, and will be listed in this section as an
 additional resource.
 
 One such method to get more information about circuits available and about which exit relay is used for each connection, is to use a couple of Python utility
 scripts.
 
-Another method is an addition to tcpdump, which allows for a better and more organized window to analyze the packets that are being passed along the Tor network. This method requires Wireshark and winSCP. Wireshark is a software that can read in a file written by tcpdump, and displays the traffic very neatly to
-allow better observation of the data. WinSCP is a program for Windows users,
-that is going to be used to access the tcpdump files that are saved on the VMs,
-and to copy it to our local Desktop, so that we can open the file with Wireshark.
+Another method is an addition to tcpdump, which allows for a better and more organized window to analyze the packets that are being passed along the Tor network. This method requires Wireshark. Wireshark is a software that can read in a file written by tcpdump, and displays the traffic very neatly to allow better observation of the data.
 
 ### Using Python Utility Scripts
 
@@ -781,8 +764,7 @@ To see what circuits your Tor client is currently aware of, run
 sudo python list-circuits.py
 ```
 
-To see what exit relay is associated with an outgoing connection, you'll
-need two terminals open to the client node. On one, run
+To see what exit relay is associated with an outgoing connection, you'll need two terminals open to the client node. On one, run
 
 ```
 sudo python exit-relay.py
@@ -800,29 +782,23 @@ and in the first terminal, look for a message like
 Exit relay for our connection to 192.168.2.1:80
   address: 192.168.1.3:5000
   fingerprint: B1A2C989985CD3C95C0D6C17B0A64A38007F90FB
-  nickname: router3
+  nickname: relay3
   locale: ??
 ```
 
-### Setting up Wireshark and WinSCP
+### Setting up Wireshark
 
-Wireshark can be downloaded from the company's [homepage](https://www.wireshark.org/).
-Besides downloading and installing the software, there is no often configuration
+Wireshark can be downloaded from the company's [homepage](https://www.wireshark.org/). Besides downloading and installing the software, there is no often configuration
 necessary.
 
-WinSCP can also be downloaded from the company's [homepage](https://winscp.net/eng/download.php).
-After installation, we open the application, and immediately a login window
-comes up. To login to a specific VM, we must have certain information available,
-which can be found on GENI, in the Details page of your slice. Choose **SCP** for
-File Protocol. The Host name is the information after the @ symbol used for
-logging into each VM, followed by the port number. Your username is the same as
-the username before the @ symbol. For the password, we must use our ssh key as
-an authentication method. Click "Advanced", followed by "Authentication" under
-SSH. Under Authentication Parameters, click Private Key File, and browse to
-your location of your ssh key. Once you add the key, you will be asked to convert
-your key to PuTTY format because winSCP only supports PuTTY. Go ahead and convert
-the key, and now you can save your login info of your VM, to allow faster login
-the next time.
+After we have ran tcpdump on all of our required nodes and created the pcap files, we can use SCP (Secure Copy Protocol) to save all of our files from our remote Linux terminal to our local machine. We go to our GENI slice page, and click Details to get more information of our client VM. We then open up a local terminal and go to any folder to save our pcap files to. The SCP command for saving the image to our local machine is the following:
+
+```
+scp -P <port_number> <user>@<site_address>:~/*.pcap . 
+```
+
+Where *.pcap is a wildcard to indicate all of the pcap files that we have saved on our client terminal. After having saved our pcap files to our local machine, we can open them up on Wireshark to see the traffic captures.
+
 
 ## References
 

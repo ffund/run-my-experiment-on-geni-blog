@@ -22,8 +22,6 @@ A spectrum challenge can be a fun and exciting way to teach wireless communicati
 
 If you just want to run the spectrum challenge, you can skip to [Run the Experiment](#runtheexperiment), but if you're an educator looking to do something similar, I share some experiences related to using this in a classroom setting in my [GrCon '16 presentation](#appendixbgrcon16presentation).
 
-
-
  
 ## Run the experiment
 
@@ -66,37 +64,23 @@ omf tell -a on -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.wite
 
 then wait a few minutes for them to boot up.
 
-### "Hello, world"
+### Monitor spectrum usage
 
-The "Hello, world" of the spectrum challenge involves sending data between the radio pairs on the testbed.
+You can use the [ShinySDR](https://github.com/kpreid/shinysdr/) interface to monitor spectrum usage from a browser window. We will set up port forwarding between the monitor node in the topology and your own laptop, so that you can watch the live waterfall plot in a local browser window.
 
-Open six terminals, and log in to the WITest console in five of them:
+Open a terminal, and run 
 
-```
-ssh GENI-WIRELESS-USER@witestlab.poly.edu
-```
+<pre>
+ssh -L 8100:node22:8100 -L 8101:node22:8101 <b>GENI-WIRELESS-USERNAME</b>@witestlab.poly.edu
+</pre>
 
-where GENI-WIRELESS-USER is your GENI wireless username. (Typically it starts with "geni-".) You may also have to specify the location of your key for login.
+(using your own GENI wireless username - typically it starts with "geni-".) You may also have to specify the location of your key for login.
 
-Then, from the WITest console, log in to each of the five nodes in the challenge configuration:
+Then, from the WITest console, SSH into node22 as the root user:
 
 ```
 ssh root@node22
-ssh root@node16
-ssh root@node19
-ssh root@node17
-ssh root@node18
 ```
-
-In the sixth terminal, from your _local_ shell, you'll open a couple of tunnels to help you see the visualization:
-
-```
-ssh -L 8100:node22:8100 -L 8101:node22:8101 GENI-WIRELESS-USERNAME@witestlab.poly.edu
-```
-(again, using your own GENI wireless username.)
-
-![](/blog/content/images/2016/09/gr-login-config.png)
-
 
 On node22, run
 
@@ -115,50 +99,30 @@ Visit the URL using your local Google Chrome web browser. Tune to 2.48 GHz and a
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/YT7hchUqN4U" frameborder="0" allowfullscreen></iframe>
 
-Now we'll send some traffic. On one of the transmitters, run
-
-```
-tournament/benchmark_tx.py -f 2.48G -r 1e6 --tx-amplitude=0.5 -M 100 -m gmsk
-```
-
-and on one of the receivers, run
-
-```
-tournament/benchmark_rx.py -f 2.48G -r 1e6 -m gmsk
-```
-
-On the ShinySDR web interface, you can monitor the output of the transmitter. You can switch back and forth between the "RX2" and "TX/RX" inputs to see change the view from the output of one transmitter, to the output of the other (although there is some leakage between the two).
+You should be able to use this interface to monitor the energy transmitted from both transmitter nodes in the topology. You can toggle between the TX/RX and RX2 sources to switch between the two transmitter nodes (note that there will be some leakage between them).
 
 ### Run a match
 
 To run a tournament "match" between two designs, we will use OMF, a tool that helps us execute carefully timed commands on testbed nodes.
 
-Running a "match" is slightly different from running the benchmark scripts directly from the terminal:
+When you run a "match", 
 
 * The transmitter nodes get packets to send from a "packet source", located at 10.0.0.200:50000
 * The receiver nodes need to deliver packets they receive to a "packet sink", located at 10.0.0.200:50001
 * The score of a radio pair is equal to the number of packets provided by the packet source to its transmitter, and delivered to the packet sink by its receiver.
 
-The Python source code for each radio pair should be saved in a Git repository. When you run a match, you can specify both the HTTPS URL of the repository and the branch, for each radio pair. You also won't have an opportunity to specify command line arguments, so they should be hardcoded. The match execution script will run
+The Python source code for each radio pair should be saved in a Git repository. When you run a match, you can specify both the HTTPS URL of the repository and the branch, for each radio pair. 
 
-```
-benchmark_tx.py --server --freq 2480e6
-```
-
-and 
-
-```
-benchmark_rx.py --server --freq 2480e6
-```
-where the `--server` flag indicates that packets should be sourced from and delivered to the server.
-
-To run the match script with a simple on/off transmitter on both radio pairs, run
+For your convenience, several sample radios are provided for you to try out. To run the match script with a simple on/off transmitter on both radio pairs ("onoff" branch), run:
 
 ```
 omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
 ```
 
+
 While the match is running, you can see the output of each transmitter with ShinySDR. (You can toggle between the TX/RX and RX2 inputs to see output from each of the radio pairs.)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8UFgZopgA7U" frameborder="0" allowfullscreen></iframe>
 
 At the end of the experiment, you will see the "score" (number of packets delivered) for each radio pair, e.g.:
 
@@ -175,9 +139,83 @@ At the end of the experiment, you will see the "score" (number of packets delive
   ************************************************
 ```
 
-### Design your own
+Alternatively, you can try a frequency hopping transmitter than randomly hops between channels (the receiver is static, and traffic is only delivered when the transmitter is on the same channel as the receiver). Here is the "hopping" branch against the "onoff" branch:
 
-Fork the [spectrum-challenge](https://bitbucket.org/ffund/spectrum-challenge) repository, modify the benchmark transmitter and receiver, and supply your own Git URL to the "match script" to try your own design.
+```
+omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 hopping --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
+```
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4rZE4i2lz1Y" frameborder="0" allowfullscreen></iframe>
+
+There is also a static transmitter ("sample" branch). Here, you can see the on-off transmitter against the static transmitter:
+
+```
+omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 sample
+```
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/FW8flw8Ri6I" frameborder="0" allowfullscreen></iframe>
+
+### Developing your own design
+
+The "Hello, world" of the spectrum challenge involves sending data between the radio pairs on the testbed.
+
+Open four terminals, and log in to the WITest console:
+
+<pre>
+ssh <b>GENI-WIRELESS-USER</b>@witestlab.poly.edu
+</pre>
+
+where GENI-WIRELESS-USER is your GENI wireless username. (Typically it starts with "geni-".) You may also have to specify the location of your key for login.
+
+Then, from the WITest console, log in to each of the five nodes in the challenge configuration:
+
+```
+ssh root@node16
+ssh root@node19
+ssh root@node17
+ssh root@node18
+```
+
+Now we'll send some traffic. On one of the transmitters, run
+
+```
+tournament/benchmark_tx.py -f 2.48G -r 1e6 --tx-amplitude=0.5 -M 100 -m gmsk
+```
+
+and on one of the receivers, run
+
+```
+tournament/benchmark_rx.py -f 2.48G -r 1e6 -m gmsk
+```
+
+On the ShinySDR web interface, you can monitor the output of the transmitter. You can switch back and forth between the "TX/RX" and "RX2" inputs to see change the view from the output of one transmitter, to the output of the other (although there is some leakage between the two). (The output of TX1 will appear on the "TX/RX" input, and the output of TX2 will appear on the "RX2" input.)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1S4KHYLbATs" frameborder="0" allowfullscreen></iframe>
+
+To work on your own design, fork the [spectrum-challenge](https://bitbucket.org/ffund/spectrum-challenge) repository, and clone a copy on each of the four nodes (two receivers and two transmitters):
+
+<pre>
+git clone <b>https://bitbucket.org/ffund/spectrum-challenge</b> challenge
+</pre>
+
+(substituting your own repository URL in the command above). Then, you can modify the benchmark transmitter and receiver code inside the "challenge" directory.
+
+To test your design, run
+
+```
+challenge/benchmark_rx.py -f 2.48G
+```
+
+on the receivers, and
+
+
+```
+challenge/benchmark_tx.py -f 2.48G
+```
+
+on the transmitters. (Any other arguments should be hard-coded in your script.)
+
+When you're ready, push your changes to your Git repository. Then you can run the "match script" as described in [Run a Match](#runamatch), supplying your own Git URL and branch name for one or both of the radio pairs, to try your own design.
 
 ## Appendix A: Setting up accounts for classroom use
 
@@ -198,3 +236,68 @@ Now, your students should be able to SSH into witestlab.poly.edu (or into any of
 ## Appendix B: GrCon '16 Presentation
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/feWPAnkM08Q" frameborder="0" allowfullscreen></iframe>
+
+
+
+## Appendix C: Adding an RX probe to a TX application
+
+The USRP N210 devices we are using have independent DSP chains for receiving and transmitting. Within a single GNU Radio program, we can use both the RX and TX chains.
+
+We can use this to implement a radio pair with spectrum agility. On the transmitter, you can use the TX chain normally, and use the RX chain to detect the presence of other transmitters and change bands if needed.
+
+To add a simple receiver to your benchmark_tx.py, you'll need to make a few changes.
+
+First, you'll need to import classes and methods used by the receiver. Near the top of your script, just under the other import statements, add these imports:
+
+```python
+from gnuradio import uhd
+from gnuradio import analog
+```
+
+Then, inside the initialization function for your top block, add a probe that returns the average magnitude squared:
+
+```python
+alpha = 0.001
+thresh = 30
+self.probe = analog.probe_avg_mag_sqrd_c(thresh,alpha)
+```
+
+You can find the documentation for the probe block [here](https://gnuradio.org/doc/doxygen/classgr_1_1analog_1_1probe__avg__mag__sqrd__c.html).
+
+Next, add a UHD receiver source block (also inside the top block init function):
+
+```python
+self.source = uhd.usrp_source(
+            ",".join(("", "")),
+            uhd.stream_args(
+            cpu_format="fc32",
+            channels=range(1),
+            ),
+)
+self.source.set_samp_rate(samp_rate)
+self.source.set_center_freq(uhd.tune_request(freq, lo_offset))
+self.source.set_gain(gain)
+```
+
+using appropriate values for samp_rate, freq, lo_offset, and gain. You can find the documentation for the UHD blocks [here](https://gnuradio.org/doc/doxygen/page_uhd.html).
+
+Finally, just underneath that, connect your UHD source to your probe. Use
+
+```python
+self.connect(self.source, self.probe)
+```
+
+Now, you'll be able to call
+
+```python
+tb.probe.level()
+```
+
+elsewhere in your program (e.g. in `main()`) to get the current probe level. You can also change the sample rate, frequency, and gain of the RX probe elsewhere with
+
+```python
+tb.source.set_samp_rate(samp_rate)
+tb.source.set_center_freq(uhd.tune_request(freq, lo_offset))
+tb.source.set_gain(gain)
+```
+

