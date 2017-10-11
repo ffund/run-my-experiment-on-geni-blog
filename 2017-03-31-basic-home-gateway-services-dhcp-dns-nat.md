@@ -96,7 +96,7 @@ An entry is added to the translation table only when a packet associated with a 
 
 A workaround for this problem, [port forwarding](https://en.wikipedia.org/wiki/Port_forwarding), enables a home user to _proactively_ map a port to a particular host on the home network. 
 
-For example, consider the home gateway configuration in the following image. Support the gateway has 128.238.66.220 as a public IP address. Hosts on the WAN can initiate a connection to 128.238.66.220 on port 443. The NAT will look up the internal IP address in the port forwarding table, rewrite the destination in the packet header from IP 128.238.66.220 and port 443, to IP 192.168.1.2 and port 443, and then forward the packet on the LAN. Similarly, a packet arriving from the WAN with destination IP 128.238.66.220 and port 3389 will be translated to IP 192.168.1.145 and port 3389.
+For example, consider the home gateway configuration in the following image. Suppose the gateway has 128.238.66.220 as a public IP address. Hosts on the WAN can initiate a connection to 128.238.66.220 on port 443. The NAT will look up the internal IP address in the port forwarding table, rewrite the destination in the packet header from IP 128.238.66.220 and port 443, to IP 192.168.1.2 and port 443, and then forward the packet on the LAN. Similarly, a packet arriving from the WAN with destination IP 128.238.66.220 and port 3389 will be translated to IP 192.168.1.145 and port 3389.
 
 ![](/blog/content/images/2017/03/nat-port-forwarding-1.png)
 

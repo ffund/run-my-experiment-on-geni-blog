@@ -35,7 +35,7 @@ We need to prepare the five host computers used in this experiment.
 
 They are node16, node17, node18, node19, and node22. These five hosts have USRP devices set up in the following configuration:
 
-![](/blog/content/images/2016/12/challenge-arena.svg)
+![](/blog/content/images/2017/09/challenge-arena.svg)
 
 "node16" and "node19" are designated as transmitters, and their TX outputs are also connected to the input of "node22", which acts as a monitor node. "node17" and "node18" are designated as receivers. 
 

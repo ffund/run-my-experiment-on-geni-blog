@@ -104,7 +104,7 @@ The following diagram shows our overall network design:
 
 ![](/blog/content/images/2017/04/subnet-design-example.svg)
 
-(we assume the routers are have a second interface connected to a routing network, 10.10.100.0/24, as in the [experiment](#runmyexperiment) below.)
+(we assume the routers all have a second interface connected to a routing network, 10.10.100.0/24, as in the [experiment](#runmyexperiment) below.)
 
 We use `ifconfig` to assign IP addresses and netmasks to each host and router on a GENI topology that mimics this setup:
 

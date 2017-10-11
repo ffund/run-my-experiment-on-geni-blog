@@ -48,7 +48,7 @@ QoS metrics are used to evaluate the practical performance of a network. There i
 
 ###  WiFi networks
 
-WiFi networks use CSMA/CA, which is a kind of contention-based MAC mechanism. In WiFi networks, devices compete in a random access game to use the channel. If multiple devices try to transmit at the same time, a collision will occur, and the devices will engage in a procedure to reduce the probably that they both try again at the same time.
+WiFi networks use CSMA/CA, which is a kind of contention-based MAC mechanism. In WiFi networks, devices compete in a random access game to use the channel. If multiple devices try to transmit at the same time, a collision will occur, and the devices will engage in a procedure to reduce the probability that they both try again at the same time.
 
 This approach is efficient under light load, since devices can access the channel quickly without waiting to request bandwidth and get permission from a central scheduler. With many contenders, however, its performance deteriorates because channel time is wasted on collisions, and there may be a very long delay to access the channel.
 

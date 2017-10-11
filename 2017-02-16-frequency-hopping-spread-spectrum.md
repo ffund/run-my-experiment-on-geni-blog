@@ -227,3 +227,12 @@ Center Freq 15: 732422
 
 * The FHSS implementation used in this experiment was developed by Paul David, as described in [this GRCon '14 presentation](http://gnuradio.squarespace.com/storage/grcon14/presentations/Sep18_07_David_DSSSFHSS.pdf).
 * This experiment was developed with assistance from [Ajinkya Kadam](https://ajinkyakadam.bitbucket.io/).
+
+### Exercise
+
+Run the frequency hopping spread spectrum transmitter with the PN code generator "11001". Take a screenshot of the ShinySDR receiver showing the complete hopping pattern (show at least 20 hops). Annotate your screenshot - add the channel numbers at the bottom, similar to [this image](https://witestlab.poly.edu/blog/content/images/2017/02/fhss-channels-1.png) (although the specific hopping pattern will be different since the generator is different!). 
+
+List the hopping sequence for the first 20 hops observed in your screenshot.
+
+Also, create a figure similar to [this one](https://witestlab.poly.edu/blog/content/images/2017/02/fhss-lfsr-example-shift-3.svg), showing how the FHSS transmitter determines the first four channels in the sequence for the generator "11001".
+

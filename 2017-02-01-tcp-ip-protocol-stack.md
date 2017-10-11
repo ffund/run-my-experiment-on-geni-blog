@@ -24,7 +24,7 @@ TCP/IP, the protocol stack that is used in communication over the Internet and m
 
 
 ![](/blog/content/images/2017/03/tcpip-layers.svg)
-<small><i>Image from Willian Stallings, "Data and Computer Communications"</i></small>
+<small><i>Image from William Stallings, "Data and Computer Communications"</i></small>
 
 At each layer, addresses or other identifiers are used in that layer's packet header in order to designate a particular networking device, an end host, or a process or service. For example, consider the image above, where Application X on Host A connects to Application X on Host B: 
 

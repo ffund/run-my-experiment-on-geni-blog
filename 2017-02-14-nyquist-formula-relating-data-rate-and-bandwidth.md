@@ -267,3 +267,12 @@ If you aren't able to see the transmission in the ShinySDR window, you may have 
 ```
 time /usr/local/share/gnuradio/examples/digital/narrowband/benchmark_tx.py -f 2480e6 -r 0.5e6 -M 5 -p 2 --excess-bw=0.05 --tx-amplitude=0.8
 ```
+### Exercise
+
+Using the same procedure as described above, measure the time to deliver 5 MB and the occupied transmission bandwidth for each of the following experiments (i.e. fill in the table):
+
+<table>  <colgroup>   <col width="176">   <col>   <col>   <col>  </colgroup>  <tbody>   <tr>    <td>Number of signal levels</td>    <td>Bitrate (bps)</td>    <td>Time to deliver 5MB (s)</td>    <td>Occupied bandwidth (Hz)</td>   </tr>   <tr>    <td>2</td>    <td>500,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>2</td>    <td>1,000,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>2</td>    <td>2,000,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>4</td>    <td>500,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>4</td>    <td>2,000,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>4</td>    <td>1,000,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>16</td>    <td>500,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>16</td>    <td>2,000,000.00</td>    <td>&nbsp;</td>    <td>&nbsp;</td>   </tr>   <tr>    <td>16</td>    <td>1,000,000.00</td>    <td>&nbsp;</td>    <td> </td>   </tr>  </tbody> </table>
+
+Create a scatter plot of your experiment data. Put time to deliver 5MB on the y-axis, occupied bandwidth on the x-axis, and have the color of each data point indicate the number of signal levels. Add lines connecting data points of the same color. For example:
+
+![](/blog/content/images/2017/06/lab0-physical.png)

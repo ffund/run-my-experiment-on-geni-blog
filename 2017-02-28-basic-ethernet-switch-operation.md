@@ -436,3 +436,38 @@ This experiment is shown in the following video:
 ### Release your resources
 
 When you finish this experiment, please delete your resources in the GENI Portal, to free them for other experimenters.
+
+## Notes
+
+### Exercise
+
+As you complete the "Set up the bridge" section of the tutorial, fill in the blank table cells in [this image](https://docs.google.com/drawings/d/1m1CTV5YJdGkup80SDCZSgwcfX4zhwUW076rdukgVodw/edit?usp=sharing). Use the output of brctl showmacs br0 and ifconfig to find this information.
+
+(To make an editable copy of the image above in Google Drawings, click on the link while signed in to a Google or Google Apps account and click on File > Make a copy. You can then fill in the missing values in the table cells.)
+
+Note how you found each of those values - include the output of any relevant commands, either as a screenshot or copy and paste, and highlight the relevant part. 
+
+As you run the "Learning MAC addresses" section of the experiment, make an ordered list of the following six events:
+
+* the bridge learns the MAC address of node-1,
+* the bridge learns the MAC address of node-2,
+* node-1 sends the first ping request (with seq 1) to node-2, 
+* node-2 sends the first ping reply (with seq 1) to node-1,
+* node-2 receives the first ping request (with seq 1) from node-1,
+* node-1 receives the first ping reply (with seq 1) from node-2.
+
+(By "make an ordered list", I mean: note which event happened first, which happened second, etc.)
+
+With each list entry, include either
+
+* a frame from your `tcpdump` output or
+* a line from the `bridge monitor fdb` output or  `brctl showmacs br0` output
+
+that shows each event occurring. If a frame appears in the `tcpdump` output on multiple network segments, you can copy the frame from any of them. 
+
+(If the output you include shows more than just that one event, make sure to highlight or otherwise mark the relevant part.)
+
+Finally, run the "Effect of a smaller collision domain" section of the experiment. Then, run the following variation: With MAC learning turned ON, run an iperf receiver on node-4 (`iperf -s`) and on node-1, node-2, and node-3, simultaneously run iperf transmitters to send traffic to node-4 (`iperf -c 10.0.0.4 -t 90`).
+
+What network capacity is "seen" by each of the three transmitters? Show the relevant output on the iperf receiver, and explain. Explain how and why this is different from the experiment shown in the first 75 seconds of [this video](https://www.youtube.com/watch?v=Rjjnij3kunI), where MAC learning is also turned on.
+
