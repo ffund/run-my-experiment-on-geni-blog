@@ -40,15 +40,7 @@ The following video shows how entries are added to the forwarding table when a f
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/xHH59_S-lX4" frameborder="0" allowfullscreen></iframe>
 
-The next video shows what happens when a host connected to a bridge tries to send traffic to an IP address that is not reachable, and whose MAC address is not known to the sending host. The host will generate ARP requests with the broadcast MAC address (ff:ff:ff:ff:ff:ff) as their destination; these will be flooded out of all bridge ports (except the source port):
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/FMYmWIcRUV4" frameborder="0" allowfullscreen></iframe>
-
-Sometimes, we may have a scenario where a host tries to send traffic to an IP address that is not reachable, but whose MAC address _is_ known to the sending host. In this case, the frame has a "real" MAC address in the destination field (not the broadcast MAC address), but that MAC address is not present in the forwarding table. The following video shows how those frames are flooded on all bridge ports (except the source port):
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/EPpUnVKxc7E" frameborder="0" allowfullscreen></iframe>
-
-Finally, we see how a learning switch or bridge reduces the number of hosts in each collision domain, increasing the overall network capacity. In the following experiment, each network segment has approximately 1000 Kbps capacity. When learning is enabled on the bridge, every network segment can support 1000 Kbps capacity. When learning is disabled, the 1000 Kbps capacity is shared among all network segments:
+We also see how a learning switch or bridge reduces the number of hosts in each collision domain, increasing the overall network capacity. In the following experiment, each network segment has approximately 1000 Kbps capacity. When learning is enabled on the bridge, every network segment can support 1000 Kbps capacity. When learning is disabled, the 1000 Kbps capacity is shared among all network segments:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Rjjnij3kunI" frameborder="0" allowfullscreen></iframe>
 
@@ -258,90 +250,6 @@ In the output, we can see:
 17:02:41.644866 02:a0:6e:e0:58:93 > 02:cd:b5:11:64:e2, ethertype IPv4 (0x0800), length 98: 10.0.0.2 > 10.0.0.1: ICMP echo reply, id 2736, seq 5, length 64
 ```
 
-### Destination address is not reachable
-
-We will also observe what happens when frames are sent to a destination address that is not connected to the switch. 
-
-First, we will repeat the experiment above, but with a destination address that is not connected to the bridge, and never has been. 
-
-Verify that the bridge only knows local MAC addresses, and wait for non-local addresses (if there are any) to expire. Then, on the bridge, run 
-
-```
-bridge monitor fdb
-```
-
-on node-2, node-3, and node-4, run
-
-```
-sudo tcpdump -n -e -i eth1
-```
-
-and on node-1, run
-
-```
-ping -c 5 10.0.0.5
-```
-
-The result is shown in the following video:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/FMYmWIcRUV4" frameborder="0" allowfullscreen></iframe>
-
-Because node-1 does not know the MAC address associated with the IP address 10.0.0.5, it sends ARP requests to the broadcast MAC address, ff:ff:ff:ff:ff:ff, asking for the owner of the IP address 10.0.0.5 to reply with its MAC address. These frames with the _broadcast_ MAC address in the destination field are flooded out of all ports, as seen in the `tcpdump` output:
-
-```
-18:22:49.844039 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-18:22:50.842626 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-18:22:51.843635 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-18:22:52.862170 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-18:22:53.860613 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-18:22:54.861167 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
-```
-
-We will also observe what would happen to frames with a destination MAC address that is not connected to any switch port, but that is also not a broadcast MAC address. For example, what would happen if node-2 was disconnected from the switch?
-
-Verify that the bridge only knows local MAC addresses, and wait for non-local addresses (if there are any) to expire. Then, on the bridge, run 
-
-```
-bridge monitor fdb
-```
-
-on node-3 and node-4, run
-
-```
-sudo tcpdump -n -e -i eth1
-```
-
-and on node-2, run
-
-```
-sudo ifconfig eth1 down
-```
-
-to bring down the interface on node-2 that is connected to the bridge. Finally, on node-1, run
-
-```
-ping -c 5 10.0.0.2
-```
-
-The results are shown in the following video:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/EPpUnVKxc7E" frameborder="0" allowfullscreen></iframe>
-
-We can see that all five ping requests, which have as their destination the MAC address of node-2 (02:a0:6e:e0:58:93), were flooded out of the ports that node-3 and node-4 are connected to:
-
-```
-18:31:50.359797 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 1, length 64
-18:31:51.367118 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 2, length 64
-18:31:52.375218 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 3, length 64
-18:31:53.383385 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 4, length 64
-18:31:54.391493 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 5, length 64
-```
-
-Bring the interface on node-2 up again by running the following on node-2:
-
-```
-sudo ifconfig eth1 up
-```
 
 ### Effect of a smaller collision domain
 
@@ -470,4 +378,93 @@ that shows each event occurring. If a frame appears in the `tcpdump` output on m
 Finally, run the "Effect of a smaller collision domain" section of the experiment. Then, run the following variation: With MAC learning turned ON, run an iperf receiver on node-4 (`iperf -s`) and on node-1, node-2, and node-3, simultaneously run iperf transmitters to send traffic to node-4 (`iperf -c 10.0.0.4 -t 90`).
 
 What network capacity is "seen" by each of the three transmitters? Show the relevant output on the iperf receiver, and explain. Explain how and why this is different from the experiment shown in the first 75 seconds of [this video](https://www.youtube.com/watch?v=Rjjnij3kunI), where MAC learning is also turned on.
+
+
+### Supplemental activities 
+
+#### Destination address is not reachable
+
+We can also observe what happens when frames are sent to a destination address that is not connected to the switch. 
+
+First, we will repeat the experiment above, but with a destination address that is not connected to the bridge, and never has been. 
+
+Verify that the bridge only knows local MAC addresses, and wait for non-local addresses (if there are any) to expire. Then, on the bridge, run 
+
+```
+bridge monitor fdb
+```
+
+on node-2, node-3, and node-4, run
+
+```
+sudo tcpdump -n -e -i eth1
+```
+
+and on node-1, run
+
+```
+ping -c 5 10.0.0.5
+```
+
+The result is shown in the following video:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/FMYmWIcRUV4" frameborder="0" allowfullscreen></iframe>
+
+Because node-1 does not know the MAC address associated with the IP address 10.0.0.5, it sends ARP requests to the broadcast MAC address, ff:ff:ff:ff:ff:ff, asking for the owner of the IP address 10.0.0.5 to reply with its MAC address. These frames with the _broadcast_ MAC address in the destination field are flooded out of all ports, as seen in the `tcpdump` output:
+
+```
+18:22:49.844039 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+18:22:50.842626 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+18:22:51.843635 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+18:22:52.862170 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+18:22:53.860613 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+18:22:54.861167 02:cd:b5:11:64:e2 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.5 tell 10.0.0.1, length 28
+```
+
+We will also observe what would happen to frames with a destination MAC address that is not connected to any switch port, but that is also not a broadcast MAC address. For example, what would happen if node-2 was disconnected from the switch?
+
+Verify that the bridge only knows local MAC addresses, and wait for non-local addresses (if there are any) to expire. Then, on the bridge, run 
+
+```
+bridge monitor fdb
+```
+
+on node-3 and node-4, run
+
+```
+sudo tcpdump -n -e -i eth1
+```
+
+and on node-2, run
+
+```
+sudo ifconfig eth1 down
+```
+
+to bring down the interface on node-2 that is connected to the bridge. Finally, on node-1, run
+
+```
+ping -c 5 10.0.0.2
+```
+
+The results are shown in the following video:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/EPpUnVKxc7E" frameborder="0" allowfullscreen></iframe>
+
+We can see that all five ping requests, which have as their destination the MAC address of node-2 (02:a0:6e:e0:58:93), were flooded out of the ports that node-3 and node-4 are connected to:
+
+```
+18:31:50.359797 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 1, length 64
+18:31:51.367118 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 2, length 64
+18:31:52.375218 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 3, length 64
+18:31:53.383385 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 4, length 64
+18:31:54.391493 02:cd:b5:11:64:e2 > 02:a0:6e:e0:58:93, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.2: ICMP echo request, id 3612, seq 5, length 64
+```
+
+Bring the interface on node-2 up again by running the following on node-2:
+
+```
+sudo ifconfig eth1 up
+```
+
 

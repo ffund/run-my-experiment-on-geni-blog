@@ -153,7 +153,7 @@ After demodulating, the signal (x<sub>5</sub>) is real, and we can clearly disti
 
 ![](/blog/content/images/2016/02/x5_psd.svg)
 
-*<sup>Different parts of the radio broadcast signal are clearly visible in this image. The mono audio signal on the far left is of most interest to us. We can also see the pilot tone at 20 kHz, which is used to help decode the stereo audio centered at 38 kHz. To the left of that, we can see digital data carried at 57 kHz - this often includes time, station identification and program information.</sup>*
+*<sup>Different parts of the radio broadcast signal are clearly visible in this image. The mono audio signal on the far left is of most interest to us. We can also see the pilot tone at 19 kHz, which is used to help decode the stereo audio centered at 38 kHz. To the left of that, we can see digital data carried at 57 kHz - this often includes time, station identification and program information.</sup>*
 
 
 ## Run my experiment

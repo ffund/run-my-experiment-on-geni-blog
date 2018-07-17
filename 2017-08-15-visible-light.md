@@ -211,7 +211,7 @@ Similarly, we have observed two-way communication between vlc1 and vlc2 with the
 And we have observed two-way communication between vlc1 and vlc3 with these settings:
 
 * On vlc1: `sudo pan-tilt --pan 11.5 --tilt 4`
-* On vlc3: `pan-tilt --pan 6.75 --tilt 6.5`
+* On vlc3: `sudo pan-tilt --pan 6.75 --tilt 6.5`
 
 
 ### Inspect the received light levels

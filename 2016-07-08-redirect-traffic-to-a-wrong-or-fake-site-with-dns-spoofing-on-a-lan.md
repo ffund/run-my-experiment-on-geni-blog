@@ -73,6 +73,8 @@ Your "bank" node has been set up with a publicly routable IP address, so that si
 
 To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites are vulnerable to impersonation because they do not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
 
+_(Editor's note: After this experiment was written, Bank of Hamilton began using HTTPS.)_
+
 [Modern browsers](https://arstechnica.com/information-technology/2017/01/firefox-chrome-start-calling-http-connections-insecure/) usually identify sites that accept login details on an HTTP page in the address bar, e.g. Chrome shows these sites as "Not Secure":
 
 ![](/blog/content/images/2017/04/vulnerable-sites.png)
@@ -103,7 +105,7 @@ In the rest of this experiment, I will assume you are using the Bank of Hamilton
 Finally, find out the public IP address of this node with
 
 ```
-wget -qO- http://ipinfo.io/ip
+wget -qO- https://ipinfo.io/ip
 ```
 
 Make a note of this IP address - you will need it later.
@@ -175,6 +177,8 @@ and a browser window should come up:
 
 This browser is running on the "client" node, _not_ on your own laptop. Leave this open - we will use it throughout our experiment.
 
+> **Note**: Some InstaGENI racks have a firewall in place that will block incoming traffic on the noVNC port. If everything looks normal in the terminal output but you haven't been able to open the URL in a browser, you might want to try using a different InstaGENI rack.
+
 
 ### Normal DNS queries
 
@@ -190,10 +194,10 @@ to become the "root" user.
 
 On one of the server terminals, run
 
-```
+<pre>
 service dnsmasq stop
 dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --dhcp-option=6,10.10.1.2 --no-hosts -d
-```
+</pre>
 
 This sets up the `dnsmasq` server to act as a DHCP server, offering IP addresses in the range 10.10.1.20-10.10.1.50 to clients on the private LAN. It will also respond to DNS queries.
 
@@ -293,12 +297,12 @@ to become the "root" user on these as well.
 
 This attack works most reliably when packets from the attacker reach the client _before_ packets from the "good" server. To ensure this happens in our experiment, we will set up some extra latency on the "good" server. Stop the `tcpdump` process on the "good" server temporarily, and run
 
-```
+<pre>
 tc qdisc del dev eth1 root 
 # don't worry if this command returns 
 # 'RTNETLINK answers: No such file or directory'
 tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
-```
+</pre>
 
 on it.  Then restart the `tcpdump` with 
 
@@ -452,10 +456,10 @@ Also, the `dnsmasq` process should still be running on the "good" server.
 
 Now, on the attacker, start a `dnsmasq` instance:
 
-```
+<pre>
 service dnsmasq stop
 dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
-```
+</pre>
 
 Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. Also on the attacker, start a `tcpdump` to show DHCP traffic:
 

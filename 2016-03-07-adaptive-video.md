@@ -239,11 +239,11 @@ Policy 3       2934482                 6              0.094
 
 ## Run my experiment
 
-To start, create a new slice on the [GENI portal](https://portal.geni.net/). Create a client-server topology with two VMs connected with a link, by downloading and using [this RSpec](http://witestlab.poly.edu/repos/genimooc/run_my_experiment/dash_experiment/dash_rspec.xml) (In the Portal, create a new slice, click "Add Resources", scroll down to "Choose RSpec", and select "From File"):
+To start, create a new slice on the [GENI portal](https://portal.geni.net/). Create a client-server topology with two VMs connected with a link, by downloading and using [this RSpec](https://git.io/vxpBt) (In the Portal, create a new slice, click "Add Resources", scroll down to "Choose RSpec", and select "From File"):
 
 ![](http://witestlab.poly.edu/repos/genimooc/run_my_experiment/dash_experiment/dash_topology.png)
 
-Then choose an aggregate (InstaGENI or ExoGENI) and log in to your resources.
+Then choose an aggregate and log in to your resources.
 
 Now let's install all the required software. 
 

@@ -85,7 +85,7 @@ After the topology is loaded onto your canvas, click "Site", and choose an Insta
 
 ### Installing the Tor Software
 
-**Do you want to set up the private Tor network quickly? Skip to the [tl;dr version](#tldrversion)**
+**Do you want to set up the private Tor network quickly? Skip to the [tl;dr version](#tldrversion). Then, continue the experiment from [Testing the private Tor network](#testingtheprivatetornetwork).**
 
 To start, we install Tor on all of the nodes *except* the web server using the following steps:
 
@@ -464,7 +464,7 @@ In order to access the webserver without going through the Tor network, we simpl
 curl http://webserver/
 ```
 
-and verify that the server returns the client's IP address. You should see something like
+on the client, and verify that the server returns the client's IP address. You should see something like
 
 ```
 Remote address: 192.168.3.100

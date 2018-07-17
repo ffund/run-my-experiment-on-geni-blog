@@ -127,7 +127,7 @@ Here's a video of the experiment, including the setup. Note that the title bar f
 
 To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. 
 
-At your reserved time, open four terminals and SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT) in each one, with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
+At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
 
 For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node16, node17, node18, and node19 on the WITest testbed; or node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
 
@@ -135,31 +135,32 @@ For this experiment, we will need a group of four neighboring nodes that are ava
 
 Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node16, node17, node18, and node19, run:
 
-```
+<pre>
 omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
-```
+</pre>
+
 (note that there are no spaces in between the commas and the nodes names in the command above). Alternatively, if you are on outdoor and using node1-2, node1-3, node1-4, and node1-5, run:
 
-```
+<pre>
 omf-5.4 load -i wifi-experiment.ndz -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
-```
+</pre>
 
 When the image has been loaded onto the nodes, turn them on. For example, if using those four nodes on WITest, run 
 
-```
+<pre>
 omf tell -a on -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
-```
+</pre>
 
 whereas if using the four nodes on outdoor, you would run
 
-```
+<pre>
 omf tell -a on -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
-```
+</pre>
 
 
 Wait a few minutes for your nodes to boot. Then, open _six_ terminal windows and SSH to your testbed console ("witestlab.poly.edu" or "outdoor.orbit-lab.org") in each one.
 
-Of the four nodes in your group, designate one node as the access point (AP), one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to silently intercept communications between Alice and Bob, capturing sensitive information such as FTP login credentials.
+Of the four nodes in your group, designate one node as the access point (AP), one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to intercept communications between Alice and Bob, capturing sensitive information such as FTP login credentials.
 
 * In one of your SSH terminals, SSH to the node that you have designated as the AP, as the "root" user.
 * In one of your SSH terminals, SSH to the node that you have designated as Bob, as the "root" user.
@@ -208,17 +209,20 @@ and make sure you can see the network with "mitm" ESSID.
 
 Then, create a WiFi config file with
 
-```
+<pre>
 wpa_passphrase mitm SECRETPASSWORD > wpa.conf
-```
+</pre>
 
 where "SECRETPASSWORD" is its passphrase.
 
 Connect to the network with
 
-```
+<pre>
 wpa_supplicant -iwlan0 -cwpa.conf -B
-```
+</pre>
+
+
+> _**Note**: the WPA supplicant utility will remain running as a background process, and will attempt to reconnect if the client is disconnected from the network. Be careful not to run it more than once - if you have two supplicants running at the same time, they will conflict and cause connectivity issues._
 
 Use 
 
@@ -254,7 +258,7 @@ ifconfig wlan0
 
 and make a note of each node's MAC address.
 
-Finally, make sure all the nodes can ping one another by IP address. On each, run:
+Make sure all the nodes can ping one another by IP address. On each, run:
 
 ```
 ping -c 1 192.168.0.3
@@ -284,7 +288,7 @@ in another.
 
 Here, Mallory sends ARP messages to Alice (192.168.0.3) that make Alice believe that Bob (192.168.0.4) is located at Mallory's MAC access. Mallory also sends ARP messages to Bob to that make Bob believe that Alice is located at Mallory's MAC address.
 
-You should see output on the terminal indicating the Mallory is sending gratuitous ARPs. For example:
+You should see output on the terminal indicating that Mallory is sending gratuitous ARPs. For example:
 
 <pre>
 0:c:42:3a:c4:77 0:c:42:3a:b4:8 0806 42: <b>arp reply 192.168.0.3 is-at 0:c:42:3a:c4:77</b>
@@ -365,9 +369,9 @@ Mallory can then open an FTP or SSH connection to Bob using Alice's credentials.
 
 ### Exercise
 
-This experiment highlights the danger of sending data "in the clear" (i.e. unencrypted) over an insecure medium. In this example, the attacker was even able to work around the encryption at Layer 2 to capture sensitive data!
+This experiment highlights the danger of sending data "in the clear" (i.e. unencrypted) over an insecure medium. In this example, the attacker was even able to work around the per-client, per-session encryption keys at Layer 2 to capture sensitive data!
 
-Using encryption at the application layer makes it much more difficult for a malicious attacker to capture credentials send over an insecure medium.
+Using encryption at the application layer makes it much more difficult for a malicious attacker on the wireless channel to capture credentials sent over an insecure medium.
 
 To see how this works, try using SFTP - secure FTP - in place of FTP. Leave Ettercap (and the ARP spoofing) running on the Mallory node, and on Alice, run
 

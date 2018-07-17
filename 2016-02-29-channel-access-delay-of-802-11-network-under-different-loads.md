@@ -1,3 +1,7 @@
+<div class="st-alert">
+<b>Note</b>: This post is preserved for reference; however, the WiMAX base station at WITest is not currently operational, so this experiment will not run as described here. It may be possible to run this experiment with some modifications on another testbed.
+</div>
+
 This experiment highlights the difference in channel access delay between a contention-based WiFi network and a scheduled WiMAX network. 
 
 It should take about 60-120 minutes to run this experiment, but you will need to have [reserved that time](http://witestlab.poly.edu/respond/sites/witest/tutorial/make-a-reservation) in advance. This experiment uses wireless resources (specifically, on the [WITest](http://witestlab.poly.edu/) testbed), and you can only use wireless resources on GENI during a reservation.

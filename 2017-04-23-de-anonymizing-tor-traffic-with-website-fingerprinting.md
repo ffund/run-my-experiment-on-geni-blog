@@ -193,7 +193,7 @@ Now we have all 5 websites set up on our webserver's html directory.
 
 ### Creating Website Fingerprints
 
-Now we will be creating the fingerprints of each website by accessing the website's homepage that is stored on the webserver from the client node. First we must install __proxychains__, which we will be using with the wget function to use the Tor network to access the websites. 
+Now we will be creating the fingerprints of each website by accessing the website's homepage that is stored on the webserver from the client node. First we must install __proxychains__, which we will be using with the wget function to use the Tor network to access the websites, on the client. 
 ```
 sudo apt-get -y install proxychains
 ```
