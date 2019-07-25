@@ -53,7 +53,7 @@ Finally, we see how this attack can be used to transparently capture a user's lo
 
 First, reserve your resources. This experiment involves resources on two separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3). (Note: you will need one publicly routable IP on each InstaGENI site. If you are having trouble getting resources, you may use [this monitoring page](https://genimon.uky.edu/status) to find sites with publicly routable IPs available.)
 
-In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/vShxH](https://git.io/vShxH)
+In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/fhpCT](https://git.io/fhpCT)
 
 This should load a topology onto your canvas, with a client, a "good" network gateway implementing DHCP and DNS services, and a malicious attacker on the same LAN. The RSpec also includes commands to install the necessary software (e.g. `dnsmasq` for DNS and DHCP service, an Apache web server, the `dsniff` package for ARP and DNS spoofing, etc.) on the nodes. Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. 
 
@@ -73,7 +73,7 @@ Your "bank" node has been set up with a publicly routable IP address, so that si
 
 To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites are vulnerable to impersonation because they do not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
 
-_(Editor's note: After this experiment was written, Bank of Hamilton began using HTTPS.)_
+_(Editor's note: After this experiment was written in July 2016, these two banking sites began using HTTPS. The screenshots below show what the sites looked like in 2016.)_
 
 [Modern browsers](https://arstechnica.com/information-technology/2017/01/firefox-chrome-start-calling-http-connections-insecure/) usually identify sites that accept login details on an HTTP page in the address bar, e.g. Chrome shows these sites as "Not Secure":
 
@@ -196,7 +196,7 @@ On one of the server terminals, run
 
 <pre>
 service dnsmasq stop
-dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --dhcp-option=6,10.10.1.2 --no-hosts -d
+dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --dhcp-option=6,10.10.1.2 --no-hosts --bind-interfaces -d
 </pre>
 
 This sets up the `dnsmasq` server to act as a DHCP server, offering IP addresses in the range 10.10.1.20-10.10.1.50 to clients on the private LAN. It will also respond to DNS queries.
@@ -458,7 +458,7 @@ Now, on the attacker, start a `dnsmasq` instance:
 
 <pre>
 service dnsmasq stop
-dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
+dnsmasq --interface=eth1 --bind-interfaces --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
 </pre>
 
 Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. Also on the attacker, start a `tcpdump` to show DHCP traffic:

@@ -90,14 +90,8 @@ After the topology is loaded onto your canvas, click "Site", and choose an Insta
 To start, we install Tor on all of the nodes *except* the web server using the following steps:
 
 ```
-sudo sh -c 'echo "deb http://deb.torproject.org/torproject.org $(lsb_release -c -s) main" >> /etc/apt/sources.list'
-sudo sh -c 'echo "deb-src http://deb.torproject.org/torproject.org $(lsb_release -c -s) main" >> /etc/apt/sources.list'
-
-sudo gpg --keyserver keys.gnupg.net --recv 886DDD89
-sudo gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | sudo apt-key add -
-
 sudo apt-get update
-sudo apt-get --force-yes install tor deb.torproject.org-keyring vim curl tor-arm
+sudo apt-get -y --force-yes install tor tor-arm vim curl 
 ```
 
 ### Setting up the Web Server
@@ -125,7 +119,7 @@ Finally, restart the Apache server:
 sudo /etc/init.d/apache2 restart
 ```
 
-In order to monitor when someone tries to access the webserver, run:
+In order to monitor when someone tries to access the webserver, run the following command on the webserver:
 
 ```
 sudo tail -f /var/log/apache2/access.log
@@ -146,6 +140,8 @@ Directory authorities help Tor clients learn the addresses of relays that make u
 > How do clients know what the relays are, and how do they know that they have the right keys for them? Each relay has a long-term public signing key called the "identity key". Each directory authority additionally has a "directory signing key". The directory authorities provide a signed list of all the known relays, and in that list are a set of certificates from each relay (self-signed by their identity key) specifying their keys, locations, exit policies, and so on. So unless the adversary can control a majority of the directory authorities (as of 2012 there are 8 directory authorities), he can't trick the Tor client into using other Tor relays.
 >
 > How do clients know what the directory authorities are? The Tor software comes with a built-in list of location and public key for each directory authority. So the only way to trick users into using a fake Tor network is to give them a specially modified version of the software.
+
+We will run a series of commands on the directory authority to set it up.
 
 First, stop any currently running Tor process:
 
@@ -174,9 +170,9 @@ Nov 23 12:27:31.540 [notice] Your Tor server's identity key fingerprint is
 3A32 4849 E290 3315 96BB 6217
 ```
 
-Since the debian package of Tor is owned by the debian-tor user and group. We ran the above commands as debian-tor.
+(Note: Since the debian package of Tor is owned by the debian-tor user and group, we ran the above commands as debian-tor - hence the `sudo -u debian-tor` at the beginning of each command.)
 
-Now we'll create a configuration file for the directory authority. First, get the two fingerprints:
+Now we'll create a configuration file for the directory authority. First, get the two fingerprints of the keys:
 
 ```
 finger1=$(sudo cat /var/lib/tor/keys/authority_certificate  | grep fingerprint | cut -f 2 -d ' ')
@@ -245,11 +241,11 @@ to make sure that the correct variables are written to the config file.
 
 Since the relay and client config files also need the directory server's fingerprints in them, we'll generate them on the directory server (which knows its own fingerprints). We'll download them to the individual relay and client nodes and customize them later.
 
-First, install apache2, in order to write the relay config file and store it on the web
+Install apache2, in order to write the relay and client config files and then transfer them over HTTP:
 
 ```
 sudo apt-get update
-sudo apt-get -y install apache2 php5 libapache2-mod-php5
+sudo apt-get -y install apache2
 ```
 
 Next write the relay config file with
@@ -279,7 +275,7 @@ ExitPolicy accept 192.168.0.0/16:*
 EOL"
 ```
 
-This config file created on the directory authority creates a generic config file for all relays, which can then be copied over to a relay. The file is saved in `/var/www/html/relay.conf` and can be seen by
+This command on the directory authority creates a generic config file for all relays, which can then be copied over to a relay. The file is saved in `/var/www/html/relay.conf` and can be seen by
 
 ```
 sudo cat /var/www/html/relay.conf
@@ -308,7 +304,7 @@ ControlPort 9051
 EOL"
 ```
 
-This config file created on the directory authority creates a generic config file for a client. The file is saved in `/var/www/html/client.conf` and can be seen by
+This command on the directory authority creates a generic config file for clients, which can then be copied over to a client node. The file is saved in `/var/www/html/client.conf` and can be seen by
 
 ```
 cat /var/www/html/client.conf
@@ -333,9 +329,11 @@ Nov 09 11:03:02.000 [debug] parse_dir_authority_line(): Trusted 100 dirserver
 at 192.168.1.4:7000 (CA36BEB3CDA5028BDD7B1E1F743929A81E26A5AA)
 ```
 
-which is promising - it seems to indicated that we are using our directory authority at 192.168.1.4 (the current host).
+which indicates that we are using our directory authority at 192.168.1.4 (the current host).
 
 ### Setting up a Relay
+
+To set up the relays, run the following series of commands on each one.
 
 First, stop any currently running Tor process:
 
@@ -357,7 +355,7 @@ Nov 23 12:34:00.137 [notice] Your Tor server's identity key fingerprint is
 5FCA 8518 2869 FBFA A7C1 5B4C
 ```
 
-Now, download the generic relay config file that we created on the directory server:
+Download the generic relay config file that we created on the directory server:
 
 ```
 sudo wget -O /etc/tor/torrc http://directoryserver/relay.conf
@@ -395,11 +393,15 @@ Finally, start the Tor service on the relay node with
 sudo /etc/init.d/tor restart
 ```
 
-We can check to see if the routers are beginning to be made aware of each other on the private Tor network by accessing the info.log file which we defined earlier in the torrc configuration file of each node. If each of the routers is to be made aware of each other, a TLS handshake must take place. For example if we want to check whether relay3 has recognized relay2 and has performed a handshake, on the relay3 terminal we run:
+After a few minutes, we can check to see if the routers are beginning to be made aware of each other on the private Tor network by accessing the info.log file which we defined earlier in the torrc configuration file of each node. If each of the routers is to be made aware of each other, a TLS handshake must take place. For example if we want to check whether relay3 has recognized relay2 and has performed a handshake, if relay 2 is running on 192.168.12.2, on the relay3 terminal we run:
 
 ```
 sudo cat /var/log/tor/info.log | grep "192.168.12.2"
-We should see some output like:
+```
+
+and we should see some output like:
+
+```
 Apr 18 13:25:12.000 [info] channel_tls_process_versions_cell(): Negotiated version 4 with 192.168.12.2:5000; Sending cells: CERTS
 Apr 18 13:25:12.000 [info] channel_tls_process_certs_cell(): Got some good certificates from 192.168.12.2:5000: Authenticated it.
 Apr 18 13:25:12.000 [info] channel_tls_process_auth_challenge_cell(): Got an AUTH_CHALLENGE cell from 192.168.12.2:5000: Sending authentication
@@ -409,7 +411,9 @@ Apr 18 13:25:12.000 [info] channel_tls_process_netinfo_cell(): Got good NETINFO 
 We can see that first the version is negotiated, and then relay3 sends a CERTS cell. After receiving a CERTS cell and AUTH_CHALLENGE from relay2, relay3 authenticates, and then both send a NETINFO cell, confirming their location and timestamp. We can see that the following handshake that they have used to establish their connection is the In-Protocol handshake.
 
 
-### Setting up a Client
+### Setting up a client
+
+Finally, we will run a series of commands on the client node to set it up.
 
 First, stop any currently running Tor process:
 
@@ -509,7 +513,7 @@ IP 192.168.2.200.80 > 192.168.3.100.38826
 which shows how we can see that the client and webserver are communicating directly with each other. On the right-hand side of the output we should see something like
 
 ```
-MGET./.HTTPS/1.1..User-Agent:.curl/7.35.0..Host:.webserver..Accept:. */*
+GET./.HTTPS/1.1..User-Agent:.curl/7.35.0..Host:.webserver..Accept:. */*
 ```
 
 which is a request to access the webserver, and something like
@@ -524,7 +528,7 @@ which is the output of the curl command that we ran earlier. This shows how we c
 
 Now we will test the same curl experiment of accessing the web server, now through the Tor network. Then we will compare the results with when we do not use Tor.
 
-First we need to find the exit relay that is being used in the Tor network, which serves as the relay that sends the data packet to the webserver. In order to do this we run
+First we need to find the exit relay that is being used in the Tor network, which serves as the relay that sends the data packet to the webserver. In order to do this we run (on the client)
 
 ```
 curl -x socks5://127.0.0.1:9050/ http://webserver/
@@ -647,7 +651,7 @@ Now at this point we should have seven terminals listening on a network. These t
 Next on the second client terminal, we run
 
 ```
-curl -x socks5://127.0.0.1:9050/ -s http://webserver/file.txt > / dev/null
+curl -x socks5://127.0.0.1:9050/ -s http://webserver/file.txt > /dev/null
 ```
 
 to download the large text file on the webserver. Since we are using the Tor network to access the site, the three ORs must have seen some kind of traffic passing through it. Now let us take a look at what the client and each OR saw. Stop the tcpdump process with Ctrl^C. When we stop tcpdump, a file is created with the traffic that was seen passing through. If you want to access the saved file to see the traffic on Wireshark's interface, follow the steps in the section about setting up Wireshark. Otherwise, as we listen on the network, the traffic that we can see will be outputted on the display of each terminal.
@@ -799,6 +803,11 @@ scp -P <port_number> <user>@<site_address>:~/*.pcap .
 
 Where *.pcap is a wildcard to indicate all of the pcap files that we have saved on our client terminal. After having saved our pcap files to our local machine, we can open them up on Wireshark to see the traffic captures.
 
+### Editor's notes
+
+This text was updated in July 2018 to use Tor version 0.2.4. It may require changes to work with later Tor versions. 
+
+Thanks to Evan Silver and Siddhant Sarkar for contributing corrections.
 
 ## References
 

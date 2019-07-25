@@ -1,8 +1,8 @@
 This experiment looks at the relationship between data transmission rate, bandwidth, and modulation scheme, as described by the Nyquist formula.
 
-It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, either the [WITest](http://witestlab.poly.edu) testbed or any one of the sb2, sb3, or sb7 sandboxes at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
+It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, either the [WITest](http://witestlab.poly.edu) testbed or either the sb3 or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [WITest](https://witestlab.poly.edu/respond/sites/witest/activity/reservation-calendar) or a sandbox at [ORBIT](http://geni.orbit-lab.org) (either sb2, sb3, or sb7), and you must run this experiment during your reserved time. 
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [WITest](https://witestlab.poly.edu/respond/sites/witest/activity/reservation-calendar) or a sandbox at [ORBIT](http://geni.orbit-lab.org) (either sb3 or sb7), and you must run this experiment during your reserved time. 
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -56,10 +56,10 @@ Finally, on changing the constellation size to 4 points (squaring the number of 
 
 ## Run my experiment
 
-To run this experiment, you will need a reservation on either the WITest testbed, or the sb2, sb3, or sb7 testbed on ORBIT. You will have to make your reservation in advance.
+To run this experiment, you will need a reservation on either the WITest testbed, or the sb3 or sb7 testbed on ORBIT. You will have to make your reservation in advance.
 
 * To reserve WITest, visit [http://witestlab.poly.edu](http://witestlab.poly.edu). Click on the profile icon in the top right, then on "Log in with GENI". Log in to your GENI Portal account and agree to send your information to WITest. Then, use the [reservation calendar](https://witestlab.poly.edu/site/activity/reservation-calendar) to reserve one or two (consecutive) hours for this experiment. For further information, refer to this [tutorial on the reservation system](https://witestlab.poly.edu/site/tutorial/make-a-reservation).
-* To reserve an ORBIT sandbox, visit [http://geni.orbit-lab.org](http://geni.orbit-lab.org). Click on "Log in", then log in using your GENI Portal account and agree to send your information to ORBIT. Then, click on "Control Panel". Use the calendar interface to request time on sb2, sb3 or sb7.
+* To reserve an ORBIT sandbox, visit [http://geni.orbit-lab.org](http://geni.orbit-lab.org). Click on "Log in", then log in using your GENI Portal account and agree to send your information to ORBIT. Then, click on "Control Panel". Use the calendar interface to request time on sb3 or sb7.
 
 ### Set up testbed
 
@@ -71,7 +71,7 @@ ssh GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
 
 where `GENI-WIRELESS-USERNAME` is your wireless username assigned by GENI. This is usually your regular GENI username with a `geni-` prefix, e.g. `geni-ffund`. Also specify the path to the key you have uploaded to the GENI Portal as the `/PATH/TO/KEY`.
 
-If you are using sandbox 7 or sandbox 2 on ORBIT, log in to sb7.orbit-lab.org or sb2.orbit-lab.org, instead. If you are using WITest, log in to witestlab.poly.edu.
+If you are using sandbox 7 on ORBIT, log in to sb7.orbit-lab.org instead. If you are using WITest, log in to witestlab.poly.edu.
 
 Then, you must load a disk image onto the testbed nodes. From the testbed console, run:
 
@@ -80,7 +80,7 @@ Then, you must load a disk image onto the testbed nodes. From the testbed consol
 omf-5.4 load -i gr-nyquist.ndz -t omf.witest.node16,omf.witest.node22
 ```
 
-* If you are using sb2, sb3, or sb7 on ORBIT:
+* If you are using sb3 or sb7 on ORBIT:
 
 ```
 omf load -i gr-nyquist.ndz -t system:topo:all
@@ -109,7 +109,7 @@ Then, turn on your nodes with the following command:
 omf tell -a on -t omf.witest.node16,omf.witest.node22
 ```
 
-* If you are using sb2, sb3, or sb7 on ORBIT:
+* If you are using sb3 or sb7 on ORBIT:
 
 ```
 omf tell -a on -t system:topo:all
@@ -131,7 +131,7 @@ ssh -L 8100:node22:8100 -L 8101:node22:8101 GENI-WIRELESS-USERNAME@witestlab.pol
 ```
 
 
-* If you are using sb2, sb3, or sb7 on ORBIT (note: this is all one line):
+* If you are using sb3 or sb7 on ORBIT (note: this is all one line):
 
 ```
 ssh -L 8100:node1-2:8100 -L 8101:node1-2:8101 GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
@@ -147,7 +147,7 @@ Then, in that terminal window (which should now be logged in to your testbed con
 ssh root@node22
 ```
 
-* If you are using sb2, sb3, or sb7 on ORBIT:
+* If you are using sb3 or sb7 on ORBIT:
 
 ```
 ssh root@node1-2
@@ -170,9 +170,9 @@ INFO:shinysdr:ShinySDR is ready.
 INFO:shinysdr:Visit http://localhost:8100/ShinySDR/
 ```
 
-In a [Google Chrome](https://www.google.com/chrome/browser/) browser window (should be a recent version of Chrome), open the URL that is shown in the Shiny server output. (http://localhost:8100/ShinySDR/).
+In a [Google Chrome](https://www.google.com/chrome/browser/) **incognito** browser window (should be a recent version of Chrome), open the URL that is shown in the Shiny server output. (http://localhost:8100/ShinySDR/).
 
-Configure your Shiny window as follows:
+Configure your Shiny window as follows (you may find it useful to right-click and slow down this video, and pause often so you can follow along):
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/YT7hchUqN4U" frameborder="0" allowfullscreen></iframe>
 
@@ -196,7 +196,7 @@ ssh GENI-WIRELESS-USERNAME@witestlab.poly.edu -i /PATH/TO/KEY
 ```
 
 
-* If you are using sb2, sb3, or sb7 on ORBIT:
+* If you are using sb3 or sb7 on ORBIT:
 
 ```
 ssh GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
@@ -212,7 +212,7 @@ Then, from there, log in to the transmitter node:
 ssh root@node16
 ```
 
-* If you are using sb2, sb3, or sb7 on ORBIT:
+* If you are using sb3 or sb7 on ORBIT:
 ```
 ssh root@node1-1
 ```
@@ -259,7 +259,7 @@ time /usr/local/share/gnuradio/examples/digital/narrowband/benchmark_tx.py -f 24
 
 ## Notes
 
-If you aren't able to see the transmission in the ShinySDR window, you may have to make some adjustments; some testbeds (such as sb2), may have more attenuation (signal loss) between the transmitter and receiver, and so the default gain settings are not sufficient to see the transmission. You can increase the gain on both the receiver and the transmitter:
+If you aren't able to see the transmission in the ShinySDR window, you may have to make some adjustments; some testbeds may have more attenuation (signal loss) between the transmitter and receiver, and so the default gain settings are not sufficient to see the transmission. You can increase the gain on both the receiver and the transmitter:
 
 * To increase the gain on the receiver, use the gain slider in the "Radio Config" window in ShinySDR.
 * To increase the transmission amplitude on the transmitter, run the transmitter with `--tx-amplitude=0.8` at the end of the command, each time you run it. For example:

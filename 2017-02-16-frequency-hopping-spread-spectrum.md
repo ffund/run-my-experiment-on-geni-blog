@@ -1,8 +1,8 @@
 This is an experimental demonstration of [frequency hopping spread spectrum](https://en.wikipedia.org/wiki/Frequency-hopping_spread_spectrum), a wireless technology that spreads a signal over rapidly changing frequencies. You will learn how a frequency hopping transmitter works and observe a FHSS signal transmitted over the air using software defined radio devices.
 
-It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, any one of the sb2, sb3, or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
+It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, any one of the sb3 or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on a sandbox at [ORBIT](http://geni.orbit-lab.org) and you must run this experiment during your reserved time. (You may use sb2, sb3, or sb7 on ORBIT.)
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on a sandbox at [ORBIT](http://geni.orbit-lab.org) and you must run this experiment during your reserved time. (You may use sb3 or sb7 on ORBIT.)
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -64,7 +64,7 @@ Here's a screenshot of that hopping pattern, annotated with channel numbers:
 
 ## Run my experiment
 
-First, you will have to reserve time on an SDR testbed: either sb2, sb3, or sb7 on ORBIT. Log on with your GENI account at [http://geni.orbit-lab.org](http://geni.orbit-lab.org), then click "Control Panel" to access the schedule page.
+First, you will have to reserve time on an SDR testbed: either sb3 or sb7 on ORBIT. Log on with your GENI account at [http://geni.orbit-lab.org](http://geni.orbit-lab.org), then click "Control Panel" to access the schedule page.
 
 ### Load disk image onto testbed nodes
 
@@ -76,7 +76,7 @@ ssh GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
 
 where `GENI-WIRELESS-USERNAME` is your wireless username assigned by GENI. This is usually your regular GENI username with a `geni-` prefix, e.g. `geni-ffund`. Also specify the path to the key you have uploaded to the GENI Portal as the `/PATH/TO/KEY`.
 
-If you are using sandbox 2 or sandbox 7, log in to sb2.orbit-lab.org or sb7.orbit-lab.org, respectively.
+If you are using sandbox 7, log in to sb7.orbit-lab.org.
 
 Then, you must load a disk image onto the testbed nodes. From the testbed console, run:
 
@@ -225,7 +225,7 @@ Center Freq 15: 732422
 
 ## Notes
 
-* The FHSS implementation used in this experiment was developed by Paul David, as described in [this GRCon '14 presentation](http://gnuradio.squarespace.com/storage/grcon14/presentations/Sep18_07_David_DSSSFHSS.pdf).
+* The FHSS implementation used in this experiment was developed by Paul David, as described in [this GRCon '14 presentation](http://static1.1.sqspcdn.com/static/f/679473/25461602/1411158960237/Sep18_07_David_DSSSFHSS.pdf?token=Ivu9LTilloy432Jzj50m7ejcIXQ%3D).
 * This experiment was developed with assistance from [Ajinkya Kadam](https://ajinkyakadam.bitbucket.io/).
 
 ### Exercise

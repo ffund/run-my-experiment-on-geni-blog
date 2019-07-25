@@ -9,7 +9,7 @@ To reproduce this experiment on GENI, you will need an account on the [GENI Port
 
 ## Background
 
-When someone uses Tor, an eavesdropper on the same network as the user cannot identify the websites that they are visiting. A website fingerprinting attack is one way in which to compromise the anonymity provided by Tor, by matching users and the websites that they visit. The goal of a fingerprinting attack is to deanonymize a user and figure out the website that they are visiting, even if the have anonymous routing and encryption of data.
+When someone uses Tor, an eavesdropper on the same network as the user cannot identify the websites that they are visiting by looking at IP packet headers. A website fingerprinting attack is one way in which to compromise the anonymity provided by Tor, by matching users and the websites that they visit. The goal of a fingerprinting attack is to deanonymize a user and figure out the website that they are visiting, even if the have anonymous routing and encryption of data.
 
 The general procedure of website fingerprinting is as follows:
 
@@ -41,7 +41,7 @@ For this experiment, we use the packet trace features described by Panchenko, et
 
 * __Size Markers__- These are markers to be placed whenever the direction of traffic changes from ingoing to outgoing and vice-versa. These markers must work in conjunction with filtering out the ACK packets. These markers note how much bytes went a certain direction before going the other.
 
-* __HTML Markers__- Whenever a request for a webpage is made, the initial process is to request for the HTML document. Being that every site has an HTML document of a different size, we can use this information to make the packet trace more unique. We place an HTML marker after the HTML document is fully received.
+* __HTML Markers__- Whenever a request for a webpage is made, the client sends a request for the HTML document, and it is then returned to the client. Being that every site has an HTML document of a different size, we can use this information to make the packet trace more unique. We place an HTML marker after the HTML document is fully received.
 
 * __Total Transmitted Bytes__- This involves adding up separately the total number of bytes sent and received at the end of the packet trace.
 
@@ -117,7 +117,7 @@ After the topology is loaded onto your canvas, click "Site", and choose an Insta
 
 ### Setting up a new Private Tor Network
 
-In my other blog called [Anonymous Routing of Network Traffic Using Tor](https://witestlab.poly.edu/blog/anonymous-routing-of-network-traffic-using-tor/), I provide a step by step guide to setting up a private Tor network. In this experiment, we will set up the VMs using the script files on my [Github page](https://github.com/tfukui95/tor-experiment), without explaining each step in detail. 
+In my other blog post called [Anonymous Routing of Network Traffic Using Tor](https://witestlab.poly.edu/blog/anonymous-routing-of-network-traffic-using-tor/), I provide a step by step guide to setting up a private Tor network. In this experiment, we will set up the VMs using the script files on my [Github page](https://github.com/tfukui95/tor-experiment), without explaining each step in detail. 
 
 The order in which the VMs are set up is very important. Making sure that the directory server is set up first before any of the other nodes is vital for the private Tor network to be set up properly, as the Tor configuration files for the rest of the nodes are first created in the directory server. Once the directory server is set up, the order of setup of the other VMs is flexible. 
 
@@ -134,8 +134,7 @@ Enter PEM pass phrase:
 Verifying - Enter PEM pass phrase:
 ```
 
-After that is finished, let us setup the webserver, relays, and client VMs. On the
-webserver run
+After that is finished, let us setup the webserver, relays, and client VMs. On the webserver run
 
 ```
 wget https://raw.githubusercontent.com/tfukui95/tor-experiment/master/wfp-webserver.sh
@@ -162,6 +161,7 @@ Now that all the VMs are setup, reconfirm that the private Tor network is up and
 sudo -u debian-tor arm
 ```
 
+(it may take a few minutes for the network to come up. Refer to the [Notes](../anonymous-routing-of-network-traffic-using-tor/#notes) section if there are problems - you may have to restart Tor on the client or on another node.)
 
 ### Setting up Websites on the Webserver
 
@@ -172,6 +172,8 @@ Now we will be setting up the webserver for our experiment. We will be saving ho
 3. Youtube
 4. Reddit
 5. Official New York Mets Website
+
+> _**Note**: The content of the websites' home page can vary. If, at the time you run the experiment, one of the websites has a "heavy" homepage (e.g. with video or many images), then it may take a long time to create the fingerprint for this website. In this scenario, you may want to replace the "heavy" website with an alternative._
 
 For each website, we will be storing the webpage in its own directory inside the /var/www/html/ directory of the webserver. We will first download the NYU Tandon School of Engineering homepage. On the webserver terminal, run 
 
@@ -221,8 +223,12 @@ When we create the fingerprints of the websites, we will be creating plots to vi
 
 ```
 sudo apt-get -y install python-pip python-dev libfreetype6-dev liblapack-dev libxft-dev gfortran
-sudo pip install stem seaborn pandas
+```
 
+and then
+
+```
+sudo pip install stem 'seaborn<0.9.0' pandas 
 ```
 
 Next, in order to make our fingerprints, we must run our website packet captures through a filter, defined by a python script that we have written. This script takes in the packet trace and filters out unneeded packets and places markers of different kinds in the trace, defined in the __Characteristics of Packet Traces__ section above. This script will create the fingerprint out of the packet trace. The python script filter can be accessed on my [Github page](https://github.com/tfukui95/tor-experiment). On the router1 terminal, run
@@ -271,7 +277,7 @@ Now use Ctrl+C to stop the tshark from listening on the network, which will save
 python make-fingerprint.py --filename engineering.csv
 ```
 
-A list of tuples, containing the type of data (whether a data packet or a marker) and the data itself, will be outputted onto the display. During this process several plots are created as visuals of the fingerprint for the  comparison part of our experiment later. The plots are saved as a PNG image file, and should be stored somewhere for later. As an additional part of the fingerprint, a table is created, containing information about the other markers that are appended at the end of the list. The name of each of the images depends on the website, for example, where <sitename> can refer to facebook. The file <sitename>-fingerprint-plot-grid.png contains the visualization (as shown in the [Results](#results) section), and the table shown in that section is saved as <sitename>-fingerprint-table.pdf.
+A list of tuples, containing the type of data (whether a data packet or a marker) and the data itself, will be outputted onto the display. During this process several plots are created as visuals of the fingerprint for the  comparison part of our experiment later. The plots are saved as a PNG image file, and should be stored somewhere for later. As an additional part of the fingerprint, a table is created, containing information about the other markers that are appended at the end of the list. The name of each of the images depends on the website, for example, where `<sitename>` can refer to facebook. The file `<sitename>-fingerprint-plot-grid.png` contains the visualization (as shown in the [Results](#results) section), and the table shown in that section is saved as `<sitename>-fingerprint-table.pdf`.
 
 Now we must do the same for the other four sites. For Facebook:
 
@@ -386,6 +392,11 @@ sudo tcpdump -s 1514 -i any 'port <port_num>' -U -w - | tee <name_file>.pcap | t
 ```
 
 This will tell the function to listen on a certain port number, output the traffic onto the display, and to save it to a pcap file with the name that you specify. 
+
+## Notes
+
+Thanks to Evan Silver for contributing corrections.
+
 
 ## References
 
