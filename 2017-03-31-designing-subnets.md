@@ -118,7 +118,7 @@ After setting up these interfaces, hosts within the same LAN can reach one anoth
 
 For this experiment, you will reserve a topology on GENI that includes three routers (A, B, and C) and two hosts connected to each router. The routers will already be configured with IP addresses (in the 10.10.100.0/24 subnet) on the link that connects the routers to one another. However, it will be up to you to design subnets for the small LAN connected to each router.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vSWlL](https://git.io/vSWlL)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JU9vP](https://git.io/JU9vP)
 
 This will load the following topology onto your canvas:
 

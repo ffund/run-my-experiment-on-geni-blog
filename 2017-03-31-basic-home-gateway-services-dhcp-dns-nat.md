@@ -269,8 +269,7 @@ And here are the same packets on the WAN:
 
 ## Run my experiment
 
-
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vSsHd](https://git.io/vSsHd)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JThp3](https://git.io/JThp3)
 
 This should load a topology onto your canvas with:
 
@@ -285,12 +284,12 @@ Wait for all of your nodes to become ready to log in (they will turn green on th
 
 This experiment mimics clients connecting to a residential gateway and using the network services provided by that gateway (DHCP, DNS, NAT, for example). However, the clients in our experiment are _already_ set up to use a university gateway for those services. (Otherwise, they would not have a functional network connection and we would not be able to get in to them over SSH!)
 
-To run this experiment, we will tell the clients _not_ to use the university gateway for anything except our SSH session. However, once you do this, <b>you should plan to finish the reset of the experiment involving these resources in the same SSH session</b>. Otherwise, if you stop and then resume the experiment from a new SSH session in a new location, you won't be able to access the clients anymore. (If this happens, you can restart the nodes using the "Restart" button in the GENI Portal, which will reset most network configuration settings.)
+To run this experiment, we will tell the clients _not_ to use the university gateway for anything except our SSH session. However, once you do this, <b>you should plan to finish the rest of the experiment involving these resources in the same SSH session</b>. Otherwise, if you stop and then resume the experiment from a new SSH session in a new location, you won't be able to access the clients anymore. 
 
 When you're ready, on each of the two "client" nodes (and _only_ on the client nodes), run
 
 ```
-wget -qO- https://git.io/vSsQ3 | bash
+wget -qO- https://git.io/JTjLB | bash
 ```
 
 to download and run a [script](https://gist.github.com/ffund/ebfa8f9eabbedd2bc4f26ee7f38ae2bd) that removes most of the network settings on the client that involve the university gateway.
@@ -305,6 +304,20 @@ sudo: unable to resolve host client-1
 ```
 )
 
+---
+> **Note**: as mentioned above, if your own IP address changes, you may lose connectivity to your client nodes. Here's how to access your client nodes if that happens!
+> 
+> 1. Use SSH to log in to the "gateway" node, but add the `-A` argument to the SSH command. Also specify the path to your private key with `-i`, if you normally do so when using SSH to log in to GENI hosts. 
+> 2. From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do *not* use the `-i` argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.
+> 
+> For example: <blockquote><pre>
+ffund@laptop:~$ ssh <b>-A</b> ffund01@pc1.instageni.metrodatacenter.com -p 25812
+ffund01@gateway:~$ ssh ffund01@pc1.instageni.metrodatacenter.com -p 25810
+ffund01@client-1:~$
+</pre>
+</blockquote>
+
+
 ### Set up gateway
 
 Now we'll set up the "gateway" node:
@@ -317,15 +330,25 @@ sudo sysctl -w net.ipv4.ip_forward=1
 
 Next, we will install `dnsmasq`, a lightweight DNS and DHCP server. On the "gateway" node, run:
 
-```
+<pre>
+echo "deb http://us.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+
 sudo apt-get update
-sudo apt-get -y install dnsmasq
+sudo apt-get -y install dnsmasq dnsmasq-base
+</pre>
+
+Don't worry if you see an error message in the output that says:
+
 ```
+failed to create listening socket for port 53: Address already in use
+```
+
+we'll fix that in a moment with a new configuration file!
 
 We will now configure `dnsmasq`. On "gateway", run
 
 ```
-sudo wget -O /etc/dnsmasq.conf https://git.io/vSs7u
+sudo wget -O /etc/dnsmasq.conf https://git.io/JThhR
 ```
 
 to download a [config file](https://gist.github.com/ffund/ae43447629c3c5b9da9eb54962f93adf) into "/etc/dnsmasq.conf". The contents of the config file are:
@@ -335,7 +358,7 @@ interface=eth1
 dhcp-range=192.168.100.100,192.168.100.199,4h
 dhcp-option=3,192.168.100.1
 dhcp-option=6,192.168.100.1
-
+bind-interfaces
 ```
 
 This tells `dnsmasq` 
@@ -344,6 +367,7 @@ This tells `dnsmasq`
 * to give out IP addresses in the range 192.168.100.100-192.168.100.199, and
 * to also notify clients to use it (192.168.100.1) as a default gateway (DHCP option 3),
 * to also notify clients to use it (192.168.100.1) as the nameserver for DNS queries (DHCP option 6).
+* to only bind to the interface on which it is listening for incoming connections (`eth1`)
 
 
 Restart the `dnsmasq` service to load the new configuration:
@@ -389,7 +413,7 @@ bound to 192.168.100.157 -- renewal in 5679 seconds.
 
 Meanwhile, in the `tcpdump` output, you should see each of those messages. 
 
-First, the client sends a "discover" request to try and find DHCP servers on the LAN. The client does not have an IP address yet, so this message has "0.0.0.0" as the source IP address. This is used to refer to a source address on "this" network. Also, the client does not know the address of the DHCP server, so it uses the broadcast IP address "255.255.255.255" and the broadcast MAC address "ff:ff:ff:ff:ff:ff" in the destination fields of the Layer 2 and Layer 3 headers:
+First, the client sends a "discover" request to try and find DHCP servers on the LAN. The client does not have an IP address yet, so this message has "0.0.0.0" (an invalid address) as the source IP address. Also, the client does not know the address of the DHCP server, so it uses the broadcast IP address "255.255.255.255" and the broadcast MAC address "ff:ff:ff:ff:ff:ff" in the destination fields of the Layer 2 and Layer 3 headers:
 
 <pre>
 15:15:26.554336 02:eb:60:57:10:ad > ff:ff:ff:ff:ff:ff ethertype IPv4 (0x0800), length 342: (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
@@ -430,7 +454,7 @@ Next, a DHCP server that receives this request (in this case: our gateway at 192
 
 The server also includes other DHCP options in the message -in this case, it informs the client of the default gateway to use (option 3) and the name server to use (option 6).
 
-The client responds with a request for the IP address that was just offered. In case multiple DHCP servers respond to the "Discover" message with an "Offer", the client will put in a "Request" for only one of them, from one DHCP server:
+The client responds with a request for the IP address that was just offered. In case multiple DHCP servers respond to the "Discover" message with an "Offer", the client will put in a "Request" for only one of them, from one DHCP server. The other DHCP servers will notice the request (since it is sent to the broadcast address, they will all receive it) and understand that the client does not accept their offer:
 
 <pre>
 15:15:29.060208 02:eb:60:57:10:ad > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 342: (tos 0x10, ttl 128, id 0, offset 0, flags [none], proto UDP (17), length 328)
@@ -501,7 +525,9 @@ to see the address of the name server it uses. You should see:
 nameserver 192.168.100.1
 ```
 
-Finally, we can see that the client uses the gateway as the default gateway for routing. On the client, run
+(You may also see some secondary nameservers from the host InstaGENI site; that's OK!)
+
+Finally, we can see that the client uses the gateway as the default gateway for routing purposes. On the client, run
 
 ```
 route -n
@@ -516,7 +542,13 @@ to see routing rules. We should see two rules associated with the interface conn
 
 The first rule says to use "192.168.100.1" as the next hop for any traffic whose destination address does not meet any more specific rule, i.e. as the default rule. The second rule says to send traffic for the 192.168.100.0/24 subnet out of the `eth1` interface, which is connected to the LAN.
 
-On the second client node, use `dhclient -d eth1` to get an IP address on this node as well.
+On the second client node, use 
+
+```
+sudo dhclient -d eth1
+```
+
+to get an IP address on this node as well.
 
 ### Observe a DNS query and response
 
@@ -595,13 +627,15 @@ and then the response from the gateway, that gives the address as "192.41.233.62
 </pre>
 
 
-With the addition of the `+trace` option, `dig` will show you each successive hierarchical step that the query takes, until it reaches the name server that is authoritative for the name. On the *gateway*, run:
+With the addition of the `+trace` option, `dig` will show you each successive hierarchical step that the query takes, until it reaches the name server that is authoritative for the name. 
+
+**On the "gateway"**, run:
 
 <pre>
 dig +trace <b>website.nat.ch-geni-net.instageni.research.umich.edu</b>
 </pre>
 
-again, substituting your own "website" node's hostname. This time, you'll see much more output. 
+again, substituting your own "website" node's hostname. This time, you'll see much more output.
 
 
 First, the DNS server returns a list of root name servers:
@@ -690,7 +724,7 @@ Here,
 * The third and fourth rules actually do the network address translation. They will rewrite the source IP address in the Layer 3 header of packets forwarded out on the WAN interface. Also, when packets are received from the WAN, it identifies the connection that they belong to, rewrites the destination IP address in the Layer 3 headers, and forwards them on the LAN.
 
 
-Find out the public IP address of the NAT node. On the "nat" device, run 
+Find out the public IP address of the NAT node. On the "gateway" device, run 
 
 ```
 wget -qO- http://ipinfo.io/
@@ -716,7 +750,7 @@ With NAT, to the rest of the Internet, all of the hosts in our "home" network wi
 wget -qO- http://ipinfo.io/
 ```
 
-You should see that they, too, appear to be coming from the IP address belonging to the NAT:
+Note that this connection will go to the Internet via the gateway, using interface `eth1` which has a private IP address in the range 192.168.100.0/24. Despite this, you should see that the client, too, appears to be coming from the IP address belonging to the NAT:
 
 <pre>
 {
@@ -745,7 +779,7 @@ On the client node, install a basic terminal-based web browser with:
 
 ```
 sudo apt-get update
-sudo apt-get -y install lynx-cur
+sudo apt-get -y install lynx
 ```
 
 
@@ -794,6 +828,46 @@ However, for the _same_ packets, the `tcpdump` running on the "website" node (on
 
 confirming that the packet headers are rewritten in the NAT gateway.
 
-### Clean up InstaGENI resources
 
-At this point we are finished with the resources we reserved on the GENI Portal, so please delete them to free them for use by other experimenters.
+## Notes
+
+Last updated: November 2020. Thanks to Devesh Yadav and Professor Violet Syrotiuk at Arizona State University for the corrections.
+
+
+### Exercise
+
+#### DHCP
+
+* Show the "Discover" packet sent by the client to try and find DHCP servers on the LAN. What are the source and destination IP addresses in this request? Why are these addresses used?
+* Show the "Offer" packet sent by the server. What IP address does the server offer in this example? What is the range of addresses that the server in our experiment may offer? (You can refer to the `dnsmasq` configuration file.)
+* Show the "Request" packet sent by the client. What is the destination address in this request? Why?
+* Show the DHCP ACK sent by the server to complete the process. 
+* What command would you run at the client to verify each of the following? Take screenshots showing the command *and* the output for each of these, and annotate your screenshots by drawing a circle or a box around the configuration suggested by the server in the DHCP Offer/ACK.
+  * That the `eth1` interface will use the newly acquired IP address, and the   `Subnet-Mask` suggested by the server?
+  * That the client uses the `Domain-Name-Server` suggested by the server?
+  * That the client uses the `Default-Gateway` suggested by the server?
+
+
+#### DNS
+
+* For the basic DNS resolution (not the one with `+trace`!) show the `dig` command and its output. Also show the DNS query and response from the `tcpdump` output. Answer the following questions using the `dig` output. No explanation is required - just copy and paste the relevant word from the `dig` output for each answer.
+  * What is the hostname that you tried to resolve?
+  * What is the DNS record *type* that your query relates to? ([Here is a list of DNS record types](https://en.wikipedia.org/wiki/List_of_DNS_record_types).)
+  * What is the *address* for the hostname you asked to resolve?
+  * Give the name of the first "authoritative" server listed for this name, and the IP address of that "authoritative" server.
+  * What is the IP address of the server that the DNS response is from?
+* For the hierarchical DNS resolution with `+trace`, show the `dig` command and its output. Draw a diagram showing how the hostname was resolved recursively, starting from the implied `.` at the end and moving toward the beginning.
+ * At the top, show the nameservers for the root domain. Highlight the one that you queried for the top-level domain (as shown in the `dig +trace` output).
+ * At the next level, show the nameservers for the top-level domain. Highlight the one that you queried for the second-level domain.
+ * At the next level, show the nameservers for the second-level domain. Highlight the one that you queried for the subdomain.
+ * Repeat until you have shown how the complete hostname is resolved.
+
+#### NAT
+
+* Show the three-way TCP handshake for a connection between client and website as seen by `tcpdump` at the website, and as seen by `tcpdump` at the gateway (on the LAN). Make sure you can see the IP IP addresses and port numbers used in the connection!
+* Draw a diagram showing how NAT is used between client and website, similar to [this diagram](https://witestlab.poly.edu/blog/content/images/2017/03/gateway-nat-2.svg) but with the IP addresses, hostnames, and ports from *your* experiment.
+
+
+
+
+

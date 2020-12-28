@@ -239,9 +239,11 @@ Policy 3       2934482                 6              0.094
 
 ## Run my experiment
 
-To start, create a new slice on the [GENI portal](https://portal.geni.net/). Create a client-server topology with two VMs connected with a link, by downloading and using [this RSpec](https://git.io/vxpBt) (In the Portal, create a new slice, click "Add Resources", scroll down to "Choose RSpec", and select "From File"):
+To start, create a new slice on the [GENI portal](https://portal.geni.net/). Create a client-server topology with two VMs connected with a link, by downloading and using this RSpec: [https://git.io/JkkrI](https://git.io/JkkrI) 
 
-![](http://witestlab.poly.edu/repos/genimooc/run_my_experiment/dash_experiment/dash_topology.png)
+(In the Portal, create a new slice, click "Add Resources", scroll down to "Choose RSpec", and select "From URL".)
+
+![](/blog/content/images/2020/11/dash_topology.png)
 
 Then choose an aggregate and log in to your resources.
 
@@ -249,13 +251,25 @@ Now let's install all the required software.
 
 **On Client Node**. Install software dependencies for this experiment:
 
-```
+<pre>
 sudo su # if you are not logged in as root
 cd ~
-sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/tools:/mytestbed:/stable/xUbuntu_12.04/ /' >> /etc/apt/sources.list.d/oml2.list"
+sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/tools:/mytestbed:/stable/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/oml2.list"
 apt-get update
-apt-get -y build-dep vlc
 apt-get -y --force-yes install subversion liboml2-dev
+
+sh -c "echo 'deb http://us.archive.ubuntu.com/ubuntu/ precise main universe multiverse restricted' >> /etc/apt/sources.list"
+sh -c "echo 'deb-src http://us.archive.ubuntu.com/ubuntu/ precise main universe multiverse restricted' >> /etc/apt/sources.list"
+
+sh -c "echo 'deb http://us.archive.ubuntu.com/ubuntu/ precise-updates main universe multiverse restricted' >> /etc/apt/sources.list"
+sh -c "echo 'deb-src http://us.archive.ubuntu.com/ubuntu/ precise-updates main universe multiverse restricted' >> /etc/apt/sources.list"
+
+sh -c "echo 'deb http://us.archive.ubuntu.com/ubuntu/ precise-security main universe multiverse restricted' >> /etc/apt/sources.list"
+sh -c "echo 'deb-src http://us.archive.ubuntu.com/ubuntu/ precise-security main universe multiverse restricted' >> /etc/apt/sources.list"
+
+
+apt-get update
+apt-get -y build-dep vlc=2.0.8-0ubuntu0.12.04.1
 
 wget https://www.freedesktop.org/software/vaapi/releases/libva/libva-1.1.1.tar.bz2
 tar -xjvf libva-1.1.1.tar.bz2 
@@ -264,15 +278,19 @@ cd libva-1.1.1
 make
 make install 
 ldconfig
-```
+
+apt-get -y --allow-downgrades install libavcodec-dev=4:0.8.17-0ubuntu0.12.04.2 libavutil-dev=4:0.8.17-0ubuntu0.12.04.2 libavformat-dev=4:0.8.17-0ubuntu0.12.04.2 libpostproc-dev=4:0.8.17-0ubuntu0.12.04.2 libswscale-dev=4:0.8.17-0ubuntu0.12.04.2
+apt-get -y install libgcrypt-dev
+apt-get -y --allow-downgrades install gcc=4:4.6.3-1ubuntu5 g++=4:4.6.3-1ubuntu5 g++-mingw-w64=4.6.3-1ubuntu5+5ubuntu1 libtool=2.4.2-1ubuntu1
+</pre>
 
 Download the VLC client software, compile it and install it
 
-```
+<pre>
 cd ~
 svn co http://witestlab.poly.edu/repos/genimooc/dash_video/vlc-2.1.0-git
 cd vlc-2.1.0-git
-./configure LIBS="-loml2" --enable-run-as-root --disable-lua --disable-live555 --disable-alsa --disable-dvbpsi --disable-freetype
+./configure LIBS="-loml2" --enable-run-as-root --disable-lua --disable-live555 --disable-alsa --disable-dvbpsi --disable-freetype --disable-bluray
 make
 make install
 mv /usr/local/bin/vlc /usr/local/bin/vlc_app
@@ -281,13 +299,13 @@ echo 'export LD_LIBRARY_PATH="/usr/local/lib${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PA
 echo 'export TERM=xterm' >> /usr/local/bin/vlc
 echo 'vlc_app "$@"' >> /usr/local/bin/vlc
 chmod +x /usr/local/bin/vlc
-```
+</pre>
 
 While this is running (it will take a while), open a second terminal and set up the server node.
 
 **On Server Node**. start by installing/setting up Apache, as we need a server for the video file.
 
-```
+<pre>
 sudo su # if you are not logged in as root
 cd ~
 apt-get update # refresh local information about software repositories
@@ -295,25 +313,27 @@ apt-get -y install apache2 ruby1.9.1
 cd /var/www/html
 wget http://witestlab.poly.edu/repos/genimooc/dash_video/BigBuckBunny_2s_480p_only.tar.gz
 tar -zxvf BigBuckBunny_2s_480p_only.tar.gz
-```
+</pre>
 
 Download the MPD file:
 
-```
+<pre>
 cd video
 rm bunny_Desktop.mpd
 wget -nH --no-parent "http://witestlab.poly.edu/repos/genimooc/run_my_experiment/dash_experiment/bunny_Desktop.mpd"
-```
+</pre>
+
 
 Let's test that everything works up until now. On client node execute
 
-```
+<pre>
 vlc -I dummy -V dummy http://192.168.1.200/video/bunny_Desktop.mpd --oml-id client --oml-domain "VLC" --oml-collect "file:/dev/null" --quiet --oml-log-level 0 --sout "#duplicate{dst=display,dst=std{access=file,mux=ps,dst=/tmp/test.mp4}}" --dash-policy 1
-```
+</pre>
+
 
 The output should be something like this
 
-```
+<pre>
 VLC media player 2.1.0-git Rincewind (revision 1.3.0-git-6058-g2f0e36e)
 Feb 25 13:53:49 INFO	OML Client 2.11.0 [OMSPv5] Copyright 2007-2014, NICTA
 INFO	File_stream: opening local storage file '/dev/null'
@@ -333,7 +353,8 @@ chosenRate_bps=5991271 empiricalRate_bps=922833287 decisionRate_bps=922833287 bu
 chosenRate_bps=5991271 empiricalRate_bps=962394258 decisionRate_bps=962394258 buffer_percent=80
 chosenRate_bps=5991271 empiricalRate_bps=1001082564 decisionRate_bps=1001082564 buffer_percent=83
 chosenRate_bps=5991271 empiricalRate_bps=1123459517 decisionRate_bps=1123459517 buffer_percent=94
-```
+</pre>
+
 
 Now we are ready to run this experiment.
 
@@ -619,11 +640,13 @@ chmod +x /usr/local/bin/vlc
 
 ## Notes and References
 
+Last updated: November 2020 (to use Ubuntu 16.04 instead of Ubuntu 14.04, which is deprecated on GENI.)
+
 The VLC DASH plugin in this experiment is described in:
 
 Christopher Müller and Christian Timmerer. 2011. A VLC media player plugin enabling dynamic adaptive streaming over HTTP. In *Proceedings of the 19th ACM international conference on Multimedia (MM '11)*. ACM, New York, NY, USA, 723-726. ([URL](http://dx.doi.org/10.1145/2072298.2072429))
 
-The version of this plugin that measurements to an OML database is described in:
+The version of this plugin that sends measurements to an OML database is described in:
 
 Fraida Fund, Cong Wang, Yong Liu, Thanasis Korakis, Michael Zink and Shivendra S. Panwar. 2013. Performance of DASH and WebRTC Video Services for Mobile Users. In *Proceedings of the 2013 20th International Packet Video Workshop*. San Jose, CA, 1-8. ([URL](http://dx.doi.org/ 10.1109/PV.2013.6691455))
 

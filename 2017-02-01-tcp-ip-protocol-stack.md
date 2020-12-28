@@ -39,7 +39,7 @@ In this experiment, we will establish a connection like the one in the image abo
 
 First, reserve your resources.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vDI15](https://git.io/vDI15)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JUWPU](https://git.io/JUWPU)
 
 This should load the following topology onto your canvas:
 
@@ -91,7 +91,7 @@ lo        Link encap:Local Loopback
 
 ```
 
-We note two Ethernet interfaces (named `eth0` and `eth1`) and a loopback interface (named `lo`). The loopback interface is a virtual network interface that the computer uses to communicate with itself using network protocols. The two Ethernet interfaces represent two points of attachment to networks: one to the public Internet (which you need in order to SSH in to your system from outside!), and one to the private link that you've set up between the VMs in your topology.  
+We note two Ethernet interfaces (named `eth0` and `eth1`) and a loopback interface (named `lo`). The loopback interface is a virtual network interface that the computer uses for processes on the same host to communicate with one another using network protocols. The two Ethernet interfaces represent two points of attachment to networks: one to the public Internet (which you need in order to SSH in to your system from outside!), and one to the private link that you've set up between the VMs in your topology.  
 
 In addition to the name of each network interface, we can also see the MAC address (at the network access/data link layer) in the `ifconfig` output:
 
@@ -228,7 +228,7 @@ traceroute to 10.0.10.2 (10.0.10.2), 30 hops max, 60 byte packets
  2  10.0.10.2  0.991 ms  0.938 ms  0.906 ms
 ```
 
-If stop the "router" from forwarding traffic between networks, then traffic from the "client" will no longer reach the "server". Try it - on the "router" run the following to stop forwarding: 
+If we stop the "router" from forwarding traffic between networks, then traffic from the "client" will no longer reach the "server". Try it - on the "router" run the following to stop forwarding: 
 
 ```
 sudo sysctl -w net.ipv4.ip_forward=0

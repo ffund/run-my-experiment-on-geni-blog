@@ -29,7 +29,7 @@ Then, the forwarding table is used to determine whether to forward, filter, or f
 * If the destination address is in the table, and is known to be reachable on the same port that the frame was received on, the switch will _filter_ (drop) the frame. 
 * Otherwise, the switch will _forward_ the frame out of the port corresponding to its destination address in the forwarding table.
 
-Switches and bridges improve performance by partitioning the _collision domain_, the section of network within which frames collide (destructively) with one another when they are sent simultaneously. Only one host in a collision domain may transmit at a time, in order to avoid collisions. Thus, the total network capacity is shared among all hosts in a collision domain. With a switch or bridge, each port on a switch becomes its own collision domain, and so each network segment can separately support the full network capacity. 
+Switches and bridges improve performance by partitioning the _collision domain_, the section of network within which frames collide (destructively) with one another when they are sent simultaneously. Only one host in a collision domain may transmit at a time, in order to avoid collisions. Thus, the total network capacity is shared among all hosts in a collision domain. With a learning switch or bridge, each port on a switch becomes its own collision domain, and so each network segment can separately support the full network capacity. 
 
 
 ## Results
@@ -40,7 +40,7 @@ The following video shows how entries are added to the forwarding table when a f
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/xHH59_S-lX4" frameborder="0" allowfullscreen></iframe>
 
-We also see how a learning switch or bridge reduces the number of hosts in each collision domain, increasing the overall network capacity. In the following experiment, each network segment has approximately 1000 Kbps capacity. When learning is enabled on the bridge, every network segment can support 1000 Kbps capacity. When learning is disabled, the 1000 Kbps capacity is shared among all network segments:
+We also see how a learning switch or bridge reduces the number of hosts in each collision domain, increasing the overall network capacity. In the following experiment, each network segment has approximately 1000 Kbps capacity. When learning is enabled on the bridge, every network segment can support 1000 Kbps capacity. When learning is disabled (i.e., the bridge acts like a "basic" hub that does not separate the network into collision domains), the 1000 Kbps capacity is shared among all network segments:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Rjjnij3kunI" frameborder="0" allowfullscreen></iframe>
 
@@ -48,7 +48,7 @@ We also see how a learning switch or bridge reduces the number of hosts in each 
 
 First, you will reserve a topology on GENI that includes a bridge with four ports, and one host connected to each port.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vysIM](https://git.io/vysIM)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JTzUE](https://git.io/JTzUE)
 
 Your topology may have some red warning indicators on it, like this:
 
@@ -284,7 +284,7 @@ and on node-2, quickly run
 iperf -c 10.0.0.4 -t 90
 ```
 
-After a couple of minutes, you should see messages on the two receiver instances, indicating the total data rate, e.g.
+After a couple of minutes, you should see messages on the two receiver instances, indicating the total data rate in kilobits per second, e.g.
 
 ```
 [  4]  0.0-97.3 sec  9.88 MBytes   851 Kbits/sec
@@ -349,35 +349,72 @@ When you finish this experiment, please delete your resources in the GENI Portal
 
 ### Exercise
 
-As you complete the "Set up the bridge" section of the tutorial, fill in the blank table cells in [this image](https://docs.google.com/drawings/d/1m1CTV5YJdGkup80SDCZSgwcfX4zhwUW076rdukgVodw/edit?usp=sharing). Use the output of brctl showmacs br0 and ifconfig to find this information.
+* As you complete the [Set up the bridge](#setupthebridge) section of the experiment, save the output of `ifconfig` on each host and on the bridge, and also save the output of the `brctl showmacs br0` command when the bridge has seen the MAC addresses of all four hosts. 
 
-(To make an editable copy of the image above in Google Drawings, click on the link while signed in to a Google or Google Apps account and click on File > Make a copy. You can then fill in the missing values in the table cells.)
+  Annotate these to draw a box or a circle around the MAC addresses on the experiment interfaces in the `ifconfig` output, and to write the name of the host (or bridge) that the MAC address belongs to next to each line of the `brctl` output.
 
-Note how you found each of those values - include the output of any relevant commands, either as a screenshot or copy and paste, and highlight the relevant part. 
+    Then, use this information to fill in a table showing the bridge configuration. For each bridge port (1, 2, 3, 4), indicate:
 
-As you run the "Learning MAC addresses" section of the experiment, make an ordered list of the following six events:
+    * which interface on the bridge - `eth1`, `eth2`, `eth3`, `eth4` - is on that port, and the MAC address of that interface.
+   * which host (node-1, node-2, node-3, or node-4) is on that port, and its MAC address
+<table id="table-1" class="table table-striped table-bordered col-2" data-columns="2"><thead>
+<thead>
+<tr>
+<th>Bridge port</th>
+<th>Bridge interface, MAC</th>
+<th>Hostname, MAC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 
-* the bridge learns the MAC address of node-1,
-* the bridge learns the MAC address of node-2,
-* node-1 sends the first ping request (with seq 1) to node-2, 
-* node-2 sends the first ping reply (with seq 1) to node-1,
-* node-2 receives the first ping request (with seq 1) from node-1,
-* node-1 receives the first ping reply (with seq 1) from node-2.
+ 
 
-(By "make an ordered list", I mean: note which event happened first, which happened second, etc.)
+* As you run the [Learning MAC addresses](#learningmacaddresses) section of the experiment, make an ordered list of the following six events:
 
-With each list entry, include either
 
-* a frame from your `tcpdump` output or
-* a line from the `bridge monitor fdb` output or  `brctl showmacs br0` output
+  * the bridge learns the MAC address of node-1,
+  * the bridge learns the MAC address of node-2,
+  * node-1 sends the first ping request (with seq 1) to node-2, 
+  * node-2 sends the first ping reply (with seq 1) to node-1,
+  * node-2 receives the first ping request (with seq 1) from node-1,
+  * node-1 receives the first ping reply (with seq 1) from node-2.
 
-that shows each event occurring. If a frame appears in the `tcpdump` output on multiple network segments, you can copy the frame from any of them. 
+  (By "make an ordered list", I mean: note which event happened first, which happened second, etc.)
 
-(If the output you include shows more than just that one event, make sure to highlight or otherwise mark the relevant part.)
+ With each list entry, include either
 
-Finally, run the "Effect of a smaller collision domain" section of the experiment. Then, run the following variation: With MAC learning turned ON, run an iperf receiver on node-4 (`iperf -s`) and on node-1, node-2, and node-3, simultaneously run iperf transmitters to send traffic to node-4 (`iperf -c 10.0.0.4 -t 90`).
+  * a frame from your `tcpdump` output or
+  * a line from the `bridge monitor fdb` output or  `brctl showmacs br0` output
 
-What network capacity is "seen" by each of the three transmitters? Show the relevant output on the iperf receiver, and explain. Explain how and why this is different from the experiment shown in the first 75 seconds of [this video](https://www.youtube.com/watch?v=Rjjnij3kunI), where MAC learning is also turned on.
+  that shows each event occurring. 
+
+  (If the output you include shows more than just that one event, make sure to highlight or otherwise mark the relevant part.)
+
+* Finally, run the [Effect of a smaller collision domain](#effectofasmallercollisiondomain) section of the experiment. Show the `iperf` receiver output both with and without MAC learning.
+
+  Then, run the following variation: With MAC learning turned ON, run an iperf receiver on node-4 (`iperf -s`). On node-1, node-2, and node-3, simultaneously run iperf transmitters to send traffic to node-4 (`iperf -c 10.0.0.4 -t 90`).
+
+  What network capacity is "seen" by each of the three transmitters? Show the relevant output on the iperf receiver, and explain. Explain how and why this is different from the experiment shown in the first 75 seconds of [this video](https://www.youtube.com/watch?v=Rjjnij3kunI), where MAC learning is also turned on.
 
 
 ### Supplemental activities 

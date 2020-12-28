@@ -35,7 +35,7 @@ To create a loop-free tree, bridges in the network  exchange BPDUs, and execute 
 1. **Elect a root switch or bridge**. Each bridge is assigned a unique bridge ID, usually formed from a priority concatenated with the MAC address of one of the bridge ports. The bridge or switch with the lowest bridge ID is elected as the root bridge.
 2. **Elect a root port on each non-root bridge**.  Each bridge (except the root bridge) computes the _root path cost_, i.e. cost of the path to the root bridge, through each port. Then, the _root port_ is elected - the one with the lowest root path cost.
 3. **Select a designated bridge and port on each network segment**.  The bridge on each network segment with the lowest root path cost will be selected as the designated bridge, and the port that connects that bridge to the network segment is the designated port. (The bridge ID is used as the tie-breaker in case there are multiple bridges on a network segment with the same root path cost.)
-4. **Set bridge ports' states**. On a bridge that is not the root, only designated ports can forward frames on a network segment. Other bridge ports are set to the "blocked" state.
+4. **Set bridge ports' states**. On a bridge that is not the root, only root ports or designated ports can forward frames on a network segment. Other bridge ports are set to the "blocked" state.
 
 In this experiment, we will create a topology with a loop, then watch as the spanning tree algorithm creates a logical loop-free topology.
 
@@ -81,28 +81,15 @@ with each interface assigned an IP address as follows:
 </tbody>
 </table>
 
-You can use an RSpec that configures the bridge interfaces for you. Or, if you want to see the setup procedure by working through it yourself, you can use an RSpec that only reserves resources and does not set up them up:
 
-* [Automatic setup](#automaticsetup)
-* [Manaul setup](#manualsetup)
+#### Setup
 
-#### Automatic setup
-
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vdpmL](https://git.io/vdpmL)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JUaU9](https://git.io/JUaU9)
 
 You can ignore the warnings indicating that a duplicate IP address is assigned - we are deliberately assigning an IP address of 0.0.0.0 to each bridge interface. Since a bridge operates at Layer 2, it does not need an IP address.
 
-Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). You should also wait a few extra minutes for the postboot script (which sets up the bridge interfaces) to finish running.
+Click on "Site 1" and choose an InstaGENI site to bind to. (There have been some reports of problems with this exercise at the Illinois InstaGENI site; I recommend avoiding that one.) Then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready).
 
-Then, skip to [Create a broadcast storm](#createabroadcaststorm).
-
-#### Manual setup
-
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/vdpmG](https://git.io/vdpmG)
-
-You can ignore the warnings indicating that a duplicate IP address is assigned - we are deliberately assigning an IP address of 0.0.0.0 to each bridge interface. Since a bridge operates at Layer 2, it does not need an IP address.
-
-Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready).
 
 Next, we will set up the bridge nodes. Open a terminal for every bridge node, and SSH into each one using the details given in the GENI Portal. 
 
@@ -125,7 +112,7 @@ sudo apt-get -y install bridge-utils nload
 
 to install the bridge utilities, and also the `nload` utility for monitoring load on the network.
 
-Then, create a new bridge interface named br0 with the command
+Then, create a new bridge interface named `br0` with the command
 
 ```
 sudo brctl addbr br0
@@ -137,14 +124,6 @@ and add the two experiment interfaces to the bridge:
 sudo brctl addif br0 eth1
 sudo brctl addif br0 eth2
 ```
-
-Also, on each bridge node, run
-
-```
-sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
-```
-
-to disable IPv6 - otherwise, the default IPv6 configuration messages will create a broadcast storm themselves, without you even trying!
 
 Bring the bridge interface up:
 
@@ -190,15 +169,26 @@ nload br0
 
 to monitor traffic on the bridge interface.
 
+> **Editorial note**: Since this experiment was first written, the default operating system behavior with respect to IPv6 has changed. Now, nearby hosts and routers will attempt automatic configuration of IPv6 through transmission of frames to a broadcast or multicast MAC address. As a result, you may observe the increased network load that is characteristic of a broadcast storm even *before* you send the broadcast ICMP packet.
+>
+> If you do observe packets on the bridge interface even before you trigger the broadcast storm, you can stop it (at least temporarily!) by bringing the bridge interface on a *different* bridge down and then back up with:
+> 
+> `sudo ifconfig br0 down; sudo ifconfig br0 up` 
+
 Finally, open an SSH terminal to the host named "romeo", and run
 
 ```
 ping -b -c 1 10.10.0.255
 ```
 
-to send *one* broadcast packet on the LAN. (The `-b` flag is required when sending a ping to a broadcast address.)
+to send *one* broadcast packet on the LAN. (The `-b` flag is required when sending a ping to a broadcast address.) Note that this frame will use the broadcast address `ff:ff:ff:ff:ff:ff` as the destination MAC address.
+
+
 
 Observe the `nload` output. Do you see a sudden increase in network load - much more than you would expect from a single packet?
+
+
+
 
 Check the `tcpdump` processes running on the four bridge nodes. Can you see the many copies of the same ICMP packet? Look at the ID and sequence fields in the ICMP header, which are used to help match ICMP requests and responses - each ICMP "session" gets a unique ID, and the sequence number is incremented on each subsequent ICMP request in the same session. Are the packets you see in your `tcpdump` output different ICMP requests, or are they all copies of the same request? How can you tell?
 
@@ -214,7 +204,6 @@ on one bridge node, to break the loop. Wait a few seconds, then bring the bridge
 sudo ifconfig br0 up
 ```
 
-Make sure all four bridges are "up" before you proceed!
 
 ### Set up bridges to use spanning tree algorithm
 
@@ -222,13 +211,8 @@ Next, we will set up the bridges to use the spanning tree algorithm. We will see
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/TX5PUxCVAHM" frameborder="0" allowfullscreen></iframe>
 
-First, start `tcpdump` running on a host on each LAN, to capture the BPDUs through which the spanning tree algorithm will be executed. On each of romeo (LAN 3-4), hamlet (LAN 1-2), othello (LAN 2-3), and petruchio (LAN 1-4), run
 
-```
-sudo tcpdump -ex -i eth1 ether multicast -w stp-$(hostname -s).pcap
-```
-
-Then, on each _bridge_ node, bring down the bridge interface:
+On each _bridge_ node, bring down the bridge interface:
 
 ```
 sudo ifconfig br0 down
@@ -240,13 +224,21 @@ Run
 sudo brctl stp br0 on
 ```
 
-to turn on the spanning tree algorithm, and bring the bridge interface back up with 
+to turn on the spanning tree algorithm.
+
+Start `tcpdump` running on a host on each LAN to capture the BPDUs through which the spanning tree algorithm will be executed. On each of romeo (LAN 3-4), hamlet (LAN 1-2), othello (LAN 2-3), and petruchio (LAN 1-4), run
+
+```
+sudo tcpdump -i eth1 stp -w stp-$(hostname -s).pcap
+```
+
+Then, bring the bridge interface back up with 
 
 ```
 sudo ifconfig br0 up
 ```
 
-Then, run
+Finally, run
 
 ```
 watch --interval 1 brctl showstp br0
@@ -254,7 +246,7 @@ watch --interval 1 brctl showstp br0
 
 on each bridge. This will run the command to show the state of the ports on each bridge (`brctl showstp br0`) repeatedly, every second, so that you can monitor all the bridge ports as the spanning tree algorithm is executed.
 
-
+(Note: if your screen is not big enough, you may not be able to see all of the output. Since the output is updated continuously every second, you won't be able to scroll. You may want to reduce your zoom or font settings in your terminal, to see the complete output.)
 
 After some time, you should be able to find a bridge that has one port in the "blocking" state, like this:
 
@@ -289,7 +281,13 @@ eth2 (2)
  flags          
 </pre>
 
-Save the output of `brctl showstp br0` to a file on each bridge. Stop the `tcpdump` instances running on the four LANs (on romeo, othello, petruchio, and hamlet). Transfer the packet captures to your own laptop with `scp`. Open the packet capture in Wireshark, and look at a BPDU; make sure you can identify the root ID, root path cost, bridge ID, and port ID in the BPDU.
+Stop the `brctl` and `tcpdump` instances with Ctrl+C. Run 
+
+```
+brctl showstp br0
+```
+
+one last time on each bridge, and save the output. Transfer the packet captures to your own laptop with `scp`. Open the packet capture in Wireshark, and look at a BPDU; make sure you can identify the root ID, root path cost, bridge ID, and port ID in the BPDU.
 
 Then, draw the spanning tree produced in your experiment, and justify your drawing using the BPDUs you collected and output of `brctl showstp br0`.
 
@@ -321,17 +319,6 @@ Finally, we will observe how the spanning tree protocol adapts to changes in the
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/lxQRsTIpu8A" frameborder="0" allowfullscreen></iframe>
 
-Again, on a host in each LAN, run
-
-```
-sudo tcpdump -ex -i eth1 -w stp-change-$(hostname -s).pcap
-```
-
-to capture BPDUs. Also, on each bridge, run
-
-```
-watch --interval 1 brctl showstp br0
-```
 
 Choose two "host" nodes that are on opposite "sides" of the tree (on opposites sides of the root bridge. The root bridge is easily identified from the `brctl showstp br0` output as the one with a path cost of 0). 
 
@@ -339,6 +326,24 @@ From one of the two hosts, start to ping the other. For example, if you are usin
 
 ```
 ping 10.10.0.102
+```
+
+On the second host - the one that is the target of the pings - use `tcpdump` to capture ICMP packets:
+
+```
+sudo tcpdump -i eth1 -w icmp-change-$(hostname -s).pcap
+```
+
+On the other three hosts, run
+
+```
+sudo tcpdump -i eth1 -w stp-change-$(hostname -s).pcap
+```
+
+Also, on each bridge, run
+
+```
+watch --interval 1 brctl showstp br0
 ```
 
 Then, on the bridge node that is the _root_ bridge in the spanning tree, bring the bridge interface down with
@@ -361,19 +366,113 @@ This exercise is based on Chapter 3 of [TCP/IP Essentials: A Lab-Based Approach]
 
 Answer the following questions:
 
-1. Why does a broadcast storm occur specifically when there is a loop in the network? Why does the loop in the network "amplify" the broadcast traffic, so that even when only a few broadcast packets are sent, the load on the network is very high?
+#### Exercise 1. Broadcast storm
 
-2. Draw the network from the section where you "Set up bridges to use spanning tree algorithm". 
- * Put the _root bridge_ at the top of your drawing.  Draw a circle around the root bridge, and label it "Root". Then, draw each of the other bridges. On each bridge, write its hostname (e.g. "bridge-1", "bridge-2", etc.) Draw links connecting the bridges; label each network segment (e.g. "1-2", "2-3", etc.)
- * Label each bridge with its bridge ID, and each port with its port ID. 
- * If a port is the root port for that bridge, underline its port ID.
- * Next to each bridge port, draw a check mark if it is in the forwarding state. If a port is in the blocked state, then draw an X next to it.
- * Next to each network segment (1-2, 2-3, 3-4, 1-4), write the designated bridge and designated port for that network segment.
- * Next to each bridge, write the root path cost to that bridge.
+Why does a broadcast storm occur specifically when there is a loop in the network? Why does the loop in the network "amplify" the broadcast traffic, so that even when only a few broadcast packets are sent, the load on the network is very high? 
+
+Why does this occur specifically with broadcast packets, and not unicast?
+
+#### Exercise 2. Set up bridges to use spanning tree algorithm
+
+In this question, you will show how the bridges in the loop form a spanning tree.
+
+You will need screenshots of the final output of `brctl showstp br0` from each bridge (after the spanning tree is complete). These screenshots should show the terminal prompt (important - it must show which bridge the output is from!), the command, and the complete output. You will also need the BPDUs collected on each network segment (open these in Wireshark).
+
+##### Elect the root bridge
+
+The first step in the spanning tree algorithm is electing a root bridge, the bridge with the lowest bridge ID.
+
+Annotate each of your `brctl` screenshots by drawing a circle or a box around the bridge ID, and another circle or box around the ID of the "designated root". Also, make a special marking on the screenshot from the root bridge itself (i.e. the one where the bridge ID and designated root are the same).
+
+Is the root bridge bridge-1, bridge-2, bridge-3, or bridge-4?
+
+To elect the root bridge, each bridge initially considers *itself* the root bridge. Then, bridges exchange spanning tree configuration BPDUs, including a "root identifier" field where they list the ID of the bridge they consider to be the root bridge.
+
+From among the BPDUs you collected, find one where the root bridge in the "root identifier" field is *not* the same as the final root bridge you identified above. (You're likely to find this near the beginning of a packet capture.)
+
+**Note**: in Wireshark, the first part of the bridge ID, which is a priority value, is shown in decimal digits in the Packet Details pane, while in the `brctl` output, it is in hex digits. You can see the ID in hex in Wireshark by highlighting the field in the Packet Details pane and then looking at the Packet Bytes pane.
+
+Take a screenshot showing the Packet Details pane and Packet Bytes pane in Wireshark, with the Root Identifier in this BPDU highlighted. Also note which bridge this BPDU was sent from (use the Bridge ID field in this BPDU to identify the source). Was it sent from bridge-1, bridge-2, bridge-3, or bridge-4?
+
+Upon receiving BPDUs from neighboring bridges, a bridge may see that its neighbor has a different root bridge than itself. If its neighbor's root bridge ID is smaller than the ID of the bridge it currently considers the root, it will update its root bridge to the new, smaller value.
+
+Compare the root bridge ID in the BPDU you showed above, and the ID of the root bridge elected by all the bridges eventually. Give these two values in hex. Which one is greater? Why does the bridge whose BPDU you showed above eventually change its root bridge?
+
+#####  Elect a root port on each non-root bridge
+
+In the second step, each bridge (except the root bridge) computes the root path cost, i.e. cost of the path to the root bridge, through each port. Then, the root port is elected - the one with the lowest root path cost. This is the port that is "facing" the root bridge.
 
 
-3. Draw the network from the section where you practiced "Reacting to changes in the topology", following the same specifications as in #2.
+Find the `brctl` screenshots from your root bridge, and annotate it by drawing a circle or a box around the *root port*, which is listed near the top of the output. For the root bridge, the root port will be 0 (there is no root port).  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. 
 
-4. When you changed the topology, how much time elapsed between the last ping request arriving at the target _before_ you brought the root bridge down, and the first ping request arriving at the target _after_ you brought the root bridge down? (Use the packet capture from the network segment on which the target node was located.)
+Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. This is the port that will be selected as the root port. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output.  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output.
 
-As Appendix A to your report, show the output of the `brctl showstp br0` command on each bridge at the end of the section where you "Set up bridges to use spanning tree algorithm", and show all of the unique BPDUs captured in this section. As Appendix B to your report, show the output of the `brctl showstp br0` command on each bridge at the end of the section where you practiced "Reacting to changes in the topology", and show all of the unique BPDUs captured in this section.
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output.  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. Then, draw a circle or box around the *state* of the root port.
+
+
+The bridges find out the path cost (to elect their root ports) by exchanging BPDUs.
+
+
+From among the BPDUs you collected, find one where the root path cost is zero.  Take a screenshot showing the Packet Details pane and Packet Bytes pane in Wireshark, with the Root Path Cost in this BPDU highlighted. 
+
+Also make a note of the bridge ID and root ID in this BPDU - is this BPDU sent by the root bridge, or a non-root bridge?
+
+From among the BPDUs you collected, find one where the root path cost is *greater than* zero.  Upload a screenshot showing the Packet Details pane and Packet Bytes pane in Wireshark, with the Root Path Cost in this BPDU highlighted. 
+
+Also make a note of the bridge ID and root ID in this BPDU - is this BPDU sent by the root bridge, or a non-root bridge?
+
+##### Select a designated bridge and port on each network segment
+
+In the third step of the spanning tree protocol, the bridge on each network segment with the lowest root path cost will be selected as the designated bridge, and the port that connects that bridge to the network segment is the designated port. 
+
+
+Find the `brctl` screenshots from your root bridge, and annotate it by drawing a circle or a box around the *designated bridge* for each bridge port. Also draw a circle or a box around the bridge ID of this bridge (near the top of the output). The root bridge will be the designated bridge on any network segment it is on.
+
+
+Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. Draw a circle or a box around the bridge ID of this bridge (near the top of the output). Then draw a circle or a box around the *designated bridge* for each bridge port, and if this bridge is the designated bridge on the network segment (i.e. the designated bridge is the same as the bridge ID), also draw a circle or a box around the *designated port*.   
+
+For the bridge port on the same network segment as the root bridge, you should see that the root bridge is the designated bridge, since it has the lowest path cost. For the other port, this bridge and port should be the designated bridge and port, since it has a lower path cost than the other bridge connected to this network segment.
+
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate it by drawing a circle or a box around the *designated bridge* for each bridge port. Also draw a circle or a box around the bridge ID of this bridge (near the top of the output). 
+
+Is this bridge a designated bridge on any network segment? 
+
+
+#####  Set bridge ports' states
+
+In the fourth step, on a bridge that is not the root, any bridge port that is neither a root port nor a designated port will be put in the blocked state.
+
+Find the `brctl` screenshots from the two bridges that have one port on the same network segment on the root bridge. Annotate these by drawing a circle or a box around the *status* of each port. Next to each port, indicate whether it is a root port, a designated port on a network segment where this bridge is the designated bridge, or in the blocking state.
+
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate it by drawing a circle or a box around the *status* of each port. Next to each port, indicate whether it is a root port, a designated port, or in the blocking state.
+
+#####  Draw the spanning tree
+
+Finally, draw the spanning tree from this section:
+
+* Put the root bridge at the top of your drawing. Draw a circle around the root bridge, and label it "Root". Then, draw each of the other bridges. On each bridge, write its hostname (e.g. "bridge-1", "bridge-2", etc.) Draw links connecting the bridges; label each network segment (e.g. "1-2", "2-3", etc.)
+* Label each bridge with its bridge ID, and each port with its port ID (1 or 2).
+* If a port is the root port for that bridge, underline its port ID.
+* Next to each bridge port, draw a check mark if it is in the forwarding state. If a port is in the blocked state, then draw an X next to it.
+* Next to each network segment (1-2, 2-3, 3-4, 1-4), write the designated bridge and the designated port on that bridge (1 or 2) for that network segment.
+* Next to each bridge, write the root path cost for that bridge.
+
+#### Exercise 3. Reacting to changes in the topology
+
+Show the output of the `brctl showstp br0` command on each bridge at the end of the section where you practiced "Reacting to changes in the topology". These screenshots should show the terminal prompt (important - it must show which bridge the output is from!), the command, and the complete output.
+
+Also draw the network from the section where you practiced "Reacting to changes in the topology" (i.e. the new spanning tree after you brought down the root bridge), following the same specifications:
+
+* Put the root bridge at the top of your drawing. Draw a circle around the root bridge, and label it "Root". Then, draw each of the other bridges. On each bridge, write its hostname (e.g. "bridge-1", "bridge-2", etc.) Draw links connecting the bridges; label each network segment (e.g. "1-2", "2-3", etc.)
+* Label each bridge with its bridge ID, and each port with its port ID (1 or 2).
+* If a port is the root port for that bridge, underline its port ID.
+* Next to each bridge port, draw a check mark if it is in the forwarding state. If a port is in the blocked state, then draw an X next to it.
+* Next to each network segment (1-2, 2-3, 3-4, 1-4), write the designated bridge and the designated port on that bridge (1 or 2) for that network segment.
+* Next to each bridge, write the root path cost for that bridge.
+
+#### Exercise 4. Reaction time to changes
+
+When you changed the topology, how much time elapsed between the last ping request arriving at the target _before_ you brought the root bridge down, and the first ping request arriving at the target _after_ you brought the root bridge down? (Use the packet capture from the network segment on which the target node was located.)
+
+Show evidence from your packet captures to support your answer. For example, show a Wireshark screenshot, and annotate it to circle the latest time that a ping request arrives at the target before you brought the root bridge down, and the earliest time that a ping request arrives at the target after you brought the root bridge down.
+

@@ -116,7 +116,7 @@ The Python source code for each radio pair should be saved in a Git repository. 
 For your convenience, several sample radios are provided for you to try out. To run the match script with a simple on/off transmitter on both radio pairs ("onoff" branch), run:
 
 ```
-omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
+omf-5.3 exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
 ```
 
 
@@ -142,7 +142,7 @@ At the end of the experiment, you will see the "score" (number of packets delive
 Alternatively, you can try a frequency hopping transmitter than randomly hops between channels (the receiver is static, and traffic is only delivered when the transmitter is on the same channel as the receiver). Here is the "hopping" branch against the "onoff" branch:
 
 ```
-omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 hopping --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
+omf-5.3 exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 hopping --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 onoff
 ```
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4rZE4i2lz1Y" frameborder="0" allowfullscreen></iframe>
@@ -150,7 +150,7 @@ omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git 
 There is also a static transmitter ("sample" branch). Here, you can see the on-off transmitter against the static transmitter:
 
 ```
-omf exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 sample
+omf-5.3 exec sdr-match -- --git1 https://bitbucket.org/ffund/spectrum-challenge.git --branch1 onoff --git2 https://bitbucket.org/ffund/spectrum-challenge.git --branch2 sample
 ```
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/FW8flw8Ri6I" frameborder="0" allowfullscreen></iframe>

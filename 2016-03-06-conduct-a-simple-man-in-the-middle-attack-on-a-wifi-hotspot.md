@@ -2,7 +2,7 @@ This experiment shows how an attacker can use a simple man-in-the-middle attack 
 
 It should take about 60-120 minutes to run this experiment, but you will need to have [reserved that time](http://geni.orbit-lab.org) in advance. This experiment uses wireless resources (specifically, the "outdoor" testbed on [ORBIT](http://geni.orbit-lab.org), or the [WITest](https://witestlab.poly.edu) testbed), and you can only use wireless resources on GENI during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [the outdoor testbed at ORBIT](http://geni.orbit-lab.org) or the [WITest testbed](https://witestlab.poly.edu), and you must run this experiment during your reserved time.
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [the outdoor testbed at ORBIT](http://geni.orbit-lab.org) or the [WITest testbed](https://witestlab.poly.edu), and you must run this experiment during your reserved time. (Alternatively, you can use "sb4" testbed at [ORBIT](http://geni.orbit-lab.org), with some [modifications](#usingothertestbeds) to the instructions.)
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -125,18 +125,21 @@ Here's a video of the experiment, including the setup. Note that the title bar f
 
 ## Run my experiment
 
-To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. 
+To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. You can also use the "sb4" testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.
 
-At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
+At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT, or "sb4.orbit-lab.org" for sb4 on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
 
-For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node16, node17, node18, and node19 on the WITest testbed; or node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
+For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node22, node23, node18, and node19 on the WITest testbed; or node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
 
 ### Prepare the testbed
 
-Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node16, node17, node18, and node19, run:
+> **If you are using sb4**: Follow the  [modified instructions](#usingotherwirelesstestbeds) to set up the testbed. Then, resume with the regular instructions from [Open SSH sessions](#opensshsessions).
+
+
+Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node22, node23, node18, and node19, run:
 
 <pre>
-omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
+omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node22,omf.witest.node23,omf.witest.node18,omf.witest.node19
 </pre>
 
 (note that there are no spaces in between the commas and the nodes names in the command above). Alternatively, if you are on outdoor and using node1-2, node1-3, node1-4, and node1-5, run:
@@ -148,7 +151,7 @@ omf-5.4 load -i wifi-experiment.ndz -t node1-2.outdoor.orbit-lab.org,node1-3.out
 When the image has been loaded onto the nodes, turn them on. For example, if using those four nodes on WITest, run 
 
 <pre>
-omf tell -a on -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node19
+omf tell -a on -t omf.witest.node22,omf.witest.node23,omf.witest.node18,omf.witest.node19
 </pre>
 
 whereas if using the four nodes on outdoor, you would run
@@ -157,10 +160,14 @@ whereas if using the four nodes on outdoor, you would run
 omf tell -a on -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
 </pre>
 
+### Open SSH sessions
+
 
 Wait a few minutes for your nodes to boot. Then, open _six_ terminal windows and SSH to your testbed console ("witestlab.poly.edu" or "outdoor.orbit-lab.org") in each one.
 
 Of the four nodes in your group, designate one node as the access point (AP), one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to intercept communications between Alice and Bob, capturing sensitive information such as FTP login credentials.
+
+> **Important note**: if you are using the outdoor testbed on ORBIT, due to the physical layout of nodes it is recommended to use node1-4 as the AP. In other configurations (using a different node as the AP), the other nodes may not all be in range of the AP.
 
 * In one of your SSH terminals, SSH to the node that you have designated as the AP, as the "root" user.
 * In one of your SSH terminals, SSH to the node that you have designated as Bob, as the "root" user.
@@ -299,7 +306,7 @@ These ARP replies will continue to appear at regular intervals.
 Also, if Alice runs
 
 ```
-arp -a
+arp -na
 ```
 
 we can see that Alice believes that Bob is at Mallory's MAC address, e.g.:
@@ -311,7 +318,7 @@ we can see that Alice believes that Bob is at Mallory's MAC address, e.g.:
 and if we run
 
 ```
-arp -a
+arp -na
 ```
 
 on Bob, we'll see that he believes _Alice_ is at Mallory's MAC address, e.g.:
@@ -388,7 +395,7 @@ Similarly, compare telnet and SSH, two applications used for remote login.  On B
 
 ```
 apt-get update
-apt-get install xinetd telnetd
+apt-get -y install xinetd telnetd
 ```
 
 Then, still on Bob, create the telnet configuration file with
@@ -447,11 +454,35 @@ style="background-color: yellow">highlight</font>** Alice's username and passwor
 
 This experiment will also work on the "sb4" testbed at ORBIT, which currently has four Atheros 9xxx-equipped nodes: node1-3, node1-4, node1-5, and node1-6. If using "sb4", when you first log in to the "sb4" console you should run
 
-```
+<pre>
 wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/setAll?att=0"
-```
 
-to [reset sb4's programmable attenuation matrix](http://www.orbit-lab.org/wiki/Hardware/bDomains/cSandboxes/dSB4) to zero attenuation between all pairs of nodes.
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/setAll?att=0"
+
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=3&port=1"  
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=4&port=1"
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=5&port=1"  
+wget -qO- "http://internal2dmz.orbit-lab.org:5054/instr/selDevice?switch=6&port=1"
+</pre>
+
+to [reset sb4's programmable attenuation matrix](http://www.orbit-lab.org/wiki/Hardware/bDomains/cSandboxes/dSB4) to zero attenuation between all pairs of nodes, and configure the WiFi NICs of these four nodes to be visible to one another.
+
+Then you can run
+
+<pre>
+omf-5.4 load -i wifi-experiment.ndz -t node1-3.sb4.orbit-lab.org,node1-4.sb4.orbit-lab.org,node1-5.sb4.orbit-lab.org,node1-6.sb4.orbit-lab.org
+</pre>
+
+and when the disk image has finished loading, run
+
+
+<pre>
+omf tell -a on -t node1-3.sb4.orbit-lab.org,node1-4.sb4.orbit-lab.org,node1-5.sb4.orbit-lab.org,node1-6.sb4.orbit-lab.org
+</pre>
+
+Then, resume with the regular instructions from [Open SSH sessions](#opensshsessions).
+
+---
 
 You can also run this experiment on any group of four adjacent Atheros 9XXX-equipped nodes on the "grid" testbed at ORBIT. The "grid" testbed is generally in high demand, however.
 

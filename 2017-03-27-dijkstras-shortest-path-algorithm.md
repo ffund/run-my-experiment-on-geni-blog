@@ -59,11 +59,11 @@ Reserving an experiment topology that uses resources from multiple GENI sites ca
 
 If there is a failure at _one_ GENI aggregate for any of these steps, the entire thing will fail; you need each of these steps to succeed at _all_ the GENI aggregates in your slice. Thus, you'll need some extra patience and willingness to try again. In this section, I will describe how to identify which aggregate is responsible for the failure of a slice, so that you can exclude that aggregate when you try again.
 
-First, in the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/vSqcn](https://git.io/vSqcn) and choose "Select" to load the multi-site topology:
+First, in the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/JUBmM](https://git.io/JUBmM) and choose "Select" to load the multi-site topology:
 
 ![](/blog/content/images/2017/03/dijkstra-multisite.png)
 
-You will notice that this topology includes multiple sites. To replace any site (e.g. if you have problems with a particular site), you can click on the name of the site, then use the menu on the left to select a different InstaGENI site. You should choose from InstaGENI sites that support multi-site links ("stitching") - there's a list [here](http://groups.geni.net/geni/wiki/GeniNetworkStitchingSites#GENINetworkStitchingSites).
+You will notice that this topology includes multiple sites. To replace any site (e.g. if you have problems with a particular site), you can click on the name of the site, then use the menu on the left to select a different InstaGENI site.
 
 You may also notice that some links are marked with a red warning symbol; you can safely ignore this warning.
 
@@ -116,9 +116,9 @@ When you're confident that your topology is ready to go, continue to [Run Dijkst
 
 ### Using one site
 
-Alternatively, you may prefer to reserve resources at only one GENI site.
+Alternatively, you may prefer to reserve resources at only one GENI site. In this case, there will be artificial delay added between hosts, so that you can run Dijkstra's algorithm and have a meaningful difference between paths.
 
-In the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/vSCdF](https://git.io/vSCdF) and choose "Select". This will load a six-node topology in your canvas.
+In the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/JUBm1](https://git.io/JUBm1) and choose "Select". This will load a six-node topology in your canvas.
 
 Click on "Site 1" and select an InstaGENI site from the drop-down list on the left, then click "Reserve Resources". Wait until all of your nodes are up and ready to log in, then open six terminals and SSH into each node.
 

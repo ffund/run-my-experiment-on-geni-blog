@@ -607,42 +607,50 @@ We can see a running display of bandwidth, cpu, and memory usage. On the client'
 
 ### Using Tcpdump to Watch Traffic
 
-We will again be using tcpdump to listen to the network at different locations. We will require two terminals for the clients for this part. On one, run
+We will again be using tcpdump to listen to the network at different locations:
 
-```
+* On the client, between the web browser and the SOCKS proxy used to "Tor-ify" the traffic.
+* On the router that passes traffic between the client and the Tor relays.
+* On each relay in the circuit.
+* On the web server.
+
+We will require two terminals for the clients for this part. On one, run
+
+<pre>
 sudo tcpdump -s 1514 -i any 'port 9050' -U -w - | tee client9050.pcap | tcpdump -nnxxXSs 1514 -r -
-```
+</pre>
 
-to watch the traffic that is going through the SOCKS proxy port 9050, and then save what it sees in a pcap file called client9050.pcap (see [[8](#references)]). The SOCKS proxy is the proxy that is used for the client and the onion proxy to communicate with each other. This communication is a loop-back interface, in other words the communication occurs in the local Ethernet. On router-1 run
+to watch the traffic that is going through the SOCKS proxy port 9050, and then save what it sees in a pcap file called client9050.pcap (see [[8](#references)]). The SOCKS proxy is the proxy that is used for the client and the onion proxy to communicate with each other. This communication is over a loop-back interface. 
 
-```
+On router-1 run
+
+<pre>
 sudo tcpdump -s 1514 -i eth1 'port 5000' -U -w - | tee ISPone5000.pcap | tcpdump -nnxxXSs 1514 -r -
-```
+</pre>
 
 to watch the traffic through port 5000, which is the port to listen on the Tor network. This would mean that we would be listening on any traffic that is being transferred from the client to the Tor network. Specifically, this communication would be between the client and the entry relay that is being used when the traffic enters the Tor network.
 
 Next on each relay that is being used in the circuit, run
 
-```
+<pre>
 sudo tcpdump -s 1514 -i eth1 'port 5000' -U -w - | tee $(hostname -s).pcap | tcpdump -nnxxXSs 1514 -r -
-```
+</pre>
 
-where **$(hostname -s)** will be converted to the name of the specific relay that you are working with. For example, if using tcpdump on relay1, the file that tcpdump will write to will be relay1.pcap. This tcpdump function will
-watch the traffic that is going through the OR port 5000, and then save what it sees in a pcap file.
+where **$(hostname -s)** will be converted automatically to the name of the specific relay that you are working with. For example, if using tcpdump on relay1, the file that tcpdump will write to will be relay1.pcap. This tcpdump function will watch the traffic that is going through the OR port 5000, and then save what it sees in a pcap file.
 
 On router-3, we listen on port 80, which is the most commonly used port for HTTP. Listening on port 80 at router-3 represents the traffic after having going through the Tor network, and before reaching the webserver. We run
 
-```
+<pre>
 sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee ISPtwo80.pcap | tcpdump -nnxxXSs 1514 -r -
-```
+</pre>
 
 to start listening on the network through port 80.
 
 Lastly we must also set up the web server to have it listen for traffic as well. On the web server terminal run
 
-```
+<pre>
 sudo tcpdump -s 1514 -i eth1 'port 80' -U -w - | tee webserver.pcap | tcpdump -nnxxXSs 1514 -r -
-```
+</pre>
 
 to start listening for traffic on port 80.
 
