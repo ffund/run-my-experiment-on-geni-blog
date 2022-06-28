@@ -20,7 +20,7 @@ TCP/IP, the protocol stack that is used in communication over the Internet and m
 2. **Link layer** (also called the data link layer or network access layer): responsible for transferring data between devices that are on the same network. This includes (local) addressing, arbitrating access to a shared medium, and checking for (and sometimes correcting) errors that occurred during physical transmission.
 3. **Network layer** (also called Internet layer): responsible for transferring data between different networks. This includes (global) addressing and routing.
 4. **Transport layer**: responsible for end-to-end communication. The two most common protocols at this layer are UDP, which provides a basic datagram service with no reliability guarantees, and TCP, which provides flow control, connection establishment, and reliable data delivery.
-5. **Application layer**: defines that protocols that are used by processes on the end hosts. For example: [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol), [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol), [SSH](https://en.wikipedia.org/wiki/Secure_Shell). 
+5. **Application layer**: defines protocols that are used by processes on the end hosts. For example: [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol), [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol), [SSH](https://en.wikipedia.org/wiki/Secure_Shell). 
 
 
 ![](/blog/content/images/2017/03/tcpip-layers.svg)

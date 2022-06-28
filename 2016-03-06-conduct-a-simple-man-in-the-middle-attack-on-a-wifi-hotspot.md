@@ -125,7 +125,7 @@ Here's a video of the experiment, including the setup. Note that the title bar f
 
 ## Run my experiment
 
-To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. You can also use the "sb4" testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.
+To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. You can also use the "sb4" testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingothertestbeds) to the instructions.
 
 At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT, or "sb4.orbit-lab.org" for sb4 on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
 
@@ -133,7 +133,7 @@ For this experiment, we will need a group of four neighboring nodes that are ava
 
 ### Prepare the testbed
 
-> **If you are using sb4**: Follow the  [modified instructions](#usingotherwirelesstestbeds) to set up the testbed. Then, resume with the regular instructions from [Open SSH sessions](#opensshsessions).
+> **If you are using sb4**: Follow the  [modified instructions](#usingothertestbeds) to set up the testbed. Then, resume with the regular instructions from [Open SSH sessions](#opensshsessions).
 
 
 Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node22, node23, node18, and node19, run:

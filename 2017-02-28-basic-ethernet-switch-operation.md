@@ -136,6 +136,8 @@ port no	mac addr		is local?	ageing timer
 
 but it won't know about any other nodes' addresses. (At this point, you can use `ifconfig` to find the MAC address of each interface, then match with the output of the command above to determine the "port number" (1, 2, 3, 4) associated with each interface.)
 
+> **Note**: On some versions of the Ubuntu operating system, you'll see each MAC address appear twice in the `brctl showmacs br0` output! This is OK.
+
 Verify that all of the end hosts in the topology can reach one another through the bridge. On each of node-1, node-2, node-3, and node-4, run
 
 ```
@@ -192,7 +194,7 @@ bridge monitor fdb
 
 on the bridge. This will show us new entries live, as they are added to or removed from the forwarding table.
 
-On node-2, node-3, and node-4, we will use `tcpdump` to watch traffic on the interface connected to the bridge. Run
+On node-1, node-2, node-3, and node-4, we will use `tcpdump` to watch traffic on the interface connected to the bridge. Run
 
 ```
 sudo tcpdump -n -e -i eth1
@@ -200,7 +202,7 @@ sudo tcpdump -n -e -i eth1
 
 This will run `tcpdump` on the "eth1" interface (`-i eth1`), with the Ethernet headers showing (`-e`) and with IP addresses showing as numeric values, rather than hostnames (`-n`).
 
-Then, on node-1, we will send some traffic to node-2:
+Then, in a second terminal on node-1, we will send some traffic to node-2:
 
 ```
 ping -c 5 10.0.0.2

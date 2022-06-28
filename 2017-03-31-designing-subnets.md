@@ -118,11 +118,11 @@ After setting up these interfaces, hosts within the same LAN can reach one anoth
 
 For this experiment, you will reserve a topology on GENI that includes three routers (A, B, and C) and two hosts connected to each router. The routers will already be configured with IP addresses (in the 10.10.100.0/24 subnet) on the link that connects the routers to one another. However, it will be up to you to design subnets for the small LAN connected to each router.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JU9vP](https://git.io/JU9vP)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/Jthun](https://git.io/Jthun)
 
 This will load the following topology onto your canvas:
 
-![](/blog/content/images/2017/03/subnet-topology-1.svg)
+![](/blog/content/images/2021/03/subnet-design-topology.png)
 
 Your topology may have some red warning indicators on the LANs. This is not a problem - it's just a warning that some IP addresses are duplicated in the topology. In this case, that's intentional (these interfaces are assigned an address of "0.0.0.0", which results in them having no IPv4 address.) 
 
@@ -147,9 +147,57 @@ For each subnet, you should identify:
 * the broadcast address for the subnet. This is the bitwise OR of the network address and the inverse of the subnet mask.
 * the highest IP address that may be assigned to a host in the subnet. This is the broadcast address, minus 1.
 
+There is more than one correct solution - any solution that satisfies the requirements above is acceptable! Once you have made your design decisions, complete the following table:
+
+
+<table>
+<thead>
+  <tr>
+    <th>Hosts</th>
+    <th>Subnet mask</th>
+    <th>Network address</th>
+    <th>Smallest host address<br></th>
+    <th>Highest host address</th>
+    <th>Broadcast address</th>
+    <th>Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>LAN A: romeo and juliet</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 50 hosts </td>
+  </tr>
+  <tr>
+    <td>LAN B: othello and desdemona</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 75 hosts</td>
+  </tr>
+  <tr>
+    <td>LAN C: hamlet and ophelia</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 20 hosts</td>
+  </tr>
+</tbody>
+</table>
+
 ### Implement your design on each LAN
 
-In each LAN, assign an IP address and subnet mask to every interface connected to the LAN. Assign the lowest IP address in the subnet (host number 1) to the LAN-facing interface of the router (this is a common convention); assign the highest IP address in the subnet to one node, and any other IP address in the subnet to the other node.
+Next, you are going to configure the network interface on each host and router on each of the three LANs, to implement the design that you described above. 
+
+In each LAN, assign an IP address and subnet mask to every host interface connected to the LAN. Assign the lowest IP address in the subnet (host number 1) to the LAN-facing interface of the router (this is a common convention); assign the highest IP address in the subnet to one host, and any other IP address in the subnet to the other host.
 
 To assign an IP address and subnet mask on a host, use the following command:
 
@@ -157,20 +205,22 @@ To assign an IP address and subnet mask on a host, use the following command:
 sudo ifconfig <b>IFACE</b> <b>IP</b> netmask <b>NETMASK</b>
 </pre>
 
-substituting an IP and NETMASK in dotted decimal notation, and the name of the interface (e.g. `eth1`) where it says IFACE. (Use `ifconfig` to find the name of the interface connected to the LAN.)
+substituting an IP and NETMASK in dotted decimal notation, and an interface name (e.g. `eth1` or `eth2`) for IFACE.
 
-At this point, each host in a LAN should be able to reach every other host in the same LAN. You can run
+At this point, each host in a LAN should be able to reach every other host in the *same* LAN. You can run
 
 <pre>
 ping -c 5 <b>IP</b>
 </pre>
 
-to verify this. However, you will not be able to send and receive traffic between different LANs - for this, you'll need to add routing rules.
+(substituting the destination IP address of the other host) to verify this. However, you will not be able to send and receive traffic between different LANs - for this, you'll need to add routing rules.
 
 ### Add routing rules
 
 
-On each host, add a rule that describes how to reach the other two LANs. For each destination LAN, the rule will look something like this
+On each host, add one or more routing rules to describe how to reach the other two LANs. 
+
+One way to do this is to add a route for *each* destination LAN, that looks something like this
 
 <pre>
 sudo route add -net <b>ADDRESS</b> netmask <b>NETMASK</b> gw <b>GATEWAY</b>
@@ -179,12 +229,20 @@ sudo route add -net <b>ADDRESS</b> netmask <b>NETMASK</b> gw <b>GATEWAY</b>
 where:
 
 * ADDRESS is the network address of the _destination_ LAN, in dotted decimal notation
-* NETMASK is the netmask of the _destination_ LAN, in dotted decimal notation
+* NETMASK is the subnet mask of the _destination_ LAN, in dotted decimal notation
 * GATEWAY is the IP address of the LAN-facing interface of the router on the _source_ LAN, also in dotted decimal notation.
 
 For example, if adding a rule on a host in LAN A to enable it to reach hosts on LAN C, you would use the network address of LAN C for ADDRESS, the netmask of LAN C for NETMASK, and the IP address of the LAN-facing interface of router A for GATEWAY.
 
-In addition to adding rules on every host, you will also need to add a rule on each router. For these rules, the GATEWAY address should be the IP address of the router for the _destination_ LAN (on the WAN). For example, if setting up a rule on router A for routing to the C LAN, I will use the IP address 10.10.100.3 as the GATEWAY, since it is the IP address of router C on the LAN.
+As an alternative, you can take advantage of the *longest prefix matching* rule, and add just one route on each host for *all* traffic to the other two LANs:
+
+<pre>
+sudo route add -net 10.10.172.0 netmask 255.255.255.0 gw <b>GATEWAY</b>
+</pre>
+
+where GATEWAY is the IP address of the LAN-facing interface of the router on the _source_ LAN, in dotted decimal notation.
+
+In addition to adding rules on every host, you will also need to add a rule on each router. For these rules, the GATEWAY address should be the IP address of the router for the _destination_ LAN (on the WAN that connects the routers). For example, if setting up a rule on router A for routing to the C LAN, I will use the IP address 10.10.100.3 as the GATEWAY, since it is the IP address of router C on the WAN that connects the three routers.
 
 If you make a mistake, you can delete a rule using the same syntax as when you added it, but replace the `add` with `del`. To see the rules that are already in place, use 
 
@@ -218,3 +276,69 @@ substituting the LAN-facing IP address of the router on the _same_ LAN where it 
 ### Clean up your resources
 
 When you've finished, delete your resources on the GENI Portal to free them for other experimenters.
+
+## Notes
+
+### Exercise
+
+**Table of design choices**: Complete the following table with the subnet design choices for your network:
+
+<table>
+<thead>
+  <tr>
+    <th>Hosts</th>
+    <th>Subnet mask</th>
+    <th>Network address</th>
+    <th>Smallest host address<br></th>
+    <th>Highest host address</th>
+    <th>Broadcast address</th>
+    <th>Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>LAN A: romeo and juliet</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 50 hosts </td>
+  </tr>
+  <tr>
+    <td>LAN B: othello and desdemona</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 75 hosts</td>
+  </tr>
+  <tr>
+    <td>LAN C: hamlet and ophelia</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+    <td></td>
+    <td></td>
+    <td>Should support at least 20 hosts</td>
+  </tr>
+</tbody>
+</table>
+
+**Network interface configuration**: After you have configured the network interfaces and routes according to your subnet design, show the network interface configuration as follows:
+
+* On each of the six hosts - romeo, juliet, hamlet, ophelia, othello, desdemona - show the output of `ifconfig eth1`.
+* On each of the routers, show the output of `ifconfig`.
+
+**Routing within and between subnets**: After you have configured the network interfaces and routes according to your subnet design, show the output of `route -n` on the "romeo" host. Annotate the output to indicate:
+
+1. which rule will apply to traffic from romeo to juliet
+2. which rule will apply to traffic from romeo to hamlet
+3. which rule will apply to traffic from romeo to ophelia
+4. which rule will apply to traffic from romeo to othello
+5. which rule will apply to traffic from romeo to desdemona
+
+If there are multiple matching rules, indicate the *one* that applies in each case according to the longest prefix matching rule.
+
+Also, show the output of `traceroute` or `mtr` *from* "romeo" to *each* of the five other hosts (i.e. run the `traceroute` or `mtr` command five times, with a different destination IP address each time, and save the output each time). Please indicate which host is the destination in each case.

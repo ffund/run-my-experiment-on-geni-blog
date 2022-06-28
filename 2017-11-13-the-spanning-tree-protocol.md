@@ -1,6 +1,6 @@
 In this experiment, we will see how broadcast storms can occur in a network with bridge loops (multiple Layer 2 paths between endpoints). Then, we will see how the spanning tree protocol creates a loop-free logical topology in a network with physical loops, so that a broadcast storm cannot occur. We will also see how the spanning tree protocol reacts when the topology changes.
 
-It should take about 1 hour to run this experiment.
+It should take about 1 hour to run this experiment. (This does not include the time to answer the questions in the [Exercise](#exercise) section, which will take some additional time.)
 
 To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
 
@@ -34,7 +34,7 @@ To create a loop-free tree, bridges in the network  exchange BPDUs, and execute 
 
 1. **Elect a root switch or bridge**. Each bridge is assigned a unique bridge ID, usually formed from a priority concatenated with the MAC address of one of the bridge ports. The bridge or switch with the lowest bridge ID is elected as the root bridge.
 2. **Elect a root port on each non-root bridge**.  Each bridge (except the root bridge) computes the _root path cost_, i.e. cost of the path to the root bridge, through each port. Then, the _root port_ is elected - the one with the lowest root path cost.
-3. **Select a designated bridge and port on each network segment**.  The bridge on each network segment with the lowest root path cost will be selected as the designated bridge, and the port that connects that bridge to the network segment is the designated port. (The bridge ID is used as the tie-breaker in case there are multiple bridges on a network segment with the same root path cost.)
+3. **Select a designated bridge and port on each network segment**.  The bridge on each network segment with the lowest root path cost will be selected as the designated bridge, and the port that connects that bridge to the network segment is the designated port. (The sender's bridge ID, then bridge port, is used as the tie-breaker in case there are multiple bridges on a network segment with the same root path cost. The lowest bridge ID or bridge port "wins".)
 4. **Set bridge ports' states**. On a bridge that is not the root, only root ports or designated ports can forward frames on a network segment. Other bridge ports are set to the "blocked" state.
 
 In this experiment, we will create a topology with a loop, then watch as the spanning tree algorithm creates a logical loop-free topology.
@@ -44,6 +44,7 @@ In this experiment, we will create a topology with a loop, then watch as the spa
 When the spanning tree protocol is not enabled, we observe that sending a broadcast frame on the network leads to a broadcast storm: 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/TsOf-Z9UNJc" frameborder="0" allowfullscreen></iframe>
+
 
 Once we start the spanning tree protocol, we will see how a logical loop-free topology is created in the network, with at least one bridge port ending up in the "blocked" state. We can also identify the root bridge (with a path cost of 0), and the designated port for each network segment:
 
@@ -246,7 +247,7 @@ watch --interval 1 brctl showstp br0
 
 on each bridge. This will run the command to show the state of the ports on each bridge (`brctl showstp br0`) repeatedly, every second, so that you can monitor all the bridge ports as the spanning tree algorithm is executed.
 
-(Note: if your screen is not big enough, you may not be able to see all of the output. Since the output is updated continuously every second, you won't be able to scroll. You may want to reduce your zoom or font settings in your terminal, to see the complete output.)
+> **Note**: if your screen is not big enough, you may not be able to see all of the output. Since the output is updated continuously every second, you won't be able to scroll. You may want to reduce your zoom or font settings in your terminal, to see the complete output.
 
 After some time, you should be able to find a bridge that has one port in the "blocking" state, like this:
 
@@ -281,7 +282,7 @@ eth2 (2)
  flags          
 </pre>
 
-Stop the `brctl` and `tcpdump` instances with Ctrl+C. Run 
+You won't be able to copy the terminal contents while the `watch` process is still running. To save the output, stop the `brctl` and `tcpdump` instances with Ctrl+C. Then run 
 
 ```
 brctl showstp br0
@@ -368,15 +369,18 @@ Answer the following questions:
 
 #### Exercise 1. Broadcast storm
 
-Why does a broadcast storm occur specifically when there is a loop in the network? Why does the loop in the network "amplify" the broadcast traffic, so that even when only a few broadcast packets are sent, the load on the network is very high? 
+Why does a broadcast storm occur specifically when there is a loop in the network? Even though a small number of broadcast packets are sent, the load in the network is high - why? 
 
-Why does this occur specifically with broadcast packets, and not unicast?
+Why does this occur specifically with broadcast frame? Why does this not occur when you send a unicast frame to a host that is in the network?
 
 #### Exercise 2. Set up bridges to use spanning tree algorithm
 
 In this question, you will show how the bridges in the loop form a spanning tree.
 
-You will need screenshots of the final output of `brctl showstp br0` from each bridge (after the spanning tree is complete). These screenshots should show the terminal prompt (important - it must show which bridge the output is from!), the command, and the complete output. You will also need the BPDUs collected on each network segment (open these in Wireshark).
+You will need screenshots of the final output of `brctl showstp br0` from each bridge (after the spanning tree is complete). These screenshots should show the terminal prompt (important - it must show which bridge the output is from!), the command, and the complete output. Open all four screenshots in your preferred image annotation program. You will progressively add annotations as you work on this exercise.
+
+You will also need the BPDUs collected on each network segment (open these in Wireshark).
+
 
 ##### Elect the root bridge
 
@@ -384,7 +388,21 @@ The first step in the spanning tree algorithm is electing a root bridge, the bri
 
 Annotate each of your `brctl` screenshots by drawing a circle or a box around the bridge ID, and another circle or box around the ID of the "designated root". Also, make a special marking on the screenshot from the root bridge itself (i.e. the one where the bridge ID and designated root are the same).
 
-Is the root bridge bridge-1, bridge-2, bridge-3, or bridge-4?
+For example: 
+
+<table style="width:100%">
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br1-electroot.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br2-electroot-1.png"></img></td>
+  </tr>
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br3-electroot.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br4-electroot-2.png"></img></td>
+  </tr>
+</table>
+
+
+Is the root bridge in your experiment bridge-1, bridge-2, bridge-3, or bridge-4?
 
 To elect the root bridge, each bridge initially considers *itself* the root bridge. Then, bridges exchange spanning tree configuration BPDUs, including a "root identifier" field where they list the ID of the bridge they consider to be the root bridge.
 
@@ -405,10 +423,23 @@ In the second step, each bridge (except the root bridge) computes the root path 
 
 Find the `brctl` screenshots from your root bridge, and annotate it by drawing a circle or a box around the *root port*, which is listed near the top of the output. For the root bridge, the root port will be 0 (there is no root port).  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. 
 
-Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. This is the port that will be selected as the root port. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output.  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output.
+Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. This is the port that will be selected as the root port. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output. Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. For the port that is the root port, note an "RP" designation in the relevant section in the bottom part of the screenshot.
 
-Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output.  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. Then, draw a circle or box around the *state* of the root port.
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate these two screenshots by drawing a circle or a box around the *root port*, which is listed near the top of the output.  Also draw a circle or a box around the *path cost* for the bridge overall, which is shown right next to the root port, near the top of the output. For the port that is the root port, note an "RP" designation in the relevant section in the bottom part of the screenshot.
 
+
+For example: 
+
+<table style="width:100%">
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br1-rootport.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br2-rootport.png"></img></td>
+  </tr>
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br3-rootport.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br4-rootport.png"></img></td>
+  </tr>
+</table>
 
 The bridges find out the path cost (to elect their root ports) by exchanging BPDUs.
 
@@ -426,31 +457,57 @@ Also make a note of the bridge ID and root ID in this BPDU - is this BPDU sent b
 In the third step of the spanning tree protocol, the bridge on each network segment with the lowest root path cost will be selected as the designated bridge, and the port that connects that bridge to the network segment is the designated port. 
 
 
-Find the `brctl` screenshots from your root bridge, and annotate it by drawing a circle or a box around the *designated bridge* for each bridge port. Also draw a circle or a box around the bridge ID of this bridge (near the top of the output). The root bridge will be the designated bridge on any network segment it is on.
+Find the `brctl` screenshots from your root bridge, and annotate it by drawing a circle or a box around the *designated bridge* and *designated port* (on the designated bridge) for each bridge port. The root bridge will be the designated bridge on any network segment it is connected to.
 
 
-Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. Draw a circle or a box around the bridge ID of this bridge (near the top of the output). Then draw a circle or a box around the *designated bridge* for each bridge port, and if this bridge is the designated bridge on the network segment (i.e. the designated bridge is the same as the bridge ID), also draw a circle or a box around the *designated port*.   
+Next, find the `brctl` screenshots from the two bridges that have one port on the same network segment as the root bridge. Draw a circle or a box around the *designated bridge* and *designated port* for each bridge port, and if this bridge is the designated bridge on the network segment (i.e. the designated bridge is the same as the bridge ID), note a "DP" designation in the relevant section.
+ 
 
 For the bridge port on the same network segment as the root bridge, you should see that the root bridge is the designated bridge, since it has the lowest path cost. For the other port, this bridge and port should be the designated bridge and port, since it has a lower path cost than the other bridge connected to this network segment.
 
-Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate it by drawing a circle or a box around the *designated bridge* for each bridge port. Also draw a circle or a box around the bridge ID of this bridge (near the top of the output). 
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Draw a circle or a box around the *designated bridge* and *designated port* for each bridge port, and if this bridge is the designated bridge on the network segment (i.e. the designated bridge is the same as the bridge ID), note a "DP" designation in the relevant section.
 
-Is this bridge a designated bridge on any network segment? 
+Is this bridge a designated bridge on any network segment (i.e. are any of its ports designated ports)? 
 
+
+Example: 
+
+<table style="width:100%">
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br1-desport-1.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br2-desport.png"></img></td>
+  </tr>
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br3-desport.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br4-desport.png"></img></td>
+  </tr>
+</table>
 
 #####  Set bridge ports' states
 
 In the fourth step, on a bridge that is not the root, any bridge port that is neither a root port nor a designated port will be put in the blocked state.
 
-Find the `brctl` screenshots from the two bridges that have one port on the same network segment on the root bridge. Annotate these by drawing a circle or a box around the *status* of each port. Next to each port, indicate whether it is a root port, a designated port on a network segment where this bridge is the designated bridge, or in the blocking state.
+Find the `brctl` screenshots from the two bridges that have one port on the same network segment on the root bridge. Annotate these by drawing a circle or a box around the *status* of each port. 
 
-Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate it by drawing a circle or a box around the *status* of each port. Next to each port, indicate whether it is a root port, a designated port, or in the blocking state.
+Then, find the `brctl` screenshots from the bridge that is *farthest* from the root bridge. Annotate it by drawing a circle or a box around the *status* of each port.
 
+Example: 
+
+<table style="width:100%">
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br1-state.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br2-state.png"></img></td>
+  </tr>
+  <tr>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br3-state.png"></img></td>
+    <td><img width="100%" src="/blog/content/images/2021/01/stp-br4-state.png"></img></td>
+  </tr>
+</table>
 #####  Draw the spanning tree
 
-Finally, draw the spanning tree from this section:
+Finally, draw the spanning tree from this section. You can use [this template](https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1&title=spanning-tree-template.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fffund%2Ftcp-ip-essentials%2Fmaster%2Flab3%2Fspanning-tree-template.drawio) to create the spanning tree - click the pencil icon and then fill in the values in the shaded boxes. Or, you can draw a spanning tree without the template:
 
-* Put the root bridge at the top of your drawing. Draw a circle around the root bridge, and label it "Root". Then, draw each of the other bridges. On each bridge, write its hostname (e.g. "bridge-1", "bridge-2", etc.) Draw links connecting the bridges; label each network segment (e.g. "1-2", "2-3", etc.)
+* Put the root bridge at the top of your drawing. Label it "Root bridge". Then, draw each of the other bridges. On each bridge, write its hostname (e.g. "bridge-1", "bridge-2", etc.) Draw links connecting the bridges; label each network segment (e.g. "1-2", "2-3", etc.)
 * Label each bridge with its bridge ID, and each port with its port ID (1 or 2).
 * If a port is the root port for that bridge, underline its port ID.
 * Next to each bridge port, draw a check mark if it is in the forwarding state. If a port is in the blocked state, then draw an X next to it.

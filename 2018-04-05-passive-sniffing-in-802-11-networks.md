@@ -35,7 +35,7 @@ However, if the attacker has captured the 4-way handshakes between AP and client
 
 To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. You can also use the "sb4" testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.
 
-At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT, "sb4.orbiti-lab.org" for sb4 on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
+At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT, "sb4.orbit-lab.org" for sb4 on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
 
 For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node22, node23, node18, and node19 on the WITest testbed; node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed; or node1-3, node1-4, node1-5, and node1-6 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
 
@@ -108,8 +108,6 @@ On the two nodes designated as Alice and Bob, run
 ifconfig wlan0 up
 iwconfig wlan0 mode managed
 iwconfig wlan0 essid "wifi-open"
-sleep 2
-iwconfig wlan0 channel 6
 ```
 
 to connect to the network. You should see a line of output on the AP node like
@@ -118,7 +116,13 @@ to connect to the network. You should see a line of output on the AP node like
 AP-STA-CONNECTED 04:54:53:06:bf:6c
 ```
 
-(with the client's MAC address) each time a client connects. Make sure both Alice and Bob have connected.
+(with the client's MAC address) each time a client connects. Make sure both Alice and Bob have connected; run
+
+```
+iwconfig wlan0
+```
+
+on each, and look for the indication that they are connected to the ESSID "wifi-open".
 
 Also assign an IP address on each client node - on Alice, run
 
@@ -145,7 +149,7 @@ airodump-ng mon0 --bssid <b>E4:CE:8F:5C:81:D5</b> --channel 6 -w wifi-open -o pc
 
 where you  replace the part in bold with the MAC address of the AP. (Use `iwconfig wlan0` on either Alice or Bob to find out the AP's MAC address.)
 
-Now we will pass some user data between Alice on Bob. On Bob, run
+Now we will pass some user data between Alice and Bob. On Bob, run
 
 ```
 netcat -l 4000
@@ -200,16 +204,15 @@ hostapd hostapd-wep.conf
 And on the two clients (Alice and Bob), run
 
 
-```
+<pre>
 ifconfig wlan0 up
 iwconfig wlan0 mode managed
 iwconfig wlan0 essid "wifi-wep"
 iwconfig wlan0 key s:12345
-sleep 2
-iwconfig wlan0 channel 6
-```
+iwconfig wlan0 ap <b>E4:CE:8F:5C:81:D5</b>
+</pre>
 
-to connect to the network. Watch the terminal output on the AP and make sure you see the "AP-STA-CONNECTED" message for each client, then use `ifconfig` again to assign the IP address 192.168.0.3 to Alice and 192.168.0.4 to Bob.
+to connect to the network, where in place of the BSSID in bold, you use the AP's BSSID. Watch the terminal output on the AP and make sure you see the "AP-STA-CONNECTED" message for each client, then use `ifconfig` again to assign the IP address 192.168.0.3 to Alice and 192.168.0.4 to Bob.
 
 On Mallory, the wireless interface should still be in monitor mode from the previous experiment. So we need only run
 
@@ -219,7 +222,7 @@ airodump-ng mon0 --bssid <b>E4:CE:8F:5C:81:D5</b> --channel 6 -w wifi-wep -o pca
 
 (again, substituting the BS MAC address). 
 
-Now we will pass some user data between Alice on Bob. On Bob, run
+Now we will pass some user data between Alice and Bob. On Bob, run
 
 ```
 netcat -l 4000
@@ -312,7 +315,7 @@ airodump-ng mon0 --bssid <b>E4:CE:8F:5C:81:D5</b> --channel 6 -w wifi-wpa -o pca
 
 (again, substituting the BS MAC address). 
 
-Now we will pass some user data between Alice on Bob. On Bob, run
+Now we will pass some user data between Alice and Bob. On Bob, run
 
 ```
 netcat -l 4000

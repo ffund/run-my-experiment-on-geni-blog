@@ -87,7 +87,7 @@ The following figure shows how a NAT gateway in this scenario will rewrite the h
 ![](/blog/content/images/2017/03/gateway-nat-2.svg)
 
 1. A host on the LAN initiates a connection to a host outside the LAN, sending a packet through the NAT gateway. The packet has as its source address the private IP address of the host. 
-2. The NAT gateway will add a new entry to a translation table, in which it notes the internal IP address and TCP port number associated with the connection (from the packet header). Then, it assigns this connection a port number. (If the source port number in the packet header is available at the NAT, and not already in use for another connection, it may use that port number. Otherwise, it will assign it a new one from a list of available port numbers.)
+2. The NAT gateway will add a new entry to a translation table, in which it notes the internal IP address and TCP port number associated with the connection (from the packet header). Then, it assigns this connection a port number. (In the diagram, it says that the WAN port will be randomly selected. This is sometimes, but not always, the case. If the source port number in the packet header is available at the NAT, and not already in use for another connection, it may use that port number. Otherwise, it will assign it a new one from a list of available port numbers.)
 3. The NAT gateway rewrites the source IP address and possibly the port number in the packet header according to the translation table, then forwards it on the WAN.
 4. When a response arrives at the NAT gateway from outside the LAN, the NAT gateway looks at the destination port in the packet header. Then, it finds the entry in the translation table that has this port number in the "WAN Port" column.
 5. The NAT gateway rewrites the destination IP address and possibly the port in the packet header according to the "LAN IP" and "LAN Port" in the relevant entry of the translation table, then forwards it on the LAN.
@@ -307,8 +307,10 @@ sudo: unable to resolve host client-1
 ---
 > **Note**: as mentioned above, if your own IP address changes, you may lose connectivity to your client nodes. Here's how to access your client nodes if that happens!
 > 
-> 1. Use SSH to log in to the "gateway" node, but add the `-A` argument to the SSH command. Also specify the path to your private key with `-i`, if you normally do so when using SSH to log in to GENI hosts. 
-> 2. From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do *not* use the `-i` argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.
+> 1. If you are on Windows, first enable and start the SSH agent: Open Services (Start Menu > Services), then select OpenSSH Authentication Agent, then set StartupType to Automatic.
+> 2. If you are using Windows or Mac OS X: run `ssh-add` to start the SSH agent.
+> 3. Use SSH to log in to the "gateway" node, but add the `-A` argument to the SSH command. Also specify the path to your private key with `-i`, if you normally do so when using SSH to log in to GENI hosts. 
+> 4. From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do *not* use the `-i` argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.
 > 
 > For example: <blockquote><pre>
 ffund@laptop:~$ ssh <b>-A</b> ffund01@pc1.instageni.metrodatacenter.com -p 25812
@@ -629,6 +631,8 @@ and then the response from the gateway, that gives the address as "192.41.233.62
 
 With the addition of the `+trace` option, `dig` will show you each successive hierarchical step that the query takes, until it reaches the name server that is authoritative for the name. 
 
+Let's try it! We can't run hierarchical query on a client node in our experiment, because at this point, the client nodes don't have access to the Internet to query DNS servers. (The client won't have Internet access until the next section, when we set up NAT.) Therefore, we will try this on the gateway node.
+
 **On the "gateway"**, run:
 
 <pre>
@@ -722,7 +726,6 @@ Here,
 * The first rule tracks connections involving the 192.168.100.0/24 network, and makes sure that packets initiating a new connection are forwarded from the LAN to the WAN. 
 * The second rule allows forwarding of packets that are part of an established connection.
 * The third and fourth rules actually do the network address translation. They will rewrite the source IP address in the Layer 3 header of packets forwarded out on the WAN interface. Also, when packets are received from the WAN, it identifies the connection that they belong to, rewrites the destination IP address in the Layer 3 headers, and forwards them on the LAN.
-
 
 Find out the public IP address of the NAT node. On the "gateway" device, run 
 
@@ -827,6 +830,8 @@ However, for the _same_ packets, the `tcpdump` running on the "website" node (on
 </pre>
 
 confirming that the packet headers are rewritten in the NAT gateway.
+
+**Note**: your "gateway" node may itself be located behind a NAT! So the WAN-facing IP address on the gateway may not be the same as the address you observe on the "website" node.
 
 
 ## Notes

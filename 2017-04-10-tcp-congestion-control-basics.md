@@ -61,10 +61,10 @@ We mentioned that TCP can use an ACK timeout to detect lost segments. However, t
 
 Recall that an ACK indicates the sequence number of the last in-order byte of data received. When a segment X is lost but subsequent segments X+1, X+2, X+3, etc. are delivered successfully, the receiver will send an ACK for each subsequent segment. But the sequence number in the ACK of X+1, X+2, X+3, etc. will reflect the last segment that was received in order - the sequence number of X-1! Thus, the TCP sender will get "duplicate ACKs" - multiple ACKs with the same sequence number - and can conclude that the following segment was dropped.
 
-In TCP Reno, the CWND decrease depends on whether congestion was detected by an ACK timeout or by receipt of 3 duplicate ACKs:
+In TCP Reno, the CWND decrease depends on whether congestion was detected by an ACK timeout or by receipt of duplicate ACKs:
 
 * When there is an ACK timeout, the congestion is considered severe, since subsequent segments after the first dropped segment are also not getting through. TCP Reno reduces its CWND to a minimum value, and enters slow start.
-* When congestion is detected by the receipt of 3 duplicate ACKs, the congestion is considered less severe. TCP Reno reduces its CWND to the slow start threshold, and enters congestion avoidance. This is known as "fast recovery".
+* When congestion is detected by the receipt of duplicate ACKs, the congestion is considered less severe. TCP Reno reduces its CWND to the slow start threshold, and enters congestion avoidance. This is known as "fast recovery".
 
 
 ### Overview of TCP phases
@@ -102,7 +102,7 @@ We can also identify
 
 * "Slow start" periods, where the congestion window increases rapidly.
 * "Congestion avoidance" periods (when the congestion window increases linearly from than the slow start threshold)
-* Instances where 3 duplicate ACKs were received, if any. We are using [TCP Reno](http://intronetworks.cs.luc.edu/current/html/reno.html), which will enter "fast recovery" in response to 3 duplicate ACKs. The slow start threshold is set to half of the CWND at the time of the loss event, the new CWND is set to the slow start threshold, and the flow enters "congestion avoidance" mode.
+* Instances where duplicate ACKs were received, if any. We are using [TCP Reno](http://intronetworks.cs.luc.edu/current/html/reno.html), which will enter "fast recovery" if it detects congestion by duplicate ACKs. The slow start threshold is set to half of the CWND at the time of the loss event, the new CWND is set to the slow start threshold, and the flow enters "congestion avoidance" mode.
 * Instances of ACK timeout, if any. This will cause the congestion window to go back to 1 MSS, and the flow enters "slow start" mode.
 
 For example, the following annotated image shows a short interval in one TCP flow:
@@ -115,7 +115,7 @@ For example, the following annotated image shows a short interval in one TCP flo
 
 First, reserve a topology on GENI including two end hosts, and a router between them. The router will buffer traffic between the sender and the receiver. If the buffer in the router becomes full, it will drop packets, triggering TCP congestion control behavior.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JTDDz](https://git.io/JTDDz)
+In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml](https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml)
 
 This will load the following topology in your canvas, with two hosts ("romeo" and "juliet") and a router connecting them:
 
@@ -137,6 +137,12 @@ On romeo, we'll also install the `moreutils` utility, which will help us with da
 
 ```
 sudo apt-get -y install moreutils r-base-core r-cran-ggplot2 r-cran-littler
+```
+
+and configure an additional setting:
+
+```
+sudo sysctl -w net.ipv4.tcp_no_metrics_save=1
 ```
 
 Also, configure the router as a 1 Mbps bottleneck, with a buffer size of 0.1 MB, in both directions:
@@ -227,7 +233,7 @@ Download this script on the "romeo" host with
 
 
 <pre>
-wget -O ss-output.sh https://raw.githubusercontent.com/ffund/tcp-ip-essentials/master/lab6/ss-output.sh
+wget -O ss-output.sh https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/scripts/ss-output.sh
 </pre>
 
 On the "juliet" host, run
@@ -278,7 +284,7 @@ You can use your preferred data visualization tool or programming language to an
 Or, if you prefer, you can try the script that I used to generate Figure 1 in the [Results](#results) section. On "romeo", run
 
 <pre>
-wget -O ss-data-analysis.R https://raw.githubusercontent.com/ffund/tcp-ip-essentials/master/lab6/ss-data-analysis.R
+wget -O ss-data-analysis.R https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/scripts/ss-data-analysis.R
 </pre>
 
 to retrieve the script, then
@@ -326,7 +332,7 @@ Using your plot and/or experiment data, explain how the behavior of TCP is diffe
 
 
 
-### Optional: other congestion control algorithms
+### Additional exercises: other congestion control algorithms
 
 In the decades since TCP Reno was first proposed, several other congestion control algorithms have been developed that offer improved performance in some circumstances.
 
@@ -334,7 +340,7 @@ You can repeat this experiment with other congestion control variants by changin
 
 First, make sure to save the data from the main part of this experiment. When you run the experiment again (with a different control control algorithm), it will overwrite your previous data, so you want to have that safely stored somewhere else first.
 
-For example, you could run this experiment with TCP Cubic, which is the current default on Linux servers that power much of the Internet. The main difference between TCP Reno and TCP Cubic is the window increase function. While Reno uses the traditional linear increase (W=W+1), Cubic implements a binary search increase which can reach the available bandwidth much faster than Reno. You may read more about cubic in the [TCP Cubic paper](https://www.cs.princeton.edu/courses/archive/fall16/cos561/papers/Cubic08.pdf).
+For example, you could run this experiment with TCP Cubic, which is the current default on Linux servers that power much of the Internet. The main difference between TCP Reno and TCP Cubic is the window increase function. While Reno uses the traditional linear increase (W=W+1), Cubic implements a binary search increase which can reach the available bandwidth much faster than Reno. You may read more about Cubic in the [TCP Cubic paper](https://www.cs.princeton.edu/courses/archive/fall16/cos561/papers/Cubic08.pdf).
 
 To run the experiment with TCP Cubic, you would repeat the steps in the [Generating Data](#generatingdata) section above, but with the `iperf3` command
 
@@ -351,17 +357,86 @@ The results will look something like this:
 
 Notice that unlike Reno, the window size does not increase as a linear function of the time since the last congestion event! Instead, the window size is a cubic function of the time since the last congestion event.
 
+### Additional exercises: low delay congestion control
+
+
 While TCP CUBIC and Reno are designed with the goal of high throughput, they tend to cause high queuing delays in the network, because they reduce their CWND only when they experience a packet loss, i.e. when the queue is full. A full queue means long queuing delays for packets that traverse the queue! 
 
-A more recent congestion control proposed by Google, called TCP BBR, tries to maximize throughput and at the same time minimize queuing delay in the network. You cn read more about it in the [TCP BBR paper](https://research.google/pubs/pub45646/).
+Some congestion control variants use delay as a signal of congestion, and reduce their sending rate when the delay increases (indicating that the queue is becoming full). An early example is TCP Vegas. You can see this for yourself with a simple experiment to measure the queuing delay with a loss-based congestion control (like Reno or Cubic) and with a delay-based congestion control (Vegas).
 
-To use the BBR congestion control for your experiment, run
+For this experiment we will use `iperf3` and `ping` at the same time - `iperf3` to generate a TCP flow, and `ping` to estimate the queuing delay induced by the TCP flow.  With an `iperf3` server running on juliet, in one terminal on romeo run
 
 ```
-sudo modprobe tcp bbr
+iperf3 -c juliet -t 60 -C reno
+
 ```
 
-first, on the "romeo" and "juliet" nodes. This will load the Linux kernel module for TCP BBR. 
+and at the same time, in a second terminal on romeo, run
+
+```
+ping juliet -c 50
+```
+
+(the `ping` should both start and finish while the `iperf3` sender is still running). When it finishes, make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Reno flow.
+
+Then, repeat with Vegas, the delay-based congestion control algorithm. With an `iperf3` server running on juliet, in one terminal on romeo run
+
+```
+sudo modprobe tcp_vegas
+sudo iperf3 -c juliet -t 60 -C vegas
+
+```
+
+and at the same time, in a second terminal on romeo, run
+
+```
+ping juliet -c 50
+```
+
+Make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Vegas flow.
+
+One problem with TCP Vegas is that it does not work well when it shares a bottleneck link with a TCP Reno flow (or other loss-based flow). To see how this works, we will send two TCP flows through the bottleneck router: one TCP Reno flow, and one TCP Vegas flow.
+
+We will need two `iperf3` servers running on juliet, on two different ports. In one terminal on juliet, run
+
+```
+iperf3 -s -1
+```
+
+to start an `iperf3` server on the default port 5201, and in a second terminal on juliet, run
+
+
+```
+iperf3 -s -1 -p 5301
+```
+
+to start an `iperf3` server on port 5301.
+
+You'll need two terminal windows on romeo. In one of them, run
+
+```
+sudo iperf3 -c juliet -t 60 -C vegas
+```
+
+and a few seconds afterwards, in the second, run
+
+```
+iperf3 -c juliet -t 60 -C reno -p 5301
+```
+
+Make a note of the throughput reported by `iperf3` for each flow.
+
+### Additional exercises: TCP BBR
+
+A more recent congestion control proposed by Google, called TCP BBR, tries to maximize throughput and at the same time minimize queuing delay in the network. You can read more about it in the [TCP BBR paper](https://research.google/pubs/pub45646/).
+
+To use the BBR congestion control for your experiment, on romeo, run
+
+```
+sudo modprobe tcp_bbr
+```
+
+This will load the Linux kernel module for TCP BBR. 
 
 Then, repeat the other steps in the [Generating Data](#generatingdata) section above, but with the `iperf3` command
 
@@ -378,6 +453,70 @@ BBR doesn't use a slow start threshold, so you won't be able to use the same dat
 
 Note that BBR overall maintains a lower CWND than Cubic or Reno, because it wants to minimize queue occupancy. But you'll see in the `iperf3` output that it still achieves a similar throughput (about 1Mbps total shared between the 3 flows). Also, if you look at the raw `ss` data for the BBR and the Reno/Cubic flows, you'll note that the BBR flows see a much lower RTT, since they do not fill the queue.
 
+### Additional exercises: Explicit congestion notification (ECN)
+
+Finally, we'll try an experiment with explicit congestion notification. Explicit congestion notification (ECN) is a feature that allows routers to explicitly signal to a TCP sender when there is congestion. This allows the sender to reduce its congestion window *before* the router is forced to drop packets, reducing retransmissions. It can also help the router maintain a minimal queue, which reduces queuing delay.
+
+ECN involves both layer 2 and layer 3, and it requires support from both transport layer endpoints (sender *and* receiver) and routers along the path traversed by the packets.
+
+We will use ECN together with active queue management, which monitors the queuing delay. At the router, configure a queue in both directions that will mark packets when the queuing delay exceeds 10ms:
+
+<pre>
+sudo tc qdisc del dev eth1 root  
+sudo tc qdisc add dev eth1 root handle 1: htb default 3  
+sudo tc class add dev eth1 parent 1: classid 1:3 htb rate 1Mbit  
+sudo tc qdisc add dev eth1 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
+
+sudo tc qdisc del dev eth2 root  
+sudo tc qdisc add dev eth2 root handle 1: htb default 3  
+sudo tc class add dev eth2 parent 1: classid 1:3 htb rate 1Mbit  
+sudo tc qdisc add dev eth2 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
+</pre>
+
+
+On romeo and juliet, enable ECN in TCP by running
+
+```
+sudo sysctl -w net.ipv4.tcp_ecn=1   
+```
+
+
+Next, we'll prepare to capture the TCP flow. On both end hosts, romeo *and* juliet, run:
+
+```
+sudo tcpdump -s 80 -i eth1 'tcp' -w $(hostname -s)-tcp-ecn.pcap
+```
+
+ECN uses two flags in the TCP header: the ECN Echo (ECE) flag, and the Congestion Window Reduced (CWR) flag. It also uses two ECN bits in the DiffServ field of the IP header. Here is how these header fields are used:
+
+* During the connection establishment phase of TCP, both endpoints indicate to the other that they support ECN. First, one host sends an ECN-setup SYN packet: it sets the ECE and CWR flags in the TCP header of the SYN. Then, the other host response with an ECN-setup SYN-ACK packet: it sets the ECE flag (but not the CWR flag) in the TCP header of the SYN-ACK.
+* In any subsequent packets that carry data (not pure ACKs!), the sender will set the two ECN bits in the IP header to either 10 or 01. Either of these flag values will indicate to the routers along the path that this data packet uses an ECN-capable transport. 
+* If the router wants to signal to the TCP sender that there is congestion - for example, if the queue at the router is starting to fill up - then it sets the two ECN bits in the IP header to 11 before forwarding the packet to the destination. This is a "Congestion Experienced" signal.
+* If the receiver gets a data packet with the CE signal (the ECN bits in the IP header are set to 11), the receiver will set the ECN-Echo (ECE) flag in the TCP header *of the ACK* for that packet.
+* When the sender gets the ACK with the ECE flag set, it will reduce its CWND. Then it will set the Congestion Window Reduced (CWR) flag in the TCP header of the  next packet.
+
+
+With the `tcpdump` running, we can now run the experiment. In a second terminal on juliet, run
+
+```
+iperf3 -s -1
+```
+
+In a second terminal on romeo, run
+
+```
+iperf3 -c juliet -t 60 -C reno
+```
+
+and finally, in a third terminal on romeo, run
+
+```
+ping -c 50 juliet
+```
+
+When the experiment finishes, compare the delay performance of Reno with ECN (this experiment) to your previous experiment showing the delay performance without ECN.
+
+Also, transfer the packet captures to your laptop with `scp`, and look for the ECN-related fields in the IP header and TCP header, during connection establishment and during data transfer.
 
 ### Acknowledgements
 
