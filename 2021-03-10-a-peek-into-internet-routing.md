@@ -29,7 +29,7 @@ For example, one of the major IXPs in the U.S. is the Deutscher Commercial Inter
 
 The DE-CIX IXP carries hundreds of gigabits of data per second on a regular basis:
 
-![DE-CIX traffic](https://www.de-cix.net/traffic_NYC-1year-1170-400.png)
+![DE-CIX traffic](/blog/content/images/2023/03/de-cix.png)
 
 You  can see the traffic statistics [here](https://www.de-cix.net/en/locations/new-york/statistics).
 

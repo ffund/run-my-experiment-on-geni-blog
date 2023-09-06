@@ -7,7 +7,25 @@ In this experimental demonstration of the basic operation of a layer 2 switch/br
 It should take about 60-120 minutes to run this experiment.
 
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+
+You can run this experiment on GENI or on CloudLab. Refer to the testbed-specific prerequisites listed below.
+
+
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
+
+</div>
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+
+</div>
+<br>
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -46,17 +64,50 @@ We also see how a learning switch or bridge reduces the number of hosts in each 
 
 ## Run my experiment
 
-First, you will reserve a topology on GENI that includes a bridge with four ports, and one host connected to each port.
+First, you will reserve a topology that includes a bridge with four ports, and one host connected to each port.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JTzUE](https://git.io/JTzUE)
+Follow the instructions for the testbed you are using (GENI or Cloudlab) to reserve the resources and log in to each of the hosts in this experiment. 
 
-Your topology may have some red warning indicators on it, like this:
 
-![](/blog/content/images/2017/03/bridge-reserve.svg)
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
 
-This is not a problem - it's just a warning that some IP addresses are duplicated in the topology. In this case, that's intentional (all the bridge interfaces are assigned an IP address of "0.0.0.0" which results in them having no IPv4 address.) The "host" machines in the topology (node-1, node-2, node-3, node-4) each have the IP address 10.0.0.X, where the X is the node number: 10.0.0.1, 10.0.0.2, 10.0.0.3, and 10.0.0.4.
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
 
-Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready).
+
+<p>To set up this topology in the GENI Portal, create a slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL:</p>
+
+<p><a https://git.io/JTzUE">https://git.io/JTzUE</a></p>
+
+
+<p>Your topology may have some red warning indicators on it, like this:</p>
+
+<img src="/blog/content/images/2017/03/bridge-reserve.svg" />
+
+<p>This is not a problem - it's just a warning that some IP addresses are duplicated in the topology. In this case, that's intentional (all the bridge interfaces are assigned an IP address of "0.0.0.0" which results in them having no IPv4 address.) The "host" machines in the topology (node-1, node-2, node-3, node-4) each have the IP address 10.0.0.X, where the X is the node number: 10.0.0.1, 10.0.0.2, 10.0.0.3, and 10.0.0.4.</p>
+
+
+<p>Refer to the <a href="https://fedmon.fed4fire.eu/overview/instageni">monitor website</a> to identify an InstaGENI site that has many "free VMs" available. Then bind to an InstaGENI site and reserve your resources. Wait for them to become available for login ("turn green" on your canvas) and then SSH into each, using the details given in the GENI Portal.</p>
+
+</div>
+
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>To reserve resources on Cloudlab, open this profile page: </p>
+
+<p>https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/learning_switch</p>
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for the client, router, and server hosts, and SSH into each.</p>
+
+</div>
+<br>
+
+
 
 
 ### Set up the bridge

@@ -7,7 +7,24 @@ Most Internet-connected homes use a home network gateway to connect a local area
 
 It should take about 120-180 minutes to run this experiment.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+This experiment runs on either the GENI or CloudLab testbed! Whenever there are testbed-specific instructions, follow the ones for the testbed *you* are using.
+
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
+
+</div>
+<br>
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>. You may want to try <a href="https://teaching-on-testbeds.github.io/hello-cloudlab/">Hello, CloudLab</a> if you have not yet completed those steps.
+
+</div>
+<br>
+
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -269,22 +286,75 @@ And here are the same packets on the WAN:
 
 ## Run my experiment
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JThp3](https://git.io/JThp3)
+First, you will need to reserve resources for your experiment.
 
-This should load a topology onto your canvas with:
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: Reserve resources</h4>
 
-* Two "client" nodes, connected to a LAN, and a "gateway" node also connected to the LAN. The "gateway" node has IP address 192.168.100.1 on the interface that is connected to the LAN; the clients have no IP address on this interface. (You can safely ignore the red "!" that alerts you to this.)
-* A "website" node. In the RSpec, we request a "Publicly Routable IP" for this node.
+<p>In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: <a href="https://git.io/JThp3">https://git.io/JThp3</a>.</p>
 
-Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready) and then log in to each node.
+<p>This should load a topology onto your canvas with:</p>
 
-Wait for all of your nodes to become ready to log in (they will turn green on the canvas). Then, use the details given in the GENI Portal to SSH into each node, in four terminal windows.
+<ul>
+<li>Two "client" nodes, connected to a LAN, and a "gateway" node also connected to the LAN. The "gateway" node has IP address 192.168.100.1 on the interface that is connected to the LAN; the clients have no IP address on this interface. (You can safely ignore the red "!" that alerts you to this.)</li>
+<li>A "website" node. In the RSpec, we request a "Publicly Routable IP" for this node.</li>
+</ul>
+
+<p>Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready) and then log in to each node.</p>
+
+<p>Wait for all of your nodes to become ready to log in (they will turn green on the canvas). Then, use the details given in the GENI Portal to SSH into each node, in four terminal windows.</p>
+
+</div>
+<br>
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>For this experiment, we will use the CloudLab profile available at the following link: <a href="https://www.cloudlab.us/p/cl-education/home-gateway">https://www.cloudlab.us/p/cl-education/home-gateway</a>.</p>
+
+<p>If you visit this link, you’ll see a brief description of the profile. Click “Next”. On the following page, you’ll see a diagram of your experiment topology, and on the left you’ll be asked to select the “Cluster” on which you want your experiment to run. For this experiment, you'll be asked to select <b>two</b> clusters, and they should be two <b>different</b> ones! The website host will be on one cluster, and the rest of the hosts will be on the other.</p>
+
+<p>This experiment can run on any pair of two different clusters. However, since CloudLab is a shared resource, on some occasions the cluster you select might not have enough available resources to support your experiment. The status indicator next to each cluster tells you roughly how heavily utilized it is at the moment - green indicates that there are not many users, orange means heavy load, and red means that it is almost fully utilized. You are more likely to be successful if you choose a cluster with a green indicator.</p>
+
+<p>After you select two clusters, you can leave the "Name" field blank, or give your experiment a name - it’s your choice. Also make sure your "Project" is selected. Then, click "Next".</p>
+
+<p>On the last page, you’ll be asked to set the duration of your experiment. At the end of this duration, your resources will be deleted automatically - so make sure to give yourself enough time to finish.</p>
+
+<p>You can leave the start date/time on this page blank if you are ready to work on the experiment right now.</p>
+
+<p>When you have made all your choices, click "Finish" to ask CloudLab to reserve resources according to your configuration.</p>
+
+<p>Once you have successfully instantiated a profile, it will still take some time before your resources are ready for you to log in.</p>
+
+<p>As your resources come online, you’ll see their progress on the CloudLab experiment page. Once each host in your experiment is "green" and has a "✓" icon in the top right corner, it is ready for you to log in!</p>
+
+<p>For <i>most</i> CloudLab experiments, you can log in with the terminal in the CloudLab web portal or using a terminal application that is installed on your laptop or PC. For this experiment, however, you should use the terminal in the CloudLab web portal. Right-click on each node in your topology, and open a shell on the CloudLab web portal.</p>
+
+</div>
+<br>
+
+
 
 ### Reset configuration on the clients
 
-This experiment mimics clients connecting to a residential gateway and using the network services provided by that gateway (DHCP, DNS, NAT, for example). However, the clients in our experiment are _already_ set up to use a university gateway for those services. (Otherwise, they would not have a functional network connection and we would not be able to get in to them over SSH!)
+This experiment mimics clients connecting to a residential gateway and using the network services provided by that gateway (DHCP, DNS, NAT, for example). However, the clients in our experiment are _already_ set up to use a university gateway for those services. (Otherwise, they would not have a functional network connection and we would not be able to get in to them over SSH!) To run this experiment, we will tell the clients _not_ to use the university gateway for anything except our SSH session. 
 
-To run this experiment, we will tell the clients _not_ to use the university gateway for anything except our SSH session. However, once you do this, <b>you should plan to finish the rest of the experiment involving these resources in the same SSH session</b>. Otherwise, if you stop and then resume the experiment from a new SSH session in a new location, you won't be able to access the clients anymore. 
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: Removing route via university gateway</h4>
+
+On GENI, once you remove the route via university gateway, <b>you should plan to finish the rest of the experiment involving these resources in the same SSH session</b>. Otherwise, if you stop and then resume the experiment from a new SSH session in a new location, you won't be able to access the clients anymore. 
+
+</div>
+<br>
+
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> CloudLab-specific instructions: Removing route via university gateway</h4>
+
+On CloudLab, once you remove the route via university gateway, you will only be able to log in to these client nodes using the shell in the CloudLab web portal. You won't be able to access them using the terminal application on your laptop or PC anymore.
+
+</div>
+<br>
 
 When you're ready, on each of the two "client" nodes (and _only_ on the client nodes), run
 
@@ -304,21 +374,27 @@ sudo: unable to resolve host client-1
 ```
 )
 
----
-> **Note**: as mentioned above, if your own IP address changes, you may lose connectivity to your client nodes. Here's how to access your client nodes if that happens!
-> 
-> 1. If you are on Windows, first enable and start the SSH agent: Open Services (Start Menu > Services), then select OpenSSH Authentication Agent, then set StartupType to Automatic.
-> 2. If you are using Windows or Mac OS X: run `ssh-add` to start the SSH agent.
-> 3. Use SSH to log in to the "gateway" node, but add the `-A` argument to the SSH command. Also specify the path to your private key with `-i`, if you normally do so when using SSH to log in to GENI hosts. 
-> 4. From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do *not* use the `-i` argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.
-> 
-> For example: <blockquote><pre>
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: If you lose access to resources</h4>
+
+<p><b>Note:</b> as mentioned above, if your own IP address changes, you may lose connectivity to your client nodes. Here's how to access your client nodes <i>if</i> that happens!</p>
+
+<ol>
+<li>If you are on Windows, first enable and start the SSH agent: Open Services (Start Menu > Services), then select OpenSSH Authentication Agent, then set StartupType to Automatic.</li>
+<li>If you are using Windows or Mac OS X: run <tt>ssh-add</tt> to start the SSH agent.</li>
+<li>Use SSH to log in to the "gateway" node, but add the <tt>-A</tt> argument to the SSH command. Also specify the path to your private key with <tt>-i</tt>, if you normally do so when using SSH to log in to GENI hosts. </li>
+<li>From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do <i>not</i> use the <tt>-i</tt> argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.</li>
+
+For example: <blockquote><pre>
 ffund@laptop:~$ ssh <b>-A</b> ffund01@pc1.instageni.metrodatacenter.com -p 25812
 ffund01@gateway:~$ ssh ffund01@pc1.instageni.metrodatacenter.com -p 25810
 ffund01@client-1:~$
 </pre>
 </blockquote>
 
+
+</div>
+<br>
 
 ### Set up gateway
 
@@ -515,6 +591,17 @@ eth1      Link encap:Ethernet  HWaddr 02:eb:60:57:10:ad
           RX bytes:6314 (6.3 KB)  TX bytes:3941 (3.9 KB)
 </pre>
 
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Updating DNS configuration</h4>
+
+<p>If you are using CloudLab, you should run </p>
+
+<pre>sudo /lib/systemd/systemd-resolved &</pre>
+
+<p>on the client after running <tt>dhclient</tt>, to allow the system's name resolution configuration to be updated by the DHCP client. Hit Enter a few times to return to your regular terminal prompt.</p>
+
+</div><br>
+
 You can also see that the client has been configured to use the gateway as the name server, as specified in the DHCP options. On the client, run
 
 ```
@@ -527,7 +614,8 @@ to see the address of the name server it uses. You should see:
 nameserver 192.168.100.1
 ```
 
-(You may also see some secondary nameservers from the host InstaGENI site; that's OK!)
+(You may also see some secondary nameservers from the host testbed site; that's OK!)
+
 
 Finally, we can see that the client uses the gateway as the default gateway for routing purposes. On the client, run
 
@@ -542,7 +630,10 @@ to see routing rules. We should see two rules associated with the interface conn
 192.168.100.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
 ```
 
-The first rule says to use "192.168.100.1" as the next hop for any traffic whose destination address does not meet any more specific rule, i.e. as the default rule. The second rule says to send traffic for the 192.168.100.0/24 subnet out of the `eth1` interface, which is connected to the LAN.
+The first rule says to use "192.168.100.1" as the next hop for any traffic whose destination address does not meet any more specific rule, i.e. as the default rule. The second rule says to send traffic for the 192.168.100.0/24 subnet out of the <tt>eth1</tt> interface, which is connected to the LAN.
+
+<br><br>
+
 
 On the second client node, use 
 
@@ -551,6 +642,24 @@ sudo dhclient -d eth1
 ```
 
 to get an IP address on this node as well.
+
+<br><br><br>
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Updating DNS configuration</h4>
+
+<p>If you are using CloudLab, you should run </p>
+
+<pre>sudo /lib/systemd/systemd-resolved &</pre>
+
+<p>on the second client also, after running <tt>dhclient</tt>, to allow the system's name resolution configuration to be updated by the DHCP client. Hit Enter a few times to return to your regular terminal prompt.</p>
+
+</div><br>
+
+<div>
+</div>
+
+
 
 ### Observe a DNS query and response
 
@@ -562,11 +671,29 @@ On the "gateway", run `tcpdump` to monitor traffic on UDP port 53, the DNS port:
 sudo tcpdump -i eth1 -n -v "udp port 53"
 ```
 
-On a client, we are going to look up the IP address associated with the "website" node in our topology. (Recall that in the RSpec, we asked for it to be given a publicly routable IP address, so there should be a DNS record for it).
+On a client, we are going to look up the IP address associated with the "website" node in our topology. 
+
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: Find website hostname</h4>
 
 In the GENI Portal, click "Details" on your slice page and find the hostname associated with the "website" node. In my slice, it is "website.nat.ch-geni-net.instageni.research.umich.edu":
 
-![](/blog/content/images/2017/03/gateway-hostname.png)
+<img width="100%" src="/blog/content/images/2017/03/gateway-hostname.png"/>
+
+</div></br>
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Find website hostname</h4>
+
+<p>In the CloudLab Portal, click the "List View" tab on your experiment page and find the hostname associated with the "website" node.  In my experiment, it is "aptvm068-1.apt.emulab.net":</p>
+
+
+<img width="100%" src="/blog/content/images/2022/10/cloudlab-hostname.png"/>
+
+</div></br>
+<div>
+</div>
+
 
 Then, on a client node, run
 
@@ -714,12 +841,12 @@ instageni.research.umich.edu. 30 IN    NS  ns.instageni.research.umich.edu.
 Next, we will set up our gateway to use NAT. On the gateway, run
 
 
-```
+<pre>
 sudo iptables -A FORWARD -o eth0 -i eth1 -s 192.168.100.0/24 -m conntrack --ctstate NEW -j ACCEPT
 sudo iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -t nat -F POSTROUTING
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-```
+</pre>
 
 Here,
 
@@ -778,38 +905,88 @@ sudo apt-get update
 sudo apt-get -y install apache2
 ```
 
-On the client node, install a basic terminal-based web browser with:
 
-```
+<div class="geni-specific">
+<h4 class="geni-specific"> GENI-specific instructions: Open website in a web browser</h4>
+
+<p>On the client node, install a basic terminal-based web browser with:</p>
+
+<pre>
 sudo apt-get update
 sudo apt-get -y install lynx
-```
+</pre>
 
+<p>We'll monitor traffic to and from the web server (which operates on TCP port 80) using tcpdump. We will monitor it in two places, on the LAN and on the WAN.</p>
 
-Now, we'll monitor traffic to and from the web server (which operates on TCP port 80) using `tcpdump`. We will monitor it in two places, on the LAN and on the WAN.
-
-On the "gateway" node, monitor traffic to and from the LAN:
+<p>On the "gateway" node, monitor traffic to and from the LAN:</p>
 
 <pre>
 sudo tcpdump -i <b>eth1</b> -n "tcp port 80"
 </pre>
 
-and on the "website" node, monitor traffic to and from the WAN:
+<p>and on the "website" node, monitor traffic to and from the WAN:</p>
 
 <pre>
 sudo tcpdump -i <b>eth0</b> -n "tcp port 80"
 </pre>
 
-
-Then, on the client, run 
+<p>Then, on the client, run </p>
 
 <pre>
 lynx http://<b>website.nat.ch-geni-net.instageni.research.umich.edu</b>/
 </pre>
 
-(substituting the hostname of _your_ "website" node in the URL above). You should see the website load in the terminal:
+<p>(substituting the hostname of <i>your</i> "website" node in the URL above). You should see the website load in the terminal: </p>
 
-![](/blog/content/images/2017/03/lynx-apache2.png)
+<img src="/blog/content/images/2017/03/lynx-apache2.png" width="100%"/>
+
+</div>
+<br>
+
+<div class="cloudlab-specific">
+<h4 class="cloudlab-specific"> CloudLab-specific instructions: Open website in a web browser</h4>
+
+<p>On the client node, install a web browser with:</p>
+
+<pre>
+sudo apt-get update
+sudo apt-get -y install firefox lynx
+</pre>
+
+
+<p>We'll monitor traffic to and from the web server (which operates on TCP port 80) using tcpdump. We will monitor it in two places, on the LAN and on the WAN.</p>
+
+<p>On the "gateway" node, monitor traffic to and from the LAN:</p>
+
+<pre>
+sudo tcpdump -i <b>eth1</b> -n "tcp port 80"
+</pre>
+
+<p>and on the "website" node, monitor traffic to and from the WAN:</p>
+
+<pre>
+sudo tcpdump -i <b>eth0</b> -n "tcp port 80"
+</pre>
+<p>Firefox is a graphical web browser, so to use it, you will need a VNC session. Open a VNC session on the client, and run</p>
+
+<pre>
+firefox
+</pre>
+
+<p>Then, inside your Firefox session, put the URL http://<b>aptvm068-1.apt.emulab.net</b>/ in the address bar (substituting the hostname of _your_ "website" node in the URL) and hit Enter. You should see the website load in the browser.</p>
+
+<p>As a fallback, in case your VNC session doesn't work out (it can be a little bit flaky), that's OK: we have also installed a terminal-based web browser that you can use inside your shell session. To try the terminal-based option, in a terminal session on the client run </p>
+
+<pre>
+lynx http://<b>aptvm068-1.apt.emulab.net</b>/
+</pre>
+
+<p>(substituting the hostname of <i>your</i> "website" node in the URL above). You should see the website load in the terminal.</p>
+
+</div>
+<br>
+
+
 
 Meanwhile, in the `tcpdump` output you can see how the IP addresses are rewritten in the packet headers. On the LAN (the `tcpdump` running on the "gateway" interface facing the LAN), the Layer 3 packet header shows the connection between 192.168.100.157 (port 57962) and 192.41.233.62 (port 80):
 
@@ -831,12 +1008,14 @@ However, for the _same_ packets, the `tcpdump` running on the "website" node (on
 
 confirming that the packet headers are rewritten in the NAT gateway.
 
-**Note**: your "gateway" node may itself be located behind a NAT! So the WAN-facing IP address on the gateway may not be the same as the address you observe on the "website" node.
+**Note**: your "gateway" node may itself be located behind a NAT! So the WAN-facing IP address on the gateway may not be the same as the address you observe on the "website" node, and either or both of these addresses may not be the "public" IP address you identified previously.
 
 
 ## Notes
 
-Last updated: November 2020. Thanks to Devesh Yadav and Professor Violet Syrotiuk at Arizona State University for the corrections.
+Updated September 2022: Added CloudLab instructions.
+
+Updated November 2020: Thanks to Devesh Yadav and Professor Violet Syrotiuk at Arizona State University for corrections.
 
 
 ### Exercise
@@ -861,7 +1040,7 @@ Last updated: November 2020. Thanks to Devesh Yadav and Professor Violet Syrotiu
   * What is the *address* for the hostname you asked to resolve?
   * Give the name of the first "authoritative" server listed for this name, and the IP address of that "authoritative" server.
   * What is the IP address of the server that the DNS response is from?
-* For the hierarchical DNS resolution with `+trace`, show the `dig` command and its output. Draw a diagram showing how the hostname was resolved recursively, starting from the implied `.` at the end and moving toward the beginning.
+* For the hierarchical DNS resolution with `+trace`, show the `dig` command and its output. Draw a diagram showing how the hostname was resolved iteratively, starting from the implied `.` at the end and moving toward the beginning.
  * At the top, show the nameservers for the root domain. Highlight the one that you queried for the top-level domain (as shown in the `dig +trace` output).
  * At the next level, show the nameservers for the top-level domain. Highlight the one that you queried for the second-level domain.
  * At the next level, show the nameservers for the second-level domain. Highlight the one that you queried for the subdomain.
@@ -869,7 +1048,7 @@ Last updated: November 2020. Thanks to Devesh Yadav and Professor Violet Syrotiu
 
 #### NAT
 
-* Show the three-way TCP handshake for a connection between client and website as seen by `tcpdump` at the website, and as seen by `tcpdump` at the gateway (on the LAN). Make sure you can see the IP IP addresses and port numbers used in the connection!
+* Show the three-way TCP handshake for a connection between client and website as seen by `tcpdump` at the website, and as seen by `tcpdump` at the gateway (on the LAN). Make sure you can see the IP addresses and port numbers used in the connection!
 * Draw a diagram showing how NAT is used between client and website, similar to [this diagram](https://witestlab.poly.edu/blog/content/images/2017/03/gateway-nat-2.svg) but with the IP addresses, hostnames, and ports from *your* experiment.
 
 

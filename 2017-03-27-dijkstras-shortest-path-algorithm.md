@@ -2,7 +2,31 @@ In this experiment, we will use Dijkstra's algorithm to find the shortest path f
 
 It should take about 120 minutes to run this experiment.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+You can run this experiment on GENI, CloudLab, or FABRIC.
+
+<p></p>
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">  
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.  
+</div>  
+<p></p>
+
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+
+</div>
+<p></p>
+
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Prerequisites</h4>  
+To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, you should have a FABRIC account and be part of a FABRIC project. 
+</div>  
+<br>
+
 
 
 * Skip to [Results](#results)
@@ -43,84 +67,138 @@ In this experiment, we will find the shortest path (in terms of latency) from th
 ![](/blog/content/images/2017/03/dijkstra-topology.svg)
 
 
-You may reserve this topology in either of two ways:
+You may reserve this topology in any of the following ways:
 
-* You can reserve resources that are distributed across GENI sites around the United States. It is more difficult to reserve resources this way, but it may be more interesting - the latency measurements will reflect actual distances between sites. To try this method, see [Using multiple GENI sites](#usingmultiplegenisites).
-* You can reserve resources at a single site. In this case, an artificial latency will be applied to each link in the topology. This is an easier way to reserve resources. To try this method, see [Using one site](#usingonesite).
+* <span style="color:#FB8C00;"><b>Using GENI, multiple sites:</b></span> You can reserve resources that are distributed across GENI sites around the United States. It is more difficult to reserve resources this way, but it may be more interesting - the latency measurements will reflect actual distances between sites. To try this method, see [Using multiple GENI sites](#usingmultiplegenisites).
+* <span style="color:#FB8C00;"><b>Using GENI, single site:</b></span> You can reserve resources at a single site. In this case, an artificial latency will be applied to each link in the topology. This is an easier way to reserve resources. To try this method, see [Using one site](#usingonesiteongeni).
+* <span style="color:#5e8a90;"><b>Using CloudLab, single site:</b></span> For CloudLab, we provide instructions to reserve resources at a single site. In this case, an artificial latency will be applied to each link in the topology. . To try this method, see [Using CloudLab](#usingcloudlab).
+* <span style="color:#47aae1;"><b>Using FABRIC, single site:</b></span> For FABRIC, we provide instructions to reserve resources at a single site. In this case, an artificial latency will be applied to each link in the topology. To try this method, see [Using FABRIC](#usingfabric).
 
 
-### Using multiple GENI sites
 
-Reserving an experiment topology that uses resources from multiple GENI sites can be a little more complicated than experiments that only use resources at one GENI site. In order for everything to work,
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">  
 
-* The resource reservation request must succeed, i.e. when you submit your resource request in the GENI Portal it returns "Status: Finished" indicating that all of the aggregates involved have indicated that they can satisfy your request.
-* The VMs you have requested must come up (turn "green" on the slice page), indicating that they are ready to log in.
-* The links _between_ aggregates, which are created using a process called [Stitching](#http://groups.geni.net/geni/wiki/GeniNetworkStitchingSites), must be operational. 
+<h4 style="color:#FB8C00;" id="usingmultiplegenisites">Reserve resources: Using multiple GENI sites</h4>
 
-If there is a failure at _one_ GENI aggregate for any of these steps, the entire thing will fail; you need each of these steps to succeed at _all_ the GENI aggregates in your slice. Thus, you'll need some extra patience and willingness to try again. In this section, I will describe how to identify which aggregate is responsible for the failure of a slice, so that you can exclude that aggregate when you try again.
+<p>Reserving an experiment topology that uses resources from multiple GENI sites can be a little more complicated than experiments that only use resources at one GENI site. In order for everything to work,</p>
 
-First, in the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/JUBmM](https://git.io/JUBmM) and choose "Select" to load the multi-site topology:
+<ul>
+<li>The resource reservation request must succeed, i.e. when you submit your resource request in the GENI Portal it returns "Status: Finished" indicating that all of the aggregates involved have indicated that they can satisfy your request.</li>
+<li>The VMs you have requested must come up (turn "green" on the slice page), indicating that they are ready to log in.</li>
+<li>The links <em>between</em> aggregates, which are created using a process called <a href="#http://groups.geni.net/geni/wiki/GeniNetworkStitchingSites">Stitching</a>, must be operational. </li>
+</ul>
 
-![](/blog/content/images/2017/03/dijkstra-multisite.png)
+<p>If there is a failure at <em>one</em> GENI aggregate for any of these steps, the entire thing will fail; you need each of these steps to succeed at <em>all</em> the GENI aggregates in your slice. Thus, you'll need some extra patience and willingness to try again. In this section, I will describe how to identify which aggregate is responsible for the failure of a slice, so that you can exclude that aggregate when you try again.</p>
 
-You will notice that this topology includes multiple sites. To replace any site (e.g. if you have problems with a particular site), you can click on the name of the site, then use the menu on the left to select a different InstaGENI site.
+<p>First, in the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL <a href="https://git.io/JUBmM">https://git.io/JUBmM</a> and choose "Select" to load the multi-site topology:</p>
 
-You may also notice that some links are marked with a red warning symbol; you can safely ignore this warning.
+<p><img src="/blog/content/images/2017/03/dijkstra-multisite.png" alt="" width="100%" /></p>
 
-When you click the button to reserve resources,  you may notice that the resource reservation takes longer than usual, since it must be coordinated between six different aggregates. To keep an eye on the process, click on "Detailed Progress". If all goes well, the output should include something this, that shows you when the allocation is finished at each of the six sites in your topology:
+<p>You will notice that this topology includes multiple sites. To replace any site (e.g. if you have problems with a particular site), you can click on the name of the site, then use the menu on the left to select a different InstaGENI site.</p>
 
-```
-16:43:51 INFO    : Multi-AM reservation will include resources from these aggregates:
-16:43:51 INFO    : 	<Aggregate ohmetrodc-ig>
-16:43:51 INFO    : 	<Aggregate rutgers-ig>
-16:43:51 INFO    : 	<Aggregate nyu-ig>
-16:43:51 INFO    : 	<Aggregate missouri-ig>
-16:43:51 INFO    : 	<Aggregate nps-ig>
-16:43:51 INFO    : 	<Aggregate ucla-ig>
-16:43:51 INFO    : Stitcher doing createsliver at <Aggregate ohmetrodc-ig>...
-16:44:07 INFO    : ... Allocation at <Aggregate ohmetrodc-ig> complete.
-16:44:07 INFO    : Stitcher doing createsliver at <Aggregate rutgers-ig>...
-16:44:23 INFO    : ... Allocation at <Aggregate rutgers-ig> complete.
-16:44:23 INFO    : Stitcher doing createsliver at <Aggregate nyu-ig>...
-16:44:39 INFO    : ... Allocation at <Aggregate nyu-ig> complete.
-16:44:39 INFO    : Stitcher doing createsliver at <Aggregate missouri-ig>...
-16:44:57 INFO    : ... Allocation at <Aggregate missouri-ig> complete.
-16:44:57 INFO    : Stitcher doing createsliver at <Aggregate nps-ig>...
-16:45:19 INFO    : ... Allocation at <Aggregate nps-ig> complete.
-16:45:19 INFO    : Stitcher doing createsliver at <Aggregate ucla-ig>...
-16:45:54 INFO    : ... Allocation at <Aggregate ucla-ig> complete.
-16:45:54 INFO    : All aggregates are complete.
-```
+<p>You may also notice that some links are marked with a red warning symbol; you can safely ignore this warning.</p>
 
-If a request fails at a particular site, you can determine from the output which aggregate it was. You should then delete the resources in this slice (this, too, may take a few minutes longer than usual, since it has to delete resources at multiple aggregates). Create a new slice, and try your request in the new slice, _without_ the site that failed - replace that site in the topology before you reserve resources again.
+<p>When you click the button to reserve resources,  you may notice that the resource reservation takes longer than usual, since it must be coordinated between six different aggregates. To keep an eye on the process, click on "Detailed Progress". If all goes well, the output should include something this, that shows you when the allocation is finished at each of the six sites in your topology:</p>
 
-Once the resource request succeeds, you should wait for your nodes to become available to log in. If a resource fails to come up (e.g. it shows as "Failed" in the Portal, you get an email alerting you that the node has failed to boot, or it remains in an "Unknown" state for a very, very, very long time), you should delete the resources in your slice. Then, try again, using a different aggregate in place of the one that just failed.
+<pre><code>16:43:51 INFO    : Multi-AM reservation will include resources from these aggregates:  
+16:43:51 INFO    :     &lt;Aggregate ohmetrodc-ig&gt;  
+16:43:51 INFO    :     &lt;Aggregate rutgers-ig&gt;  
+16:43:51 INFO    :     &lt;Aggregate nyu-ig&gt;  
+16:43:51 INFO    :     &lt;Aggregate missouri-ig&gt;  
+16:43:51 INFO    :     &lt;Aggregate nps-ig&gt;  
+16:43:51 INFO    :     &lt;Aggregate ucla-ig&gt;  
+16:43:51 INFO    : Stitcher doing createsliver at &lt;Aggregate ohmetrodc-ig&gt;...  
+16:44:07 INFO    : ... Allocation at &lt;Aggregate ohmetrodc-ig&gt; complete.  
+16:44:07 INFO    : Stitcher doing createsliver at &lt;Aggregate rutgers-ig&gt;...  
+16:44:23 INFO    : ... Allocation at &lt;Aggregate rutgers-ig&gt; complete.  
+16:44:23 INFO    : Stitcher doing createsliver at &lt;Aggregate nyu-ig&gt;...  
+16:44:39 INFO    : ... Allocation at &lt;Aggregate nyu-ig&gt; complete.  
+16:44:39 INFO    : Stitcher doing createsliver at &lt;Aggregate missouri-ig&gt;...  
+16:44:57 INFO    : ... Allocation at &lt;Aggregate missouri-ig&gt; complete.  
+16:44:57 INFO    : Stitcher doing createsliver at &lt;Aggregate nps-ig&gt;...  
+16:45:19 INFO    : ... Allocation at &lt;Aggregate nps-ig&gt; complete.  
+16:45:19 INFO    : Stitcher doing createsliver at &lt;Aggregate ucla-ig&gt;...  
+16:45:54 INFO    : ... Allocation at &lt;Aggregate ucla-ig&gt; complete.  
+16:45:54 INFO    : All aggregates are complete.  
+</code></pre>
 
-If _all_ nodes in your topology turn green, indicating that they are ready to log in, then you are ready for the last check - making sure the links between sites are operational. 
+<p>If a request fails at a particular site, you can determine from the output which aggregate it was. You should then delete the resources in this slice (this, too, may take a few minutes longer than usual, since it has to delete resources at multiple aggregates). Create a new slice, and try your request in the new slice, <em>without</em> the site that failed - replace that site in the topology before you reserve resources again.</p>
 
-Wait until _all_ of your nodes are ready to log in. Then SSH into each of your nodes. When you log in, you will see a message indicating which of its direct neighbors are reachable. If one site is not connected, then you will see something like this example, which shows that all of the links to "lovelace" are down:
+<p>Once the resource request succeeds, you should wait for your nodes to become available to log in. If a resource fails to come up (e.g. it shows as "Failed" in the Portal, you get an email alerting you that the node has failed to boot, or it remains in an "Unknown" state for a very, very, very long time), you should delete the resources in your slice. Then, try again, using a different aggregate in place of the one that just failed.</p>
 
-![](/blog/content/images/2017/03/dijkstra-linksdown.png)
+<p>If <em>all</em> nodes in your topology turn green, indicating that they are ready to log in, then you are ready for the last check - making sure the links between sites are operational. </p>
 
-If a link is down, you should delete the resources in this slice and try again. (In this case, since all of the links that are down are links to "lovelace", it would be advisable to avoid whatever GENI site "lovelace" is on in your next attempt.)
+<p>Wait until <em>all</em> of your nodes are ready to log in. Then SSH into each of your nodes. When you log in, you will see a message indicating which of its direct neighbors are reachable. If one site is not connected, then you will see something like this example, which shows that all of the links to "lovelace" are down:</p>
 
-You can also find out the geographical location of each node by running
+<p><img src="/blog/content/images/2017/03/dijkstra-linksdown.png" alt="" width="100%" /></p>
 
-```
-wget -qO- http://ipinfo.io
-```
+<p>If a link is down, you should delete the resources in this slice and try again. (In this case, since all of the links that are down are links to "lovelace", it would be advisable to avoid whatever GENI site "lovelace" is on in your next attempt.)</p>
 
-on each node. This hits a [website](http://ipinfo.io/) that [geolocates](https://en.wikipedia.org/wiki/Geolocation) the node based on its public IP address, and prints the output in the terminal.
+<p>You can also find out the geographical location of each node by running</p>
 
-When you're confident that your topology is ready to go, continue to [Run Dijkstra's algorithm](#rundijkstrasalgorithm).
+<pre><code>wget -qO- http://ipinfo.io  
+</code></pre>
 
-### Using one site
+<p>on each node. This hits a <a href="http://ipinfo.io/">website</a> that <a href="https://en.wikipedia.org/wiki/Geolocation">geolocates</a> the node based on its public IP address, and prints the output in the terminal.</p>
 
-Alternatively, you may prefer to reserve resources at only one GENI site. In this case, there will be artificial delay added between hosts, so that you can run Dijkstra's algorithm and have a meaningful difference between paths.
+<p>When you're confident that your topology is ready to go, continue to <a href="#rundijkstrasalgorithm">Run Dijkstra's algorithm</a>.</p>
 
-In the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL [https://git.io/JUBm1](https://git.io/JUBm1) and choose "Select". This will load a six-node topology in your canvas.
+</div>
+<p></p>
 
-Click on "Site 1" and select an InstaGENI site from the drop-down list on the left, then click "Reserve Resources". Wait until all of your nodes are up and ready to log in, then open six terminals and SSH into each node.
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">  
+
+<h4 style="color:#FB8C00;" id="usingonesiteongeni">Reserve resources: Using one GENI site</h4>
+
+<p>Alternatively, you may prefer to reserve resources at only one GENI site. In this case, there will be artificial delay added between hosts, so that you can run Dijkstra's algorithm and have a meaningful difference between paths.</p>
+
+<p>In the GENI Portal, create a new slice, and then click "Add Resources". Scroll down to the "Choose RSpec" section and select "URL"; enter the URL <a href="https://git.io/JUBm1">https://git.io/JUBm1</a> and choose "Select". This will load a six-node topology in your canvas.</p>
+
+<p>Click on "Site 1" and select an InstaGENI site from the drop-down list on the left, then click "Reserve Resources". Wait until all of your nodes are up and ready to log in, then open six terminals and SSH into each node.</p>
+
+<p>Then, continue to <a href="#rundijkstrasalgorithm">Run Dijkstra's algorithm</a>.</p>
+
+</div>
+<p></p>
+
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+
+<h4 style="color:#5e8a90;" id="usingcloudlab"> Reserve resources: Using CloudLab</h4>
+
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
+
+<p>https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/dijkstra</p>
+
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for the client, router, and server hosts. Use these details to SSH into each.</p>
+
+<p>Then, continue to <a href="#rundijkstrasalgorithm">Run Dijkstra's algorithm</a>.</p>
+
+
+</div>
+<br>
+
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;" id="usingfabric">Reserve resources: Using FABRIC</h4>  
+<p>To reserve these resources on <a href="https://fabric-testbed.net/">FABRIC</a>, open the JupyterHub environment on FABRIC, open a shell, and run </p>
+
+<pre>
+git clone https://github.com/teaching-on-testbeds/fabric-education dijkstra
+cd dijkstra
+git checkout dijkstra
+</pre>
+
+<p>Then open the notebook titled "setup.ipynb".</p> 
+ 
+<p>Follow along inside the notebook to reserve resources and get the login details for each host in the experiment.</p>  
+
+<p>When you have logged in to each node, continue to the <a href="#rundijkstrasalgorithm">Run Dijkstra's algorithm</a>.</p>
+</div>  
+<br>
+
 
 
 
@@ -158,7 +236,7 @@ rtt min/avg/max/mdev = 32.272/<b>32.742</b>/33.986/0.448 ms
 
 In the table, fill in this value as the cost of the path from "dijkstra" to "lovelace", and note that the previous hop in this path is "dijkstra".
 
-Then, repeat this step for "lovelace". From the "dijkstra" node, run:
+Then, repeat this step for "baran". From the "dijkstra" node, run:
 
 ```
 ping -c 25 10.10.5.2
@@ -234,7 +312,7 @@ To realize the shortest path tree on our topology, we will bring down each inter
 ifconfig
 ```
 
-to find out the name (e.g. `eth1`, `eth2`) of the interface with that IP address. Then bring down that interface with:
+to find out the name (e.g. `eth1`, `ens8`, etc.) of the interface with that IP address. Then bring down that interface with:
 
 <pre>
 sudo ifconfig <b>eth1</b> down
@@ -342,7 +420,7 @@ This output shows:
 * the previous hop before "cerf" in the table is "knuth", so the second-to-last entry in the `mtr` report is 10.10.8.2. Furthermore, the average cost to "knuth" is 78.0, similar to the 72.551 listed in the table.
 * the previous hop before "knuth" in the table is "lovelace", so the third-to-last entry in the `mtr` report is 10.10.4.1. Also, the average cost to "lovelace" is 34.8, similar to the 32.742 listed in the table. 
 
-The following video shows how we set up the shortest-path tree and the routes on our GENI nodes:
+The following video shows how we set up the shortest-path tree and the routes on our network:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/uqgBVHHFtLM" frameborder="0" allowfullscreen></iframe>
 

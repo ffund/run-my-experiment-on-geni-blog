@@ -2,7 +2,38 @@ This experiment shows the basic behavior of TCP congestion control. You'll see t
 
 It should take about 1 hour to run this experiment.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+You can run this experiment on GENI, CloudLab, FABRIC, or Chameleon. Refer to the testbed-specific prerequisites listed below.
+
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
+</div>
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+
+</div>
+<br>
+
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Prerequisites</h4>
+To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, you should have a FABRIC account with keys configured, and be part of a FABRIC project. 
+
+</div>  
+<br>
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">  
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Prerequisites</h4>
+To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, you should have a Chameleon account with keys configured on KVM@TACC, and be part of a Chameleon project. 
+
+</div>  
+<p><br></p>
+
+
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -113,15 +144,80 @@ For example, the following annotated image shows a short interval in one TCP flo
 
 ## Run my experiment
 
-First, reserve a topology on GENI including two end hosts, and a router between them. The router will buffer traffic between the sender and the receiver. If the buffer in the router becomes full, it will drop packets, triggering TCP congestion control behavior.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml](https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml)
+First, reserve a topology including two end hosts, and a router between them. The router will buffer traffic between the sender and the receiver. If the buffer in the router becomes full, it will drop packets, triggering TCP congestion control behavior.
 
-This will load the following topology in your canvas, with two hosts ("romeo" and "juliet") and a router connecting them:
+Follow the instructions for the testbed you are using (GENI or Cloudlab,) to reserve the resources and log in to each of the hosts in this experiment. 
+
+
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
+
+<p>In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: <a href="https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml">https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml</a>.</p>
+
+<p>This will load the following topology in your canvas, with two hosts ("romeo" and "juliet") and a router connecting them:</p>
 
 ![](/blog/content/images/2020/10/tcp-topology.svg)
 
-Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). Then, SSH into each node. 
+<p>Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). Then, click on "Details" to get SSH login information, and SSH into each node. </p>
+
+<p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
+
+</div>
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
+
+<p>https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/tcp_congestion_control</p>
+
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for the client, router, and server hosts. Use these details to SSH into each.</p>
+
+<p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
+
+</div>
+<br>
+
+
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Reserve resources</h4>
+<p>To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, open the JupyterHub environment on FABRIC, open a shell, and run </p>
+
+<pre>
+git clone https://github.com/teaching-on-testbeds/fabric-education tcp_cc
+cd tcp_cc
+git checkout tcp_congestion_control
+</pre>
+<p>Then open the notebook titled "setup.ipynb".</p>
+<p>Follow along inside the notebook to reserve resources and get the login details for each host in the experiment.</p>
+<p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
+</div>
+<br>
+
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Reserve resources</h4>
+<p>To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, open the JupyterHub environment on Chameleon, open a shell, and run </p>
+
+<pre>
+cd work
+git clone https://github.com/teaching-on-testbeds/chameleon-education tcp_cc
+cd tcp_cc
+git checkout tcp_congestion_control
+</pre>
+<p>Then open the notebook titled "setup.ipynb".</p>
+<p>Follow along inside the notebook to reserve resources and get the login details for each host in the experiment.</p>
+<p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
+</div>
+<br>
+
+
 
 ### Set up experiment
 
@@ -135,9 +231,10 @@ sudo apt-get -y install iperf3
 
 On romeo, we'll also install the `moreutils` utility, which will help us with data collection, and some other tools for data visualization:
 
-```
+<pre>
 sudo apt-get -y install moreutils r-base-core r-cran-ggplot2 r-cran-littler
-```
+</pre>
+
 
 and configure an additional setting:
 
@@ -145,19 +242,22 @@ and configure an additional setting:
 sudo sysctl -w net.ipv4.tcp_no_metrics_save=1
 ```
 
-Also, configure the router as a 1 Mbps bottleneck, with a buffer size of 0.1 MB, in both directions:
+Now, we will configure the "router" node. Run the following commands in an SSH session on the "router" to configure it as a 1 Mbps bottleneck, with a buffer size of 0.1 MB, in both directions:
 
-```
-sudo tc qdisc del dev eth1 root
-sudo tc qdisc add dev eth1 root handle 1: htb default 3
-sudo tc class add dev eth1 parent 1: classid 1:3 htb rate 1Mbit
-sudo tc qdisc add dev eth1 parent 1:3 handle 3: bfifo limit 0.1MB
+<pre>
+iface_0=$(ip route get 10.10.1.100 | grep -oP "(?<=dev )[^ ]+")
+sudo tc qdisc del dev $iface_0 root
+sudo tc qdisc add dev $iface_0 root handle 1: htb default 3
+sudo tc class add dev $iface_0 parent 1: classid 1:3 htb rate 1Mbit
+sudo tc qdisc add dev $iface_0 parent 1:3 handle 3: bfifo limit 0.1MB
 
-sudo tc qdisc del dev eth2 root
-sudo tc qdisc add dev eth2 root handle 1: htb default 3
-sudo tc class add dev eth2 parent 1: classid 1:3 htb rate 1Mbit
-sudo tc qdisc add dev eth2 parent 1:3 handle 3: bfifo limit 0.1MB
-```
+iface_1=$(ip route get 10.10.2.100 | grep -oP "(?<=dev )[^ ]+")
+sudo tc qdisc del dev $iface_1 root
+sudo tc qdisc add dev $iface_1 root handle 1: htb default 3
+sudo tc class add dev $iface_1 parent 1: classid 1:3 htb rate 1Mbit
+sudo tc qdisc add dev $iface_1 parent 1:3 handle 3: bfifo limit 0.1MB
+</pre>
+
 
 Don't worry if you see a message in the output that says
 
@@ -277,11 +377,39 @@ If you run `ls` on the "romeo" host, you should see two files generated by the `
 
 You can transfer both of these files and the packet capture to your laptop with `scp`. 
 
+
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">
+
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Data visualization</h4>
+
+<p>If you are running this experiment on FABRIC, you can use the "Exercise: Data visualization" section of the "setup.ipynb" notebook to transfer the <code>sender-ss.csv</code> file from the host to the Jupyter environment and visualize the results.</p>
+
+<p>Then, you can skip to the <a href="#notes">Notes</a> section.</p>
+
+</div>
+<br>
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Data visualization</h4>
+
+<p>If you are running this experiment on Chameleon, you can use the "Exercise: Data visualization" section of the "setup.ipynb" notebook to transfer the <code>sender-ss.csv</code> file from the host to the Jupyter environment and visualize the results.</p>
+
+<p>Then, you can skip to the <a href="#notes">Notes</a> section.</p>
+
+
+</div>
+<br>
+
+
+
 ### Visualization
 
-You can use your preferred data visualization tool or programming language to analyze the results of your experiment. (Make sure to exclude the control flow from your analysis!)
+You can use your preferred data visualization tool or programming language to analyze the results of your experiment. (Make sure to exclude the control flow from your analysis!) For convenience, I share an R script and a Python script here.
 
-Or, if you prefer, you can try the script that I used to generate Figure 1 in the [Results](#results) section. On "romeo", run
+#### R script for data visualization
+
+The script that I used to generate Figure 1 in the [Results](#results) section is written in R. On "romeo", run
 
 <pre>
 wget -O ss-data-analysis.R https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/scripts/ss-data-analysis.R
@@ -305,13 +433,51 @@ The results will look something like this:
 
 
 ![](/blog/content/images/2020/10/sender-ss-2.svg)
-<small><i>Figure 1: Congestion window size (solid line) and slow start threshold (dotted line) of three TCP flows sharing the same bottleneck.</i></small>
+<small><i>Figure 1 (same as Figure 1 in Results section): Congestion window size (solid line) and slow start threshold (dotted line) of three TCP flows sharing the same bottleneck.</i></small>
 
 The slow start threshold is shown as a dashed line, and instances of packet retransmission (due to lost packets) are shown as vertical bands:
 
 At the beginning of each flow, it operates in slow start mode, where the congestion window increases exponentially. When a congestion event occurs, as indicated by the receipt of multiple duplicate ACKs, the slow start threshold (dashed line) is set to half of the current CWND, and then the CWND is reduces to the slow start threshold.
 
 We'll often see packet losses occur at the same time in multiple flows sharing a bottleneck (as in the figure above), because when the buffer is full, new packets arriving from all flows are dropped. 
+
+#### Python script for data visualization
+
+Alternatively, you can retrieve the `sender-ss.csv` file and plot it using Python. Here's a Python script:
+
+<pre>
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("sender-ss.csv", names=['time', 'sender', 'retx_unacked', 'retx_cum', 'cwnd', 'ssthresh'])
+
+# exclude the "control" flow
+s = df.groupby('sender').size()
+df_filtered = df[df.groupby("sender")['sender'].transform('size') > 100]
+
+senders = df_filtered.sender.unique()
+
+time_min = df_filtered.time.min()
+cwnd_max = 1.1*df_filtered[df_filtered.time - time_min >=2].cwnd.max()
+dfs = [df_filtered[df_filtered.sender==senders[i]] for i in range(3)]
+
+fig, axs = plt.subplots(len(senders), sharex=True, figsize=(12,8))
+fig.suptitle('CWND over time')
+for i in range(len(senders)):
+    if i==len(senders)-1:
+        axs[i].plot(dfs[i]['time']-time_min, dfs[i]['cwnd'], label="cwnd")
+        axs[i].plot(dfs[i]['time']-time_min, dfs[i]['ssthresh'], label="ssthresh")
+        axs[i].set_ylim([0,cwnd_max])
+        axs[i].set_xlabel("Time (s)");
+    else:
+        axs[i].plot(dfs[i]['time']-time_min, dfs[i]['cwnd'])
+        axs[i].plot(dfs[i]['time']-time_min, dfs[i]['ssthresh'])
+        axs[i].set_ylim([0,cwnd_max])
+
+
+plt.tight_layout();
+fig.legend(loc='upper right', ncol=2);
+</pre>
 
 
 
@@ -462,15 +628,17 @@ ECN involves both layer 2 and layer 3, and it requires support from both transpo
 We will use ECN together with active queue management, which monitors the queuing delay. At the router, configure a queue in both directions that will mark packets when the queuing delay exceeds 10ms:
 
 <pre>
-sudo tc qdisc del dev eth1 root  
-sudo tc qdisc add dev eth1 root handle 1: htb default 3  
-sudo tc class add dev eth1 parent 1: classid 1:3 htb rate 1Mbit  
-sudo tc qdisc add dev eth1 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
+iface_0=$(ip route get 10.10.1.100 | grep -oP "(?<=dev )[^ ]+")
+sudo tc qdisc del dev $iface_0 root  
+sudo tc qdisc add dev $iface_0 root handle 1: htb default 3  
+sudo tc class add dev $iface_0 parent 1: classid 1:3 htb rate 1Mbit  
+sudo tc qdisc add dev $iface_0 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
 
-sudo tc qdisc del dev eth2 root  
-sudo tc qdisc add dev eth2 root handle 1: htb default 3  
-sudo tc class add dev eth2 parent 1: classid 1:3 htb rate 1Mbit  
-sudo tc qdisc add dev eth2 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
+iface_1=$(ip route get 10.10.2.100 | grep -oP "(?<=dev )[^ ]+")
+sudo tc qdisc del dev $iface_1 root  
+sudo tc qdisc add dev $iface_1 root handle 1: htb default 3  
+sudo tc class add dev $iface_1 parent 1: classid 1:3 htb rate 1Mbit  
+sudo tc qdisc add dev $iface_1 parent 1:3 handle 3:  codel limit 100 target 10ms ecn
 </pre>
 
 
@@ -483,9 +651,7 @@ sudo sysctl -w net.ipv4.tcp_ecn=1
 
 Next, we'll prepare to capture the TCP flow. On both end hosts, romeo *and* juliet, run:
 
-```
-sudo tcpdump -s 80 -i eth1 'tcp' -w $(hostname -s)-tcp-ecn.pcap
-```
+<pre>sudo tcpdump -s 80 -i $(ip route get 10.10.1.1 | grep -oP "(?<=dev )[^ ]+") 'tcp' -w $(hostname -s)-tcp-ecn.pcap</pre>
 
 ECN uses two flags in the TCP header: the ECN Echo (ECE) flag, and the Congestion Window Reduced (CWR) flag. It also uses two ECN bits in the DiffServ field of the IP header. Here is how these header fields are used:
 
@@ -516,8 +682,29 @@ ping -c 50 juliet
 
 When the experiment finishes, compare the delay performance of Reno with ECN (this experiment) to your previous experiment showing the delay performance without ECN.
 
+
 Also, transfer the packet captures to your laptop with `scp`, and look for the ECN-related fields in the IP header and TCP header, during connection establishment and during data transfer.
+
+<p><br></p>
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">
+
+<h4 style="color:#47aae1;">FABRIC-specific instructions: transfer files</h4>
+
+<p>If you are running this experiment on FABRIC, you can use the "Exercise: Transfer .pcap files from a FABRIC host" section of the "setup.ipynb" notebook to transfer the .pcap files from the host to the Jupyter environment, then download them on your laptop. </p>
+
+</div>
+<br>
+
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: transfer files</h4>
+
+<p>If you are running this experiment on Chameleon, you can use the "Exercise: Transfer .pcap files from remote hosts" section of the "setup.ipynb" notebook to transfer the .pcap files from the host to the Jupyter environment, then download them on your laptop. </p>
+
+</div>
+<br>
 
 ### Acknowledgements
 
-This post was updated in October 29, 2020, with contributions from Ashutosh Srivastava.
+This post was updated in October 2020, with contributions from Ashutosh Srivastava. It was updated again to include FABRIC-specific and Chameleon-specific instructions in 2023, with contributions from Mayuri Upadhyaya.

@@ -2,7 +2,23 @@ In this experiment, we will see how broadcast storms can occur in a network with
 
 It should take about 1 hour to run this experiment. (This does not include the time to answer the questions in the [Exercise](#exercise) section, which will take some additional time.)
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
+
+</div>
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+
+</div>
+<br>
+
+
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -85,11 +101,45 @@ with each interface assigned an IP address as follows:
 
 #### Setup
 
-In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: [https://git.io/JUaU9](https://git.io/JUaU9)
+Follow the instructions for the testbed you are using (GENI, Cloudlab, or FABRIC) to reserve the resources and log in to each of the hosts in this experiment. 
 
-You can ignore the warnings indicating that a duplicate IP address is assigned - we are deliberately assigning an IP address of 0.0.0.0 to each bridge interface. Since a bridge operates at Layer 2, it does not need an IP address.
 
-Click on "Site 1" and choose an InstaGENI site to bind to. (There have been some reports of problems with this exercise at the Illinois InstaGENI site; I recommend avoiding that one.) Then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready).
+<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
+
+<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
+
+<p>To reserve these resources on GENI, create a new slice on GENI. Click on “Add Resources”, and load the RSpec from the following URL:</p>
+
+<p>https://gist.githubusercontent.com/ffund/76522ca62a06c7a259eb62d9fa402f08/raw/842460d4c33ce1815333d7e859b40051e6142188/spanning-tree.xml</p>
+
+<p>You can ignore the warnings indicating that a duplicate IP address is assigned - we are deliberately assigning an IP address of 0.0.0.0 to each bridge interface. Since a bridge operates at Layer 2, it does not need an IP address.</p>
+
+<p>Click on "Site 1" and choose an InstaGENI site to bind to. (There have been some reports of problems with this exercise at the Illinois InstaGENI and Virginia Tech InstaGENI sites; I recommend avoiding those.) Then reserve your resources. </p>
+
+<p>Wait until the resources have turned green, indicating that they are ready to log in. Then, use the details given in the GENI Portal to SSH into each node.</p>
+
+
+</div>
+
+<br>
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
+
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
+
+<p>https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/spanning_tree_protocol</p>
+
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for the bridges and hosts. Use these details to SSH into each.</p>
+
+</div>
+
+<br>
+
 
 
 Next, we will set up the bridge nodes. Open a terminal for every bridge node, and SSH into each one using the details given in the GENI Portal. 
@@ -126,7 +176,14 @@ sudo brctl addif br0 eth1
 sudo brctl addif br0 eth2
 ```
 
-Bring the bridge interface up:
+In the next part of this experiment, we will deliberately trigger a broadcast storm by sending a broadcast frame through this network of bridges.  However, there is some background network protocol traffic in the network that may trigger a broadcast storm automatically, even before we send our own broadcast frame! To make it less likely that a broadcast storm will be triggered by automatic network protocol traffic, we will turn off multicast frame flooding on our bridges.
+
+```
+sudo bridge link set dev eth1 mcast_flood off
+sudo bridge link set dev eth2 mcast_flood off
+```
+
+Then, we can bring the bridge interface up:
 
 ```
 sudo ifconfig br0 up
@@ -157,10 +214,10 @@ The spanning tree protocol creates a loop-free forwarding topology, so as to avo
 To start, open an SSH terminal to _each_ bridge node, and run
 
 ```
-sudo tcpdump -i br0 "icmp"
+sudo tcpdump -i br0 -c 50  "icmp" 
 ```
 
-in each, to monitor traffic on the bridge interface (both traffic entering and traffic leaving, on all ports). (We won't save the complete packet capture to a file, since it can potentially get very big.)
+in each, to monitor traffic on the bridge interface (both traffic entering and traffic leaving, on all ports). Since we are expecting many frames to be flooded here, we'll stop capturing after 50 packets. (We won't save the packet capture to a file.)
 
 Also, open another SSH terminal to any one bridge node, and on it, run
 
@@ -169,12 +226,6 @@ nload br0
 ```
 
 to monitor traffic on the bridge interface.
-
-> **Editorial note**: Since this experiment was first written, the default operating system behavior with respect to IPv6 has changed. Now, nearby hosts and routers will attempt automatic configuration of IPv6 through transmission of frames to a broadcast or multicast MAC address. As a result, you may observe the increased network load that is characteristic of a broadcast storm even *before* you send the broadcast ICMP packet.
->
-> If you do observe packets on the bridge interface even before you trigger the broadcast storm, you can stop it (at least temporarily!) by bringing the bridge interface on a *different* bridge down and then back up with:
-> 
-> `sudo ifconfig br0 down; sudo ifconfig br0 up` 
 
 Finally, open an SSH terminal to the host named "romeo", and run
 
@@ -185,10 +236,7 @@ ping -b -c 1 10.10.0.255
 to send *one* broadcast packet on the LAN. (The `-b` flag is required when sending a ping to a broadcast address.) Note that this frame will use the broadcast address `ff:ff:ff:ff:ff:ff` as the destination MAC address.
 
 
-
 Observe the `nload` output. Do you see a sudden increase in network load - much more than you would expect from a single packet?
-
-
 
 
 Check the `tcpdump` processes running on the four bridge nodes. Can you see the many copies of the same ICMP packet? Look at the ID and sequence fields in the ICMP header, which are used to help match ICMP requests and responses - each ICMP "session" gets a unique ID, and the sequence number is incremented on each subsequent ICMP request in the same session. Are the packets you see in your `tcpdump` output different ICMP requests, or are they all copies of the same request? How can you tell?

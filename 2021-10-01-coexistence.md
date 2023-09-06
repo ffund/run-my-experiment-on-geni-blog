@@ -393,6 +393,12 @@ The set of three experiments (``1v1``, ``5v5``, ``10v1``) can be done for any of
 
 You will need to select the appropriate version of our Cloudlab profile, and also change the configuration of the Linux kernel module parameters. Instructions for doing this have already been provided in previous sections. 
 
+## Publication
 
+This work was published at the IEEE International Workshop on Communications Quality and Reliability (CQR) 2022.
+
+**Citation and link**:
+
+*Srivastava, Ashutosh, Fraida Fund, and Shivendra S. Panwar. "Coexistence of delay-based TCP congestion control: Challenges and opportunities." 2022 IEEE International Workshop Technical Committee on Communications Quality and Reliability (CQR). IEEE, 2022.* [Link](https://ieeexplore.ieee.org/document/9918593)
 
 

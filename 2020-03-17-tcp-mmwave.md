@@ -1,6 +1,6 @@
 In this experiment, we will show how to replicate some key results relating to low latency congestion control over mmWave links.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
 
 
 ## Background
@@ -69,10 +69,10 @@ sudo tc qdisc add dev $(ip route get 10.0.3.1 | grep -oP "(?<=dev )[^ ]+") paren
 Next, retrieve the link capacity traces on the router node, and the tputvary.sh script with which you can vary the link capacity. On the router, run:
 
 ```
-wget https://gist.githubusercontent.com/Shreeshail-Hingane/ea39871943010085953f1bd7ef691d35/raw/8b4586054ab6d0cbb73f703c2508745596291c98/lb-tput.csv
-wget https://gist.githubusercontent.com/Shreeshail-Hingane/ea39871943010085953f1bd7ef691d35/raw/4bf1add9a8c32d9c553f86a4ec45954283f9ad4b/mobb-tput.csv
-wget https://gist.githubusercontent.com/Shreeshail-Hingane/ea39871943010085953f1bd7ef691d35/raw/4bf1add9a8c32d9c553f86a4ec45954283f9ad4b/sb-tput.csv
-wget https://gist.githubusercontent.com/Shreeshail-Hingane/ea39871943010085953f1bd7ef691d35/raw/4bf1add9a8c32d9c553f86a4ec45954283f9ad4b/sl-tput.csv
+wget https://gist.githubusercontent.com/ashutoshs25/64fa0de237c1eeb4e03ebb25c6799932/raw/c35214ba8a32f29760166c38216d4065baf4dd8b/sl-tput.csv
+wget https://gist.githubusercontent.com/ashutoshs25/b5d65729fe6c241dfab9dae9aceb432f/raw/229cfdf28170711de049d986acdbda74a686c49f/sb-tput.csv
+wget https://gist.githubusercontent.com/ashutoshs25/38a698332bc4d767c62e66c0d2cf738d/raw/78dac2f4162f9e7b464b6dcb79149d5b33d6b6ad/lb-tput.csv
+wget https://gist.githubusercontent.com/ashutoshs25/8f49ad8151993656d67c022fa6700f34/raw/de0464c85c99d18374bf35d3f3ee531f3eab89b8/mobb-tput.csv
 wget https://gist.githubusercontent.com/ffund/7a02086edcbff5af7db025e08621f08d/raw/01bacb40db9ed5492f3f78b512971893d62c39bc/tputvary.sh
 ```
 
@@ -269,3 +269,12 @@ done
 This script will produce two CSV files (one with `iperf` data, one with `ss` data), for each of the 16 experiments. The columns in the `iperf` CSV file are: flow ID , timestamp relative to the start of flow, throughput in Mbps and number of retransmissions. The columns in the `ss` CSV file are: timestamps, flow ID , cwnd and smoothed RTT (srtt) in ms. Note that in addition to the ten flow IDs for each of the ten bulk data flows in the experiment, there will be an additional flow ID corresponding to a flow used to share information about the `iperf3` process between sender and receiver; this flow should be excluded from the analysis.
 
 You can use your preferred plotting tool to show throughput vs. time for each of the ten flows, and smoothed RTT vs. time for each of the ten flows, for each of the 16 experiments, to reproduce the figures in the [Results](#results) sections.
+
+
+## Publication
+
+This work was published as part of the IEEE INFOCOM International Workshop on Computer and Networking Experimental Research using Testbeds (CNERT) 2020.
+
+**Citation and link**:
+
+*Srivastava, Ashutosh, Fraida Fund, and Shivendra S. Panwar. "An experimental evaluation of low latency congestion control for mmWave links." IEEE INFOCOM 2020-IEEE Conference on Computer Communications Workshops (INFOCOM WKSHPS). IEEE, 2020.* [Link](https://ieeexplore.ieee.org/abstract/document/9162881)
