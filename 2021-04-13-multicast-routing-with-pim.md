@@ -1,6 +1,11 @@
-In this experiment, we will see how multicast routing protocols build a distribution tree between one or more multicast receivers and sources. It should take about 60-90 minutes to run this experiment.
+In this experiment, we will see how multicast routing protocols build a distribution tree between one or more multicast receivers and sources. It should take about 120 minutes to run this experiment.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+</div>  
+<br>
 
 
 ## Background
@@ -26,11 +31,20 @@ In this experiment, we will use a shared tree in PIM sparse mode.
 
 ## Run my experiment
 
-To start, create a new slice on the GENI portal, click "Add Resources", and load the RSpec from the URL: [https://git.io/JzHcd](https://git.io/JzHcd)
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
 
-This will load the following topology into your canvas. 
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
 
-<img src="/blog/content/images/2021/04/multicast-topo-2.svg" width=100%>
+<p><a https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/multicast_pim_20">https://www.cloudlab.us/p/nyunetworks/education?refspec=refs/heads/multicast_pim_20</a></p>
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for each node.</p>
+
+</div>  
+
+<p><br></p>
 
 The role of each node in the topology is explained as follows:
 
@@ -39,35 +53,30 @@ The role of each node in the topology is explained as follows:
 * the routers **fhr1** and **fhr2** are directly connected to the multicast sources **source1** and **source2**, respectively. Routers that are directly connected to a multicast source are known as *first hop routers*.
 * the routers **lhr1** and **lhr2** are directly connected to the hosts that will be multicast receivers: **romeo**, **juliet**, **hamlet**, and **ophelia**. Routers that are directly connected to a multicast receiver are known as *last hop routers*.
 
-**Important note**: This experiment involves many hosts and network links. At InstaGENI sites that are already under some load, trying to boot this topology fails because the server cannot handle the load of setting up many nodes at once. To successfully reserve resources for this experiment ,refer to the [monitor website](https://fedmon.fed4fire.eu/overview/instageni) to identify an InstaGENI site that has many "free VMs" available. Then bind to an InstaGENI site and reserve your resources.
+When you reserve resources for this experiment, they will be configured as follows:
 
-When you reserve resources using this RSpec, they will be configured as follows:
-
-* Each interface will already be assigned an IP address and subnet mask - use the GENI Portal interface or `ifconfig` to identify the address associated with each network interface. Each host will have static routes for directly connected subnets, but no other routes.
-* On the routers, the FRR software router will be installed, and will be configured so that the OSPF (unicast routing) and PIM (multicast routing) services are available. (You may have to wait a few minutes after your resources are "ready to log in" before the FRR package is completely installed.)
+* Each interface will already be assigned an IP address and subnet mask - use `ip addr` to identify the address associated with each network interface. Each host will have static routes for directly connected subnets, but no other routes.
+* On the routers, the FRR software router will be installed, and will be configured so that the OSPF (unicast routing) and PIM (multicast routing) services are available. 
 * On the sources and receivers, the VLC media player will be installed. This software can be used to send and receive multimedia streams using multicast.
 
-
-Wait for your resources to become available for login ("turn green" on your canvas) and then SSH into each, using the details given in the GENI Portal.
-
+This software installation can take some time, so you may notice that you have to wait for a few minutes between "resources are up" and "startup tasks have finished, resources are ready to log in".
 
 ### Configure routing on end hosts
 
 The end hosts in this experiment - both the multicast receivers and sources - will not run any dynamic routing protocol. These should be statically configured to use their local router as a gateway to the rest of the network, for both unicast and multicast traffic.
 
-
 On source1, run
 
 ```
-sudo route add -net 10.10.0.0/16 gw 10.10.101.1
-sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev eth1
+sudo ip route add 10.10.0.0/16 via 10.10.101.1
+sudo ip route add 224.0.0.0/4 dev eth1
 ```
 
 On source2, run
 
 ```
-sudo route add -net 10.10.0.0/16 gw 10.10.102.1
-sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev eth1
+sudo ip route add 10.10.0.0/16 via 10.10.102.1
+sudo ip route add 224.0.0.0/4 dev eth1
 ```
 
 to configure these static routes for the multicast sources.
@@ -77,20 +86,22 @@ Next, we'll set up the multicast receivers. On romeo and juliet, run
 
 
 ```
-sudo route add -net 10.10.0.0/16 gw 10.10.103.1
-sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev eth1
+sudo ip route add 10.10.0.0/16 via 10.10.103.1
+sudo ip route add 224.0.0.0/4 dev eth1
 ```
 
 On hamlet and ophelia, run
 
 
 ```
-sudo route add -net 10.10.0.0/16 gw 10.10.104.1
-sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev eth1
+sudo ip route add 10.10.0.0/16 via 10.10.104.1
+sudo ip route add 224.0.0.0/4 dev eth1
 ```
 ### Configure unicast routing
 
-Now we are ready to set up unicast routing on the routers. PIM is protocol-independent, meaning that we could use any underlying unicast routing protocol - static routes, RIP, OSPF, etc. We will use OSPF.
+Now we are ready to set up unicast routing on the routers. You will need to run these steps on **every** router: rp, cr1, cr2, fhr1, fhr2, lhr1, lhr2.
+
+PIM is protocol-independent, meaning that we could use any underlying unicast routing protocol - static routes, RIP, OSPF, etc. We will use OSPF.
 
 The virtual routers in our experiment run FRR, a software router that includes a shell interface similar to the Cisco IOS interface. Open the router configuration terminal with
 
@@ -98,10 +109,11 @@ The virtual routers in our experiment run FRR, a software router that includes a
 VTYSH_PAGER=more
 sudo vtysh
 ```
-
+<!--
 > _**Note**: Although the FRR router should be installed automatically by the RSpec, occasionally there may be a transient error that prevents installation. If you get the error "sudo : vtysh: command not found", you can repeat the installation step with this command:_ 
 >
 > `wget -O - https://git.io/JYhs5 | bash`
+-->
 
 At the FRR shell, run
 
@@ -150,11 +162,13 @@ show ip route
 
 and observe as OSPF routes are added. 
 
-Use `ping` at the end hosts to verify that you can exchange unicast messages across the network.
+Use `ping` at the end hosts to verify that you can exchange unicast messages across the network. For example, each of romeo, juliet, hamlet, and ophelia should be able to reach both source1 and source2.
 
 ### Configure multicast routing
 
 Once the unicast routing protocol is set up, we can configure multicast routing.
+
+This section assumes you are still at the FRR shell on each of the routers.
 
 First, we will prepare the rendezvous point. At the FRR shell on the rp router, run:
 
@@ -167,14 +181,16 @@ ip pim spt-switchover infinity
 exit
 ```
 
-This will turn on PIM-SM, and set the RP address for all multicast groups as 10.10.1.100. (This is the IP address of the rp node.) Run
+This will turn on PIM-SM (sparse mode), and set the RP address for all multicast groups as 10.10.1.100. (This is the IP address of the rp node.) Run
 
 
 ```
 show ip pim rp-info
 ```
 
-and verify the rendezvous point information. We also configure the router so that the distribution tree will remain on the shared tree rather than switching to a source tree (this is the `spt-switchover` setting).
+and verify the rendezvous point information. 
+
+We also configure the router so that the distribution tree will remain on the shared tree rather than switching to a source tree (this is the `spt-switchover` setting).
 
 Next, we will configure the two core routers, cr1 and cr2. On these routers, we will turn on PIM-SM  and set the RP address for all multicast groups to 10.10.1.100, as with the RP. However, this router has several network interfaces, so we will need to repeat these steps for each interface.
 
@@ -247,7 +263,15 @@ exit
 
 ### Prepare to monitor the experiment
 
-For the multicast experiment that follows, you will need a series of terminal windows open to various endpoints. You can prepare these as follows:
+For the multicast experiment that follows, you will need a series of terminal windows open to various endpoints. You can prepare these as follows. 
+
+In your first terminal window, set up nine terminal panels in three rows, with one in the first row (SSH into the rp), four in the second row (SSH into cr1, cr1, cr2, and cr2) and four in the third row (SSH into fhr1, fhr2, lhr1, lhr2). Then, in each SSH session, run `ip addr` and make a note of the name of the interface that has the address notes in the following diagram:
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+You will need to know the interface name corresponding to each "pane" in order to run this experiment. You are strongly encouraged to draw this diagram and note the interface names on the diagram, to help with running the experiment.
+
+<!--
 
 In one terminal window, you should have an FRR shell on each of the seven routers. (You probably have this already, from the setup steps.)
 
@@ -288,9 +312,13 @@ sudo tcpdump -nv 'igmp' -i [INTERFACE]
 
 where in place of `[INTERFACE]`, you substitute the name of the interface you are monitoring with `nload` in that pane of the previous terminal window. This command will capture IGMP messages.
 
-Finally, you'll need a terminal window with an SSH session to each multicast receiver, and to source1. (You may already have this from the setup steps.)
 
 > **Note**: in some terminal applications, you may be limited to 30 open panes at once. If you are limited to 30 terminals, you don't need to open an SSH session to source2 just yet - you should have exactly 30 with the 9 `nload` sessions, 9 `tcpdump` sessions, 7 sessions for the 7 routers, 4 sessions for the 4 receivers, and 1 session for source1.
+
+
+-->
+
+Finally, you'll need a terminal window with an SSH session to each multicast receiver, and to source1 and source2. 
 
 
 
@@ -299,6 +327,28 @@ Finally, you'll need a terminal window with an SSH session to each multicast rec
 In this section, we'll see how a multicast distribution tree is constructed, and how parts of the tree are pruned when they are no longer needed.
 
 #### Start a multicast source
+
+First, in the terminal window that is configured like 
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+you will start a `tcpdump` on each interface.
+
+In each SSH session on rp, cr1, or cr2, run
+
+```
+sudo tcpdump -nv 'pim and pim[0:1]!=32' -i [INTERFACE]
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture PIM messages, but will exclude PIM Hello messages (to make it easier to find other relevant messages).
+
+In each SSH session on fhr1, fhr2, lhr1, lhr2, run
+
+```
+sudo tcpdump -nv 'igmp' -i [INTERFACE] 
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture IGMP messages.
 
 On each of the two multicast sources, you will download a video that the source will stream to the receivers. Run
 
@@ -338,23 +388,44 @@ The RP will send back a Register Stop message:
 	Register Stop, cksum 0x70a9 (correct) group=239.255.12.42 source=10.10.101.2
 ```
 
-Next, check on your `nload` view. You should see some network traffic on the link between source1 and fhr1. However, fhr1 does not forward this multicast traffic, because there is no receiver interested in it, so you won't see it appear on the other links:
+Once you have captured these messages, you can stop the `tcpdump` sessions. In the same arrangement of terminal panes, we will check the network load on each interface. Substituting the correct interface name, run either
+
+```
+nload -a 5 -t 2000 [INTERFACE] 
+```
+
+to see a "live" display with a graph, or 
+
+```
+nload -a 5 -t 2000 -m [INTERFACE] 
+```
+
+if your display is not large enough to see the graphs. 
+
+You should see some network traffic on the link between source1 and fhr1. However, fhr1 does not forward this multicast traffic, because there is no receiver interested in it, so you won't see it appear on the other links:
 
 
 ![](/blog/content/images/2021/04/source-1-only.png)
 
-In the `nload` display, we are especially interested in the value shown next to the work **Curr**, which shows the **curr*ent network load on the interface.
+In the `nload` display, we are especially interested in the value shown next to the word **Curr**, which shows the **curr*ent network load on the interface.
 
 (Note that the bit rate of the video traffic will vary according to the content in each frame.)
 
-In the terminal windows with FRR shells, run
+Once you have noted (and screenshot-ed!) the network load, use Ctrl+C to stop the `nload` sessions. 
 
+Next, on each router, start an FRR router shell with
+
+```
+sudo vtysh
+```
+
+and then run 
 
 ```
 show ip mroute
 ```
 
-on each router. For most routers, this multicast routing table will be empty. However, fhr1 is aware of the source:
+For most routers, this multicast routing table will be empty. However, fhr1 is aware of the source:
 
 <pre>
 IP Multicast Routing Table
@@ -378,8 +449,37 @@ Source          Group           Flags   Proto  Input            Output          
 
 Note the "P" flag for this route in both routing tables, which indicates that this multicast flow is "pruned" - it isn't forwarded to receivers. 
 
+Use 
+
+```
+exit
+```
+
+inside the FRR router shell to return to the regular terminal.
 
 #### Start a multicast receiver
+
+Again, in the terminal window that is configured like 
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+you will start a `tcpdump` on each interface.
+
+In each SSH session on rp, cr1, or cr2, run
+
+```
+sudo tcpdump -nv 'pim and pim[0:1]!=32' -i [INTERFACE]
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture PIM messages, but will exclude PIM Hello messages (to make it easier to find other relevant messages).
+
+In each SSH session on fhr1, fhr2, lhr1, lhr2, run
+
+```
+sudo tcpdump -nv 'igmp' -i [INTERFACE] 
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture IGMP messages.
 
 Next, on romeo, run
 
@@ -446,13 +546,36 @@ Finally, cr1 will send a PIM Join toward *its* upstream neighbor for the source,
 </pre>
 
 
-Switch to your `nload` display. Now, there is a distribution tree that includes source1 and romeo, and the multicast traffic appears on each branch in that tree:
+Once you have captured these messages, you can stop the `tcpdump` sessions. In the same arrangement of terminal panes, we will check the network load on each interface. Substituting the correct interface name, run either
+
+```
+nload -a 5 -t 2000 [INTERFACE] 
+```
+
+to see a "live" display with a graph, or 
+
+```
+nload -a 5 -t 2000 -m [INTERFACE] 
+```
+
+if your display is not large enough to see the graphs. 
+
+
+Now, there is a distribution tree that includes source1 and romeo, and the multicast traffic appears on each branch in that tree:
 
 ![](/blog/content/images/2021/04/multicast-romeo.png)
 
 Notice that the branch including source2 is not included, and the branch including the receivers hamlet and ophelia is also not included, since none of those are participating in this multicast group.
 
-In the FRR router shells on each router, run
+Once you have noted (and screenshot-ed!) the network load, use Ctrl+C to stop the `nload` sessions. 
+
+Next, on each router, start an FRR router shell with
+
+```
+sudo vtysh
+```
+
+and then run 
 
 ```
 show ip mroute
@@ -478,7 +601,16 @@ Source        Group           Flags   Proto  Input  Output  TTL  Uptime
 
 since these routers belong to the distribution tree for group 239.255.12.42 from *any* source, not only from 10.10.101.2.
 
+Use 
+
+```
+exit
+```
+
+inside the FRR router shell to return to the regular terminal.
+
 #### Start another receiver
+
 
 Next, add a second multicast receiver: on juliet, run
 
@@ -488,8 +620,47 @@ vlc --intf ncurses --vout dummy --aout dummy udp://@239.255.12.42 --repeat
 
 Since juliet is on a network segment that is already part of the multicast distribution tree, the distribution tree will not change.
 
+To validate this, check the network load on each interface following the diagram. Substituting the correct interface name, run either
+
+```
+nload -a 5 -t 2000 [INTERFACE] 
+```
+
+to see a "live" display with a graph, or 
+
+```
+nload -a 5 -t 2000 -m [INTERFACE] 
+```
+
+if your display is not large enough to see the graphs. 
+
+Once you have noted (and screenshot-ed!) the network load, use Ctrl+C to stop the `nload` sessions. 
+
 
 #### Leaving a multicast group
+
+Again, in the terminal window that is configured like 
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+you will start a `tcpdump` on each interface.
+
+In each SSH session on rp, cr1, or cr2, run
+
+```
+sudo tcpdump -nv 'pim and pim[0:1]!=32' -i [INTERFACE]
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture PIM messages, but will exclude PIM Hello messages (to make it easier to find other relevant messages).
+
+In each SSH session on fhr1, fhr2, lhr1, lhr2, run
+
+```
+sudo tcpdump -nv 'igmp' -i [INTERFACE] 
+```
+
+where in place of `[INTERFACE]`, you substitute the name of the interface indicated in the diagram. This command will capture IGMP messages.
+
 
 Press Ctrl+C on juliet to stop the video receiver. To leave the group, juliet will send an IGMP membership report with an empty INCLUDE list, which you can observe in the `tcpdump` window on lhr1:
 
@@ -588,6 +759,24 @@ Now, the situation is restored to exactly what it was when only the multicast so
 ### Compare multicast and unicast distribution
 
 Now that we understand how the multicast distribution tree is built and pruned, we'll compare multicast and unicast distribution with respect to the load they induce on the network.
+
+For this experiment, in the terminal window that is configured like 
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+run either
+
+```
+nload -a 5 -t 2000 [INTERFACE] 
+```
+
+to see a "live" display with a graph, or 
+
+```
+nload -a 5 -t 2000 -m [INTERFACE] 
+```
+
+if your display is not large enough to see the graphs. 
 
 We'll start with the multicast case. First, start a multicast source on source1 (if it is not already running):
 
@@ -707,6 +896,25 @@ In your own words, compare UDP multicast, UDP unicast, and RTP/RTSP unicast for 
 With any-source multicast, a receiver can get content for a multicast group without specifying what source the content should come from. 
 
 Suppose that source1 and source2 are sources in an IP television distribution network. Let us further suppose that romeo wants to receive any content that is distributed over this network, while hamlet is only interested in content from source1 (e.g. a specific television program).
+
+For this experiment, in the terminal window that is configured like 
+
+![](/blog/content/images/2021/04/multicast-layout.svg)
+
+run either
+
+```
+nload -a 5 -t 2000 [INTERFACE] 
+```
+
+to see a "live" display with a graph, or 
+
+```
+nload -a 5 -t 2000 -m [INTERFACE] 
+```
+
+if your display is not large enough to see the graphs. 
+
 
 On source1, start streaming the video to the multicast receivers:
 

@@ -2,10 +2,17 @@ This experiment explores slowloris, a denial of service attack that requires ver
 
 This experiment should take about 60 minutes to run.
 
-This experiment involves running a potentially disruptive application over a private network, in a way that does not affect infrastructure outside of your slice. Take special care not to use this application in ways that may adversely affect other infrastructure. Users of GENI are responsible for ensuring compliance with the [GENI Resource Recommended User Policy](http://groups.geni.net/geni/raw-attachment/wiki/RUP/RUP.pdf).
+This experiment involves running a potentially disruptive application over a private network, in a way that does not affect infrastructure outside of your slice. Take special care not to use this application in ways that may adversely affect other infrastructure. 
+
+You can run this experiment on Cloudlab. Refer to the testbed-specific prerequisites listed below.
 
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes).
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+</div>  
+<br>
 
 
 * Skip to [Results](#results)
@@ -43,7 +50,7 @@ Alternatively, we can try an application-layer defense that closes connections i
 
 ![](/blog/content/images/2021/04/slowloris-reqtimeout.svg)
 
-However, if the attacker changes their approach - for example, to use a "slow read" of the response instead of slowly sending the request - then this attack is not effective:
+However, if the attacker changes their approach - for example, to use a "slow read" of the response instead of slowly sending the request - then this defense is not effective:
 
 ![](/blog/content/images/2021/04/apache_slowread.svg)
 
@@ -53,13 +60,30 @@ Finally, we found that the nginx web server is resistant to slowloris (even with
 
 ## Run my experiment
 
-In the GENI Portal, create a new slice, and load the [RSpec](https://gist.github.com/ffund/b9b69d4a118d009761a7aca664f0324a) from the following URL: [https://git.io/JOcno](https://git.io/JOcno)
-
-This will load a topology with three nodes connected by a link, like this:
+For this experiment, we will use a topology with three nodes connected by a link, like this:
 
 ![](/blog/content/images/2020/03/slowloris-1.png)
 
-Click on "Site 1" and choose an InstaGENI aggregate, then reserve these resources.
+Follow the instructions for the testbed you are using to reserve the resources and log in to each of the hosts in this experiment.
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
+
+<p><a https://www.cloudlab.us/instantiate.php?project=nyunetworks&profile=education&refspec=refs/heads/slowloris">https://www.cloudlab.us/instantiate.php?project=nyunetworks&profile=education&refspec=refs/heads/slowloris</a></p>
+
+<p>Click "next", then select the Cloudlab project that you are part of and a Cloudlab cluster with available resources. (This experiment is compatible with any of the Cloudlab clusters.) Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for the hosts. Use these details to SSH into each.</p>
+
+<p>When you have logged in to each node, continue to the next section.</p>
+
+</div>  
+
+<p><br></p>
+
+
 
 
 ### Install software
@@ -129,9 +153,9 @@ sudo tcpdump -i eth1 -w apache_no_mitigation.pcap
 
 Then, on the attacker, run
 
-```
+<pre>
 slowhttptest -c 1000 -H -g -o apache_no_mitigation -i 10 -r 200 -t GET -u http://server -x 24 -p 3 -l 120
-```
+</pre>
 
 In the terminal output, you will see the test parameters, e.g.
 
@@ -176,7 +200,7 @@ ss -nt state ESTABLISHED 'sport = :80'
 
 on the server, you will see many TCP connections to port 80 in the ESTABLISHED state, a hallmark of this kind of attack.
 
-After the test finishes running, transfer the "apache\_no\_mitigation.html" to your laptop with scp. Open this file with a web browser. You should see an image similar to the first one in the [Results](#results) section, indicating that the large number of established connections has made the service unavailable:
+After the test finishes running, transfer the "apache\_no\_mitigation.html" file to your laptop with scp. Open this file with a web browser. You should see an image similar to the first one in the [Results](#results) section, indicating that the large number of established connections has made the service unavailable:
 
 ![](/blog/content/images/2016/03/apache-no-mitigation.svg)
 
@@ -413,4 +437,4 @@ When the attack finishes, transfer the "nginx\_no\_mitigation.html" file to your
 ![](/blog/content/images/2021/04/nginx_nomitigation.svg)
 
 
-When you are finished, please delete your resources in the GENI Portal, to free them up for other experimenters!
+When you are finished, please delete your resources, to free them up for other experimenters!

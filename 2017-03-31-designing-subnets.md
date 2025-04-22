@@ -2,16 +2,7 @@ Your task in this experiment is to set up subnets in a few small LANs to meet gi
 
 It should take about 60-120 minutes to run this experiment, *after* you work out what part of the address space to assign to each LAN.
 
-You can run this experiment on GENI, CloudLab, or FABRIC. Refer to the testbed-specific prerequisites listed below.
-
-
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
-
-To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
-
-</div>
-<br>
+You can run this experiment on CloudLab, FABRIC, or Chameleon. Refer to the testbed-specific prerequisites listed below.
 
 <div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
 <h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
@@ -26,6 +17,15 @@ To reproduce this experiment on Cloudlab, you will need an account on <a href="h
 To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, you should have a FABRIC account and be part of a FABRIC project. 
 </div>  
 <br>
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">  
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Prerequisites</h4>
+To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, you should have a Chameleon account with keys configured on KVM@TACC, and be part of a Chameleon project. 
+
+</div>  
+<p><br></p>
+
 
 ## Background
 
@@ -141,33 +141,10 @@ After setting up these interfaces, hosts within the same LAN can reach one anoth
 
 For this experiment, you will reserve a topology that includes three routers (A, B, and C) and two hosts connected to each router. The routers will already be configured with IP addresses (in the 10.10.100.0/24 subnet) on the link that connects the routers to one another. However, it will be up to you to design subnets for the small LAN connected to each router.
 
-Follow the instructions for the testbed you are using (GENI or Cloudlab) to reserve the resources and log in to each of the hosts in this experiment. 
+Follow the instructions for the testbed you are using (Cloudlab, FABRIC, or Chameleon) to reserve the resources and log in to each of the hosts in this experiment. 
 
 
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
 
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
-
-<p>To reserve these resources on GENI, create a new slice on GENI. Click on “Add Resources”, and load the RSpec from the following URL:</p>
-
-<p>https://git.io/Jthun</p>
-
-<p>This will load the following topology onto your canvas:</p>
-
-<img src="/blog/content/images/2021/03/subnet-design-topology.png" width="100%">
-
-
-<p>Then, select an InstaGENI site to bind to, and reserve your resources.</p>
-
-<p>Your topology may have some red warning indicators on the LANs. This is not a problem - it's just a warning that some IP addresses are duplicated in the topology. In this case, that's intentional (these interfaces are assigned an address of "0.0.0.0", which results in them having no IPv4 address.) </p>
-
-<p>Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). Then, use the details given in the GENI Portal to SSH into each node.</p>
-
-<p>When you have logged in to each node, continue to the <a href="#challengedesignsubnets">Challenge: design subnets</a> section.</p>
-
-</div>
-
-<br>
 
 <div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
 
@@ -206,6 +183,25 @@ git checkout subnets
 <p>When you have logged in to each node, continue to the <a href="#challengedesignsubnets">Challenge: design subnets</a> section.</p>
 </div>  
 <br>
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Reserve resources</h4>
+<p>To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, open the JupyterHub environment on Chameleon, open a shell, and run </p>
+
+<pre>
+cd work
+git clone https://github.com/teaching-on-testbeds/chameleon-education subnets
+cd subnets
+git checkout subnets
+</pre>
+<p>Then open the notebook titled "start_here.ipynb".</p>
+<p>Follow along inside the notebook to reserve resources, configure them, and get the login details for each host in the experiment.</p>
+<p>When you have logged in to each node, continue to the <a href="#challengedesignsubnets">Challenge: design subnets</a> section.</p>
+</div>
+<br>
+
+
 
 
 ### Challenge: design subnets

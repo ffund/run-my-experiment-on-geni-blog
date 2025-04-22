@@ -2,14 +2,8 @@ This experiment shows the basic behavior of TCP congestion control. You'll see t
 
 It should take about 1 hour to run this experiment.
 
-You can run this experiment on GENI, CloudLab, FABRIC, or Chameleon. Refer to the testbed-specific prerequisites listed below.
+You can run this experiment on CloudLab, FABRIC, or Chameleon. Refer to the testbed-specific prerequisites listed below.
 
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
-
-To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
-</div>
-<br>
 
 <div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
 <h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
@@ -110,23 +104,21 @@ The following image illustrates the behavior of TCP in congestion control (slow 
 
 The following animation shows AIMD congestion control at work in a network with a buffering router sitting between two hosts. Data (in blue) flows from the sending host at the left to the receiving host at the right; acknowledgements (in red) return over the reverse link. Utilization on the bottleneck link (from the router to the receiver) is noted. The plot at the bottom shows the sender congestion window as a function of time.
 
-<video controls="controls" width="800" height="600">
-	<source src="https://witestlab.poly.edu/respond/sites/genitutorial/files/tcp-aimd.ogv" type="video/ogg">
-	<span title="No video playback capabilities, please visit the link below to view the animation.">Router Buffer Animation</span>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/5xxRn2jYdhI?si=I0NNiavNfEZI6Owe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 <i>Animation Source: Guido Appenzeller and Nick McKeown, [Router Buffer Animations](http://guido.appenzeller.net/anims/)</i>
 
 As the congestion window increases, the rate at which (blue) packets are sent also increases, until the bottleneck link utilization reaches 100%. Then, as the rate of packets sent continues to increase, packets start to accumulate in the buffer. Eventually, the buffer becomes full and the router must drop new packets. 
 
 When the sender becomes aware of the dropped packet (because no ACK is received for it), it reduces its congestion window by a multiplicative factor. With a smaller congestion window, and many unacknowledged packets already "in flight", it must pause before it can resume transmission, so the buffer has a chance to drain. Once some time passes, and more of the "in flight" segments are acknowledged, the sender can resume transmission and begin to increase its congestion window again. This process continues for the lifetime of the flow, leading to a classic "sawtooth" pattern.
 
-
 ## Results
 
-In this experiment, we will send three TCP flows through a bottleneck link, and see the classic "sawtooth" pattern of the TCP congestion window, shown as the solid line in the plot below. The slow start threshold is shown as a dashed line, and instances of packet retransmission (due to lost packets) are shown as vertical bands:
+In this experiment, we will send three TCP flows through a bottleneck link, and see the classic "sawtooth" pattern of the TCP congestion window, shown as the solid blue line in the plot below. The slow start threshold is shown as an orange line:
 
-![](/blog/content/images/2020/10/sender-ss-1.svg)
-<small><i>Figure 1: Congestion window size (solid line) and slow start threshold (dotted line) of three TCP flows sharing the same bottleneck.</i></small>
+
+![](/blog/content/images/2024/03/sender-ss.png)
+<small><i>Figure 1: Congestion window size (blue line) and slow start threshold (orange line) of three TCP flows sharing the same bottleneck.</i></small>
 
 
 We can also identify
@@ -147,24 +139,7 @@ For example, the following annotated image shows a short interval in one TCP flo
 
 First, reserve a topology including two end hosts, and a router between them. The router will buffer traffic between the sender and the receiver. If the buffer in the router becomes full, it will drop packets, triggering TCP congestion control behavior.
 
-Follow the instructions for the testbed you are using (GENI or Cloudlab,) to reserve the resources and log in to each of the hosts in this experiment. 
-
-
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
-
-<p>In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: <a href="https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml">https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/line-tso-off.xml</a>.</p>
-
-<p>This will load the following topology in your canvas, with two hosts ("romeo" and "juliet") and a router connecting them:</p>
-
-![](/blog/content/images/2020/10/tcp-topology.svg)
-
-<p>Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). Then, click on "Details" to get SSH login information, and SSH into each node. </p>
-
-<p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
-
-</div>
-<br>
+Follow the instructions for the testbed you are using (CloudLab, FABRIC, Chameleon) to reserve the resources and log in to each of the hosts in this experiment. 
 
 <div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
 <h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
@@ -193,7 +168,7 @@ git clone https://github.com/teaching-on-testbeds/fabric-education tcp_cc
 cd tcp_cc
 git checkout tcp_congestion_control
 </pre>
-<p>Then open the notebook titled "setup.ipynb".</p>
+<p>Then open the notebook titled "start_here.ipynb".</p>
 <p>Follow along inside the notebook to reserve resources and get the login details for each host in the experiment.</p>
 <p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
 </div>
@@ -211,7 +186,7 @@ git clone https://github.com/teaching-on-testbeds/chameleon-education tcp_cc
 cd tcp_cc
 git checkout tcp_congestion_control
 </pre>
-<p>Then open the notebook titled "setup.ipynb".</p>
+<p>Then open the notebook titled "start_here.ipynb".</p>
 <p>Follow along inside the notebook to reserve resources and get the login details for each host in the experiment.</p>
 <p>When you have logged in to each node (romeo, juliet, and router), continue to the <a href="#setupexperiment">Set up experiment</a> section.</p>
 </div>
@@ -225,16 +200,21 @@ git checkout tcp_congestion_control
 On the end hosts ("romeo" and "juliet"), install the `iperf` network testing tool, with the command 
 
 ```
-sudo apt-get update
-sudo apt-get -y install iperf3
+sudo apt update
+sudo apt -y install iperf3
 ```
 
 On romeo, we'll also install the `moreutils` utility, which will help us with data collection, and some other tools for data visualization:
 
 <pre>
-sudo apt-get -y install moreutils r-base-core r-cran-ggplot2 r-cran-littler
+sudo apt -y install moreutils python3-pip libjpeg-dev
 </pre>
 
+and
+
+<pre>
+sudo python3 -m pip install pandas matplotlib
+</pre>
 
 and configure an additional setting:
 
@@ -262,7 +242,13 @@ sudo tc qdisc add dev $iface_1 parent 1:3 handle 3: bfifo limit 0.1MB
 Don't worry if you see a message in the output that says
 
 ```
-RTNETLINK answers : No such file or directory
+Error: Cannot delete qdisc with handle of zero.
+```
+
+or
+
+```
+RTNETLINK answers: No such file or directory
 ```
 
 This is normal, and not a problem!
@@ -333,7 +319,7 @@ Download this script on the "romeo" host with
 
 
 <pre>
-wget -O ss-output.sh https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/scripts/ss-output.sh
+wget -O ss-output.sh https://raw.githubusercontent.com/ffund/tcp-ip-essentials/cloudlab/scripts/ss-output.sh
 </pre>
 
 On the "juliet" host, run
@@ -374,8 +360,7 @@ If you run `ls` on the "romeo" host, you should see two files generated by the `
   * Cumulative number of retransmissions for this flow.
   * Current CWND of this flow.
   * Current slow start threshold of this flow.
-
-You can transfer both of these files and the packet capture to your laptop with `scp`. 
+  * Current smoothed RTT of this flow in ms.
 
 
 <div style="border-color:#47aae1; border-style:solid; padding: 15px;">
@@ -405,7 +390,17 @@ You can transfer both of these files and the packet capture to your laptop with 
 
 ### Visualization
 
-You can use your preferred data visualization tool or programming language to analyze the results of your experiment. (Make sure to exclude the control flow from your analysis!) For convenience, I share an R script and a Python script here.
+You can use your preferred data visualization tool or programming language to analyze the results of your experiment. (Make sure to exclude the control flow from your analysis!) For convenience, I share a Python script here.
+
+You can retrieve the `sender-ss.csv` data to your laptop, and run the Python script on your laptop. Or you can open a Python terminal on "romeo" by running 
+
+```
+python3
+```
+
+then copy the script below into this terminal and hit Enter to make sure it runs completely. Type exit() and hit Enter to exit the Python terminal. It will have generated an image file named `sender-ss.png`, which you can transfer to your laptop with `scp`.
+
+<!--
 
 #### R script for data visualization
 
@@ -432,24 +427,23 @@ and you should see that it generated an image file named `sender-ss.svg`. Transf
 The results will look something like this:
 
 
-![](/blog/content/images/2020/10/sender-ss-2.svg)
+![](/blog/content/images/2024/03/sender-ss-cubic-2.png)
 <small><i>Figure 1 (same as Figure 1 in Results section): Congestion window size (solid line) and slow start threshold (dotted line) of three TCP flows sharing the same bottleneck.</i></small>
 
 The slow start threshold is shown as a dashed line, and instances of packet retransmission (due to lost packets) are shown as vertical bands:
 
-At the beginning of each flow, it operates in slow start mode, where the congestion window increases exponentially. When a congestion event occurs, as indicated by the receipt of multiple duplicate ACKs, the slow start threshold (dashed line) is set to half of the current CWND, and then the CWND is reduces to the slow start threshold.
-
-We'll often see packet losses occur at the same time in multiple flows sharing a bottleneck (as in the figure above), because when the buffer is full, new packets arriving from all flows are dropped. 
 
 #### Python script for data visualization
 
 Alternatively, you can retrieve the `sender-ss.csv` file and plot it using Python. Here's a Python script:
 
+-->
+
 <pre>
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("sender-ss.csv", names=['time', 'sender', 'retx_unacked', 'retx_cum', 'cwnd', 'ssthresh'])
+df = pd.read_csv("sender-ss.csv", names=['time', 'sender', 'retx_unacked', 'retx_cum', 'cwnd', 'ssthresh', 'rtt'])
 
 # exclude the "control" flow
 s = df.groupby('sender').size()
@@ -458,7 +452,7 @@ df_filtered = df[df.groupby("sender")['sender'].transform('size') > 100]
 senders = df_filtered.sender.unique()
 
 time_min = df_filtered.time.min()
-cwnd_max = 1.1*df_filtered[df_filtered.time - time_min >=2].cwnd.max()
+cwnd_max = 1.1*df_filtered.cwnd.max()
 dfs = [df_filtered[df_filtered.sender==senders[i]] for i in range(3)]
 
 fig, axs = plt.subplots(len(senders), sharex=True, figsize=(12,8))
@@ -477,8 +471,14 @@ for i in range(len(senders)):
 
 plt.tight_layout();
 fig.legend(loc='upper right', ncol=2);
+
+plt.savefig("sender-ss.png")
+
 </pre>
 
+At the beginning of each flow, it operates in slow start mode, where the congestion window increases exponentially. When a congestion event occurs, as indicated by the receipt of multiple duplicate ACKs, the slow start threshold is set to half of the current CWND, and then the CWND is reduces to the slow start threshold.
+
+We'll often see packet losses occur at the same time in multiple flows sharing a bottleneck (as in the figure above), because when the buffer is full, new packets arriving from all flows are dropped. 
 
 
 ## Notes
@@ -519,7 +519,7 @@ on "romeo".
 
 The results will look something like this:
 
-![](/blog/content/images/2020/10/sender-ss-cubic.svg)
+![](/blog/content/images/2024/03/sender-ss-cubic-2.png)
 
 Notice that unlike Reno, the window size does not increase as a linear function of the time since the last congestion event! Instead, the window size is a cubic function of the time since the last congestion event.
 
@@ -530,36 +530,64 @@ While TCP CUBIC and Reno are designed with the goal of high throughput, they ten
 
 Some congestion control variants use delay as a signal of congestion, and reduce their sending rate when the delay increases (indicating that the queue is becoming full). An early example is TCP Vegas. You can see this for yourself with a simple experiment to measure the queuing delay with a loss-based congestion control (like Reno or Cubic) and with a delay-based congestion control (Vegas).
 
-For this experiment we will use `iperf3` and `ping` at the same time - `iperf3` to generate a TCP flow, and `ping` to estimate the queuing delay induced by the TCP flow.  With an `iperf3` server running on juliet, in one terminal on romeo run
+For this experiment we will use `iperf3` and `ping` at the same time - `iperf3` to generate a TCP flow, and `ping` to estimate the queuing delay induced by the TCP flow.  Run
 
-```
-iperf3 -c juliet -t 60 -C reno
+* on juliet: `iperf3 -s -1`
+* on romeo terminal 1: `bash ss-output.sh 10.10.2.100`
+* on romeo terminal 2: `iperf3 -c juliet -t 60 -C reno`
+* on romeo terminal 3: `ping juliet -c 50`
 
-```
+(the `ping` should both start and finish while the `iperf3` sender is still running). When it finishes, use Ctrl+C to stop the `ss-output` script. Make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Reno flow.
 
-and at the same time, in a second terminal on romeo, run
 
-```
-ping juliet -c 50
-```
+Plot the CWND and slow start threshold, along with the RTT of this flow, using the following Python script:
 
-(the `ping` should both start and finish while the `iperf3` sender is still running). When it finishes, make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Reno flow.
+<pre>
+import pandas as pd
+import matplotlib.pyplot as plt
 
-Then, repeat with Vegas, the delay-based congestion control algorithm. With an `iperf3` server running on juliet, in one terminal on romeo run
+df = pd.read_csv("sender-ss.csv", names=['time', 'sender', 'retx_unacked', 'retx_cum', 'cwnd', 'ssthresh', 'rtt'])
+
+# exclude the "control" flow
+s = df.groupby('sender').size()
+df_filtered = df[df.groupby("sender")['sender'].transform('size') > 100]
+time_min = df_filtered.time.min()
+
+fig, axs = plt.subplots(2, sharex=True, figsize=(8,6))
+
+axs[0].plot(df_filtered['time']-time_min, df_filtered['cwnd'], label="cwnd")
+axs[0].plot(df_filtered['time']-time_min, df_filtered['ssthresh'], label="ssthresh")
+axs[0].set_ylim([0,150])
+
+axs[1].plot(df_filtered['time']-time_min, df_filtered['rtt'], label="rtt", color='purple')
+axs[1].set_ylim([0, 1000])
+axs[1].set_xlabel("Time (s)");
+
+plt.tight_layout();
+fig.legend(loc='upper right', ncol=2);
+
+plt.savefig("cwnd-rtt.png")
+</pre>
+
+and save the `cwnd-rtt.png` figure on your laptop.
+
+
+Then, repeat with Vegas, the delay-based congestion control algorithm. On romeo, run
 
 ```
 sudo modprobe tcp_vegas
-sudo iperf3 -c juliet -t 60 -C vegas
-
+sudo sysctl -w net.ipv4.tcp_allowed_congestion_control="reno cubic vegas"
 ```
 
-and at the same time, in a second terminal on romeo, run
+then, run
 
-```
-ping juliet -c 50
-```
+* on juliet: `iperf3 -s -1`
+* on romeo terminal 1: `bash ss-output.sh 10.10.2.100`
+* on romeo terminal 2: `iperf3 -c juliet -t 60 -C vegas`
+* on romeo terminal 3: `ping juliet -c 50`
 
-Make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Vegas flow.
+
+When it finishes, use Ctrl+C to stop the `ss-output` script. Make a note of the `iperf3` throughput and the round trip time estimated by `ping` during the TCP Vegas flow.
 
 One problem with TCP Vegas is that it does not work well when it shares a bottleneck link with a TCP Reno flow (or other loss-based flow). To see how this works, we will send two TCP flows through the bottleneck router: one TCP Reno flow, and one TCP Vegas flow.
 
@@ -581,7 +609,7 @@ to start an `iperf3` server on port 5301.
 You'll need two terminal windows on romeo. In one of them, run
 
 ```
-sudo iperf3 -c juliet -t 60 -C vegas
+iperf3 -c juliet -t 60 -C vegas
 ```
 
 and a few seconds afterwards, in the second, run
@@ -600,6 +628,7 @@ To use the BBR congestion control for your experiment, on romeo, run
 
 ```
 sudo modprobe tcp_bbr
+sudo sysctl -w net.ipv4.tcp_allowed_congestion_control="reno cubic vegas bbr"
 ```
 
 This will load the Linux kernel module for TCP BBR. 

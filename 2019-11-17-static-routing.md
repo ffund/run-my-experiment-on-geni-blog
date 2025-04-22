@@ -2,15 +2,14 @@ In these exercises, you will observe how routing principles apply when packets a
 
 It should take about 60-120 minutes to run this experiment.
 
-You can run this experiment on GENI or on CloudLab. Refer to the testbed-specific prerequisites listed below.
+You can run this experiment on FABRIC, CloudLab, or Chameleon. Refer to the testbed-specific prerequisites listed below.
 
 
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Prerequisites</h4>
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Prerequisites</h4>
+To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, you should have a FABRIC account with keys configured, and be part of a FABRIC project, , as described in <a href="https://teaching-on-testbeds.github.io/blog/hello-fabric">Hello, FABRIC</a>. 
 
-To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
-
-</div>
+</div>  
 <br>
 
 <div style="border-color:#5e8a90; border-style:solid; padding: 15px;">
@@ -20,6 +19,15 @@ To reproduce this experiment on Cloudlab, you will need an account on <a href="h
 
 </div>
 <br>
+
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">  
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Prerequisites</h4>
+To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, you should have a Chameleon account with keys configured on KVM@TACC, and be part of a Chameleon project. 
+
+</div>  
+<p><br></p>
+
 
 ## Background
 
@@ -171,23 +179,25 @@ For this experiment, we will use a topology with five hosts, three routers, and 
 
 each with a netmask of 255.255.255.0.
 
-Follow the instructions for the testbed you are using (GENI or Cloudlab) to reserve the resources and log in to each of the hosts in this experiment. 
+Follow the instructions for the testbed you are using (FABRIC or Cloudlab) to reserve the resources and log in to each of the hosts in this experiment. 
 
 
-<div style="border-color:#FB8C00; border-style:solid; padding: 15px;">
 
-<h4 style="color:#FB8C00;"> GENI-specific instructions: Reserve resources</h4>
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">
+<h4 style="color:#47aae1;">FABRIC-specific instructions: Reserve resources</h4>
+<p>To run this experiment on <a href="https://fabric-testbed.net/">FABRIC</a>, open the JupyterHub environment on FABRIC, open a shell, and run </p>
 
-
-<p>To set up this topology in the GENI Portal, create a slice, click on "Add Resources", and load the RSpec from the following URL: </p>
-
-<p><a href="https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/static-routing.xml">https://raw.githubusercontent.com/ffund/tcp-ip-essentials/gh-pages/rspecs/static-routing.xml</a></p>
-
-<p>Refer to the <a href="https://fedmon.fed4fire.eu/overview/instageni">monitor website</a> to identify an InstaGENI site that has many "free VMs" available. Then bind to an InstaGENI site and reserve your resources. Wait for them to become available for login ("turn green" on your canvas) and then SSH into each, using the details given in the GENI Portal.</p>
-
-<p>Use <code>ifconfig</code> to view the network interface configuration on each host, and save the output for your own reference.</p>
-
+<pre>
+git clone https://github.com/teaching-on-testbeds/fabric-education static_routing
+cd static_routing
+git checkout static_routing
+</pre>
+<p>Then open the notebook titled "start_here.ipynb".</p>
+<p>Follow along inside the notebook to reserve resources, configure them, and get the login details for each host in the experiment.</p>
+<p>When you have logged in to each node, continue to the next section.</p>
 </div>
+<br>
+
 
 <br>
 
@@ -205,6 +215,22 @@ Follow the instructions for the testbed you are using (GENI or Cloudlab) to rese
 
 <p>Use <code>ifconfig</code> to view the network interface configuration on each host, and save the output for your own reference.</p>
 
+</div>
+<br>
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">
+<h4 style="color:#9ad61a;">Chameleon-specific instructions: Reserve resources</h4>
+<p>To run this experiment on <a href="https://chameleoncloud.org/">Chameleon</a>, open the JupyterHub environment on Chameleon, open a shell, and run </p>
+
+<pre>
+cd work
+git clone https://github.com/teaching-on-testbeds/chameleon-education static_routing
+cd static_routing
+git checkout static_routing
+</pre>
+<p>Then open the notebook titled "start_here.ipynb".</p>
+<p>Follow along inside the notebook to reserve resources, configure them, and get the login details for each host in the experiment.</p>
+<p>When you have logged in to each node, continue to the next section.</p>
 </div>
 <br>
 

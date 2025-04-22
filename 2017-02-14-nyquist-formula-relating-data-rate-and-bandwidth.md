@@ -1,8 +1,8 @@
 This experiment looks at the relationship between data transmission rate, bandwidth, and modulation scheme, as described by the Nyquist formula.
 
-It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (specifically, either the [WITest](http://witestlab.poly.edu) testbed or either the sb3 or sb7 sandbox at [ORBIT](http://geni.orbit-lab.org)), and you can only use wireless resources on GENI during a reservation.
+It should take about 60-120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources (either the sb3 or sb7 sandbox at [ORBIT](http://orbit-lab.org)), and you can only use wireless resources on ORBIT/COSMOS during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either [WITest](https://witestlab.poly.edu/respond/sites/witest/activity/reservation-calendar) or a sandbox at [ORBIT](http://geni.orbit-lab.org) (either sb3 or sb7), and you must run this experiment during your reserved time. 
+To reproduce this experiment on ORBIT/COSMOS, you will need an account, and you will need to have joined a project. You should have already uploaded your SSH keys to your profile. Finally, you must have reserved time on a sandbox at [ORBIT](http://orbit-lab.org) (either sb3 or sb7), and you must run this experiment during your reserved time. 
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -56,31 +56,24 @@ Finally, on changing the constellation size to 4 points (squaring the number of 
 
 ## Run my experiment
 
-To run this experiment, you will need a reservation on either the WITest testbed, or the sb3 or sb7 testbed on ORBIT. You will have to make your reservation in advance.
+To run this experiment, you will need a reservation on either the sb3 or sb7 testbed on ORBIT. You will have to make your reservation in advance.
 
-* To reserve WITest, visit [http://witestlab.poly.edu](http://witestlab.poly.edu). Click on the profile icon in the top right, then on "Log in with GENI". Log in to your GENI Portal account and agree to send your information to WITest. Then, use the [reservation calendar](https://witestlab.poly.edu/site/activity/reservation-calendar) to reserve one or two (consecutive) hours for this experiment. For further information, refer to this [tutorial on the reservation system](https://witestlab.poly.edu/site/tutorial/make-a-reservation).
-* To reserve an ORBIT sandbox, visit [http://geni.orbit-lab.org](http://geni.orbit-lab.org). Click on "Log in", then log in using your GENI Portal account and agree to send your information to ORBIT. Then, click on "Control Panel". Use the calendar interface to request time on sb3 or sb7.
+To reserve an ORBIT sandbox, visit [http://orbit-lab.org](http://orbit-lab.org). Click on "Log in", then log in. Then, click on "Control Panel". Use the calendar interface to request time on sb3 or sb7.
 
 ### Set up testbed
 
 At your reserved time, open a terminal and log in to the console of the testbed that you have reserved. For example, if you have reserved sandbox 3 on ORBIT, 
 
 ```
-ssh GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
+ssh USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
 ```
 
-where `GENI-WIRELESS-USERNAME` is your wireless username assigned by GENI. This is usually your regular GENI username with a `geni-` prefix, e.g. `geni-ffund`. Also specify the path to the key you have uploaded to the GENI Portal as the `/PATH/TO/KEY`.
+where `USERNAME` is your ORBIT/COSMOS username. Also specify the path to the key you have uploaded to ORBIT/COSMOS as the `/PATH/TO/KEY`.
 
-If you are using sandbox 7 on ORBIT, log in to sb7.orbit-lab.org instead. If you are using WITest, log in to witestlab.poly.edu.
+If you are using sandbox 7 on ORBIT, log in to sb7.orbit-lab.org instead. 
 
 Then, you must load a disk image onto the testbed nodes. From the testbed console, run:
 
-* If you are using WITest (note that there is no space around the comma):
-```
-omf-5.4 load -i gr-nyquist.ndz -t omf.witest.node16,omf.witest.node22
-```
-
-* If you are using sb3 or sb7 on ORBIT:
 
 ```
 omf load -i gr-nyquist.ndz -t system:topo:all
@@ -104,50 +97,24 @@ Sometimes, transient errors can cause the process to fail - if you haven't succe
 
 Then, turn on your nodes with the following command:
 
-* If you are using WITest (note that there is no space around the comma):
-```
-omf tell -a on -t omf.witest.node16,omf.witest.node22
-```
-
-* If you are using sb3 or sb7 on ORBIT:
-
 ```
 omf tell -a on -t system:topo:all
 ```
-
-
 
 Wait a few minutes for your testbed nodes to turn on, then continue with the experiment.
 
 
 ### Prepare your receiver
 
-Open a new terminal window, and run the following command to tunnel the ShinySDR ports between your laptop and the receiver node:
-
-* If you are using WITest (note: this is all one line):
+Open a new terminal window, and run the following command to tunnel the ShinySDR ports between your laptop and the receiver node. For example, if using "sb3":
 
 ```
-ssh -L 8100:node22:8100 -L 8101:node22:8101 GENI-WIRELESS-USERNAME@witestlab.poly.edu -i /PATH/TO/KEY
+ssh -L 8100:node1-2:8100 -L 8101:node1-2:8101 USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
 ```
 
-
-* If you are using sb3 or sb7 on ORBIT (note: this is all one line):
-
-```
-ssh -L 8100:node1-2:8100 -L 8101:node1-2:8101 GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
-```
-
-again, using the correct `GENI-WIRELESS-USERNAME`, `/PATH/TO/KEY`, and substituting sb3.orbit-lab.org for the hostname of the console of the testbed that you have reserved.
+again, using the correct `USERNAME`, `/PATH/TO/KEY`, and substituting sb3.orbit-lab.org for the hostname of the console of the testbed that you have reserved.
 
 Then, in that terminal window (which should now be logged in to your testbed console), log on to the receiver node:
-
-* If you are using WITest:
-
-```
-ssh root@node22
-```
-
-* If you are using sb3 or sb7 on ORBIT:
 
 ```
 ssh root@node1-2
@@ -189,30 +156,16 @@ Configure your Shiny window as follows (you may find it useful to right-click an
 
 In a second terminal window, log in to the node that will act as transmitter. First, log in to the testbed console:
 
-* If you are using WITest:
-
 ```
-ssh GENI-WIRELESS-USERNAME@witestlab.poly.edu -i /PATH/TO/KEY
+ssh USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
 ```
 
-
-* If you are using sb3 or sb7 on ORBIT:
-
-```
-ssh GENI-WIRELESS-USERNAME@sb3.orbit-lab.org -i /PATH/TO/KEY
-```
-
-again, using the correct `GENI-WIRELESS-USERNAME`, `/PATH/TO/KEY`, and substituting sb3.orbit-lab.org for the hostname of the console of the testbed that you have reserved.
+again, using the correct `USERNAME`, `/PATH/TO/KEY`, and substituting sb3.orbit-lab.org for the hostname of the console of the testbed that you have reserved.
 
 
 Then, from there, log in to the transmitter node:
 
-* If you are using WITest:
-```
-ssh root@node16
-```
 
-* If you are using sb3 or sb7 on ORBIT:
 ```
 ssh root@node1-1
 ```

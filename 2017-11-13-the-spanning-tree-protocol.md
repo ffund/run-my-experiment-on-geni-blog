@@ -18,6 +18,18 @@ To reproduce this experiment on Cloudlab, you will need an account on <a href="h
 </div>
 <br>
 
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;">FABRIC-specific comments</h4>  
+<p>This experiment is not supported on the FABRIC testbed. FABRIC does not support true "broadcast" Ethernet service on SharedNIC interfaces.</p>
+</div>  
+<br>
+
+<div style="border-color:#9ad61a; border-style:solid; padding: 15px;">  
+<h4 style="color:#9ad61a;">Chameleon-specific comments</h4>
+<p>This experiment is not supported on the Chameleon testbed. It requires true "broadcast" Ethernet service, which is not supported on Chameleon.</p>
+</div>
+<br>
+
 
 
 * Skip to [Results](#results)

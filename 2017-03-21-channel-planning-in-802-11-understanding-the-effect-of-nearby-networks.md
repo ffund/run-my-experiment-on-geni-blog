@@ -1,8 +1,8 @@
 When neighboring 802.11 networks operate on the same channel, they compete with one another to use the shared medium. In this experiment, you will observe the effect on throughput when neighboring cells operate on the same channel vs. on non-interfering channels.
 
-It should take about 2 hours to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on GENI during a reservation. 
+It should take about 2 hours to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on ORBIT/COSMOS during a reservation. 
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on either the outdoor testbed at [ORBIT](http://geni.orbit-lab.org) or the [WITest](https://witestlab.poly.edu/) testbed, and you must run this experiment during your reserved time.  (You may alternatively use the sb4 testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingsb4onorbit) to the instructions.)
+To reproduce this experiment on ORBIT/COSMOS, you will need an account, and you will need to have joined a project. You should have already uploaded your SSH keys to your profile. Finally, you must have reserved time on the "outdoor" testbed at [ORBIT](http://orbit-lab.org), and you must run this experiment during your reserved time.  (Alternatively, you can use "sb4" testbed at [ORBIT](http://orbit-lab.org), with some [modifications](#usingsb4onorbit) to the instructions.)
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -43,11 +43,9 @@ We find that operating on the same channel effectively halves the throughput of 
 
 ## Run my experiment
 
-In this experiment, I used the outdoor testbed on ORBIT. To reserve time on this testbed, log in to [http://geni.orbit-lab.org](http://geni.orbit-lab.org), click on "Control Panel", click on "Scheduler", click on the grid squares corresponding to the "outdoor" testbed and the date/time you want, and submit your reservation request. You may then complete the experiment at the reserved time.
+In this experiment, I used the outdoor testbed on ORBIT. To reserve time on this testbed, log in to [http://orbit-lab.org](http://orbit-lab.org), click on "Control Panel", click on "Scheduler", click on the grid squares corresponding to the "outdoor" testbed and the date/time you want, and submit your reservation request. You may then complete the experiment at the reserved time.
 
-You can also run this experiment on the [WITest](https://witestlab.poly.edu/site/) testbed. To reserve time on WITest, use the [reservation calendar](https://witestlab.poly.edu/respond/sites/witest/activity/reservation-calendar).
-
-(You may alternatively use the sb4 testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingsb4onorbit) to the instructions.)
+(You may alternatively use the sb4 testbed at [ORBIT](https://orbit-lab.org), with some [modifications](#usingsb4onorbit) to the instructions.)
 
 On the outdoor testbed at ORBIT, I used six nodes as follows:
 
@@ -57,7 +55,7 @@ They are configured in two groups of three, with each group (denoted by color) b
 
 I use node1-3, node1-4, etc. on the outdoor testbed, as denoted above. However, any six nodes with WiFi capability that are close to one another will work. On the outdoor testbed, it is common for some nodes to be unavailable. You can verify the availability of outdoor nodes and their capabilities as follows: 
 
-* Visit [http://geni.orbit-lab.org](http://geni.orbit-lab.org) and log in
+* Visit [http://orbit-lab.org](http://orbit-lab.org) and log in
 * Click on "Control Panel"
 * Click on "Status Page"
 * Choose the "outdoor" tab
@@ -65,14 +63,10 @@ I use node1-3, node1-4, etc. on the outdoor testbed, as denoted above. However, 
 
 In the display, nodes that are available are shown as blue or green squares; nodes that are not available are shown as red squares. You can find out the name of a node by clicking on it, and then looking at the "Info" panel on the left. Use this information to make substitutions in the instructions, replacing unavailable nodes (if any; shown as red squares) with nearby available nodes that have Atheros 9xxx cards.
 
-If you are using the WITest testbed, you can alternatively use:
-
-* node16, node17, node18 as the first network, with node16 as the AP
-* node23, node24, node25 as the second network, with node23 as the AP
 
 ### Prepare the testbed - outdoor testbed on ORBIT
 
-Follow these instructions if you are using the outdoor testbed at ORBIT. If you are using WITest, skip to the next section. 
+Follow these instructions if you are using the outdoor testbed at ORBIT. 
 
 At your reserved time, SSH into 
 
@@ -80,7 +74,7 @@ At your reserved time, SSH into
 outdoor.orbit-lab.org
 ```
 
-with your GENI wireless username and associated keys.
+with your username and associated keys.
 
 Load the `wifi-experiment.ndz` disk image onto the six nodes you will use in your experiment - in my case:
 
@@ -99,49 +93,19 @@ omf tell -a on -t node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,no
 
 and wait a few minutes for them to boot.
 
-Then open six terminals, SSH into the outdoor testbed console with your GENI wireless username and keys, and SSH from there into each of the six nodes (using the username "root").
+Then open six terminals, SSH into the outdoor testbed console with your username and keys, and SSH from there into each of the six nodes (using the username "root").
 
 Here is a video of the setup process described above:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4ge7KgT6qFk" frameborder="0" allowfullscreen></iframe>
 
-### Prepare the testbed - WITest testbed
-
-Follow these instructions if you are using the WITest testbed. Otherwise, skip to the next section. 
-
-At your reserved time, SSH into 
-
-```
-witestlab.poly.edu
-```
-
-with your GENI wireless username and associated keys.
-
-Load the `wifi-experiment.ndz` disk image onto the six nodes you will use in your experiment - in my case:
-
-
-```
-omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node23,omf.witest.node24,omf.witest.node25
-```
-
-(Note that the command above is all one line, and there are no spaces between the commas and the node names.)
-
-After this process is finished, turn your nodes on:
-
-```
-omf tell -a on -t omf.witest.node16,omf.witest.node17,omf.witest.node18,omf.witest.node23,omf.witest.node24,omf.witest.node25
-```
-
-and wait a few minutes for them to boot.
-
-Then open six terminals, SSH into the WITest testbed console with your GENI wireless username and keys, and SSH from there into each of the six nodes (using the username "root").
 
 
 ### Configure the wireless access points
 
 To start, we'll set up both access points on channel 1.
 
-On the first, (node1-4 on outdoor, or node16 on WITest), bring up the WiFi interface with
+On the first, (node1-4 on outdoor), bring up the WiFi interface with
 
 ```
 ifconfig wlan0 up
@@ -161,7 +125,7 @@ ap0: AP-ENABLED
 
 in the output.
 
-Then, on each of the two stations (node1-3 and node1-5 on outdoor, node17 and node18 on WITest) that are part of this network, set up a WiFi config file with
+Then, on each of the two stations (node1-3 and node1-5 on outdoor) that are part of this network, set up a WiFi config file with
 
 ```
 wpa_passphrase wireless1 secretpassword > wpa.conf
@@ -232,7 +196,7 @@ on it. Then, verify that you can ping from one station to the other by IP addres
 ping -c 1 192.168.0.2
 ```
 
-We will configure the other network similarly. However, we will name this network "wireless2". On the access point (node1-9 on outdoor, node23 on WITest), bring up the wireless interface:
+We will configure the other network similarly. However, we will name this network "wireless2". On the access point (node1-9 on outdoor), bring up the wireless interface:
 
 ```
 ifconfig wlan0 up
@@ -243,7 +207,7 @@ Then run:
 ```
 create_ap -c 1 -n wlan0 wireless2 secretpassword
 ```
-On the two stations (node1-8 and node1-10 on outdoor, node24 and node25 on WITest), run 
+On the two stations (node1-8 and node1-10 on outdoor), run 
 
 ```
 wpa_passphrase wireless2 secretpassword > wpa.conf
@@ -330,7 +294,7 @@ The two stations should reconnect to the network automatically within a few minu
 iwconfig wlan0
 ```
 
-on the other nodes - node1-8 and node1-10 on outdoor, or node24 and node25 on WITest - to verify connectivity. Also verify that these stations are now connected at a new frequency: 2.437 GHz.
+on the other nodes - node1-8 and node1-10 on outdoor - to verify connectivity. Also verify that these stations are now connected at a new frequency: 2.437 GHz.
 
 Repeat the iperf experiments, and record the network throughput for each network, for five trials.
 

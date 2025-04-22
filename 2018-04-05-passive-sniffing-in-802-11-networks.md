@@ -2,9 +2,9 @@ In this experiment, we will observe the level of confidentiality provided by thr
 
 You will have to [download and install Wireshark](https://www.wireshark.org/download.html) to run this experiment. You should do this before your reservation on the wireless testbed.
 
-It should take about 120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on GENI during a reservation.
+It should take about 120 minutes to run this experiment, but you will need to have reserved that time in advance. This experiment uses wireless resources, and you can only use wireless resources on ORBIT/COSMOS during a reservation.
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). The project lead of the project you belong to must have [enabled wireless for the project](https://portal.geni.net/secure/wimax-enable.php). Finally, you must have reserved time on the [WITest](https://witestlab.poly.edu) testbed, or the "outdoor" testbed at [ORBIT](http://geni.orbit-lab.org), and you must run this experiment during your reserved time.  (Alternatively, you can use "sb4" testbed at [ORBIT](http://geni.orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.)
+To reproduce this experiment on ORBIT/COSMOS, you will need an account, and you will need to have joined a project. You should have already uploaded your SSH keys to your profile. Finally, you must have reserved time on the "outdoor" testbed at [ORBIT](http://orbit-lab.org), and you must run this experiment during your reserved time.  (Alternatively, you can use "sb4" testbed at [ORBIT](http://orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.)
 
 
 ## Results
@@ -33,36 +33,37 @@ However, if the attacker has captured the 4-way handshakes between AP and client
 
 ## Run my experiment
 
-To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://geni.orbit-lab.org) or on the [WITest](https://witestlab.poly.edu) testbed. You can also use the "sb4" testbed at [ORBIT](https://geni.orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.
 
-At your reserved time, SSH to your testbed console (e.g. "witestlab.poly.edu" for WITest, "outdoor.orbit-lab.org" for outdoor on ORBIT, "sb4.orbit-lab.org" for sb4 on ORBIT) with your GENI keys and using your GENI wireless username. (Your GENI wireless username is typically your GENI username, prefixed by "geni-", e.g. mine is "geni-ffund01".)
+To run this experiment, you must have a current reservation on the "outdoor" testbed at [ORBIT](https://orbit-lab.org). You can also use the "sb4" testbed at [ORBIT](https://orbit-lab.org), with some [modifications](#usingotherwirelesstestbeds) to the instructions.
 
-For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use either node22, node23, node18, and node19 on the WITest testbed; node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed; or node1-3, node1-4, node1-5, and node1-6 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
+At your reserved time, SSH to your testbed console (e.g. "outdoor.orbit-lab.org" for outdoor on ORBIT, "sb4.orbit-lab.org" for sb4 on ORBIT) using your ORBIT/COSMOS username and SSH keys.
+
+For this experiment, we will need a group of four neighboring nodes that are available and have an Atheros 9xxx wireless card. In the instructions that follow, we use node1-2, node1-3, node1-4, and node1-5 on the ORBIT outdoor testbed. If any of these are not available, you can substitute other Atheros 9xxx-equipped nodes that are available.
+
+To find out which nodes are available:
+
+* Log in to your account at https://orbit-lab.org/
+* Click on the "Status" tab in the menu on the left side
+* Click on the "outdoor" tab
+* On the left side, find the "WiFi" menu option and expand it
+* Check the box that says "Ath9k"
+* Then, look for nodes that are 
+  * marked with an X in the visualization - these have an Atheros 9xxx card. 
+  * either blue or green in the visualization - this means they are available and expected to be responsive. (Red nodes are not responsive.)
+  * for this particular experiment, you need four such nodes that are close by to one another.
 
 ### Prepare the testbed
 
 
 > **If you are using sb4**: Follow the  [modified instructions](#usingotherwirelesstestbeds) to set up the testbed. Then, resume with the regular instructions from [Open SSH sessions](#opensshsessions).
  
-Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on WITest and using node22, node23, node18, and node19, run:
-
-<pre>
-omf-5.4 load -i wifi-experiment.ndz -t omf.witest.node22,omf.witest.node23,omf.witest.node18,omf.witest.node19
-</pre>
-
-(note that there are no spaces in between the commas and the nodes names in the command above). Alternatively, if you are on outdoor and using node1-2, node1-3, node1-4, and node1-5, run:
+Next, load the `wifi-experiment.ndz` disk image onto all the nodes in your group. For example, if you are on outdoor and using node1-2, node1-3, node1-4, and node1-5, run:
 
 <pre>
 omf-5.4 load -i wifi-experiment.ndz -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
 </pre>
 
-When the image has been loaded onto the nodes, turn them on. For example, if using those four nodes on WITest, run 
-
-<pre>
-omf tell -a on -t omf.witest.node22,omf.witest.node23,omf.witest.node18,omf.witest.node19
-</pre>
-
-whereas if using the four nodes on outdoor, you would run
+When the image has been loaded onto the nodes, turn them on. For example, if using the four nodes on outdoor, you would run
 
 <pre>
 omf tell -a on -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,node1-4.outdoor.orbit-lab.org,node1-5.outdoor.orbit-lab.org
@@ -70,7 +71,7 @@ omf tell -a on -t node1-2.outdoor.orbit-lab.org,node1-3.outdoor.orbit-lab.org,no
 
 ### Open SSH sessions
 
-Wait a few minutes for your nodes to boot. Then, open _six_ terminal windows and SSH to your testbed console ("witestlab.poly.edu", "outdoor.orbit-lab.org", or "sb4.orbit-lab.org") in each one.
+Wait a few minutes for your nodes to boot. Then, open _six_ terminal windows and SSH to your testbed console ("outdoor.orbit-lab.org", or "sb4.orbit-lab.org") in each one.
 
 Of the four nodes in your group, designate one node as the access point (AP), one node as Alice, one node as Bob, and one node as Mallory. In this experiment, Mallory will attempt to passively sniff communications between Alice and Bob.
 
@@ -165,15 +166,15 @@ to connect to Bob. Then, type a message into the terminal window on either Alice
 
 Use Ctrl+C to stop the running processes on all four hosts. On the Mallory node, you should have a file named `wifi-open-01.cap` (or possibly with a different number, if you've run the `airodump-ng` more than once). Use `scp` or [transfer.sh](https://transfer.sh/) to transfer this file to your own computer, and open it with [Wireshark](https://www.wireshark.org/). 
 
-> **Note**: To retrieve a file from a node on a wireless testbed like WITest or ORBIT, you need to use `scp` in two steps:
+> **Note**: To retrieve a file from a node on a wireless testbed like ORBIT, you need to use `scp` in two steps:
 > 
-> 1) First, log in to the testbed console (`witestlab.poly.edu`, `outdoor.orbit-lab.org`, or equivalent) and transfer the file from the testbed node to your home directory on the testbed console. For example:
+> 1) First, log in to the testbed console (`outdoor.orbit-lab.org`, or equivalent) and transfer the file from the testbed node to your home directory on the testbed console. For example:
 > 
-> `ffund@witestlab:~$ scp root@node23:/root/wifi-open-01.cap wifi-open-01.cap`
+> `ffund@outdoor.orbit-lab.org:~$ scp root@node1-1:/root/wifi-open-01.cap wifi-open-01.cap`
 > 
 > 2) Then, from a BASH shell on your *own device* (e.g. laptop), transfer the file from the testbed console to your device. For example:
 >
-> `ffund@ffund-laptop:~$ scp geni-ffund@witestlab.poly.edu:~/wifi-open-01.cap wifi-open-01.cap`
+> `ffund@ffund-laptop:~$ scp ffund@outdoor.orbit-lab.org:~/wifi-open-01.cap wifi-open-01.cap`
 
 
 Look for the data packets containing the secret message - is the attacker, who is not connected to the network, able to see the data in plaintext? (Use the Wireshark filter bar to filter on Alice's and Bob's MAC addresses, to more easily find the relevant packets.)

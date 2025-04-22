@@ -5,17 +5,14 @@ Most Internet-connected homes use a home network gateway to connect a local area
 * DNS, to respond to name resolution queries from hosts in the home network,
 * NAT (Network Address Translation), to map one public IPv4 address to internal (private) IP addresses assigned to hosts on the home network.
 
-It should take about 120-180 minutes to run this experiment.
+We will also take a quick look at the HTTP protocol, so that by the end of this experiment, you should understand all of the protocol exchanges involved in: turning on a computer that is connected to a home gateway, opening a browser, and visiting a website!
 
-This experiment runs on either the GENI or CloudLab testbed! Whenever there are testbed-specific instructions, follow the ones for the testbed *you* are using.
+It should take about 120-180 minutes to run this experiment. 
 
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: Prerequisites</h4>
+This experiment runs on CloudLab! 
 
-To reproduce this experiment on GENI, you will need an account on the <a href="http://groups.geni.net/geni/wiki/SignMeUp">GENI Portal</a>, and you will need to have <a href="http://groups.geni.net/geni/wiki/JoinAProject">joined a project</a>. You should have already <a href="http://groups.geni.net/geni/wiki/HowTo/LoginToNodes">uploaded your SSH keys to the portal and know how to log in to a node with those keys</a>.
+<!--Whenever there are testbed-specific instructions, follow the ones for the testbed *you* are using.-->
 
-</div>
-<br>
 
 <div class="cloudlab-specific">
 <h4 class="cloudlab-specific"> Cloudlab-specific instructions: Prerequisites</h4>
@@ -25,6 +22,11 @@ To reproduce this experiment on Cloudlab, you will need an account on <a href="h
 </div>
 <br>
 
+<div style="border-color:#47aae1; border-style:solid; padding: 15px;">  
+<h4 style="color:#47aae1;">FABRIC-specific comments</h4>  
+<p>This experiment is not supported on the FABRIC testbed. It requires a public IP address, and FABRIC's security policy does not permit FABNetExt services in slices managed by students.</p>
+</div>  
+<br>
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -200,70 +202,76 @@ We see a client requesting and receiving an IP address from DHCP:
 
 ### DNS
 
-We see an iterative name resolution with DNS, for the address "website.nat.ch-geni-net.instageni.research.umich.edu" (in this example).  First, the DNS server returns a list of root name servers:
+We see an iterative name resolution with DNS, for the address "website.ffund00-179676.cl-education.emulab.net" (in this example).  
+First, the DNS server returns a list of root name servers:
 
 <pre>
-.            77637   IN  NS  e.root-servers.net.
-.            77637   IN  NS  a.root-servers.net.
-.            77637   IN  NS  h.root-servers.net.
-.            77637   IN  NS  j.root-servers.net.
-.            77637   IN  NS  b.root-servers.net.
-.            77637   IN  NS  m.root-servers.net.
-<b>.            77637   IN  NS  c.root-servers.net.</b>
-.            77637   IN  NS  i.root-servers.net.
-.            77637   IN  NS  g.root-servers.net.
-.            77637   IN  NS  l.root-servers.net.
-.            77637   IN  NS  f.root-servers.net.
-.            77637   IN  NS  d.root-servers.net.
-.            77637   IN  NS  k.root-servers.net.
-.            518071  IN  RRSIG   NS 8 0 518400 20170411170000 20170329160000 61045 . EhdIynzhYoqVrNs2csvZwCDUhQbDyUs8EujQ+XVKeQ02S2u0ZN39GY9h pBa7XpOyFAlNfYWNvWVLi1nkpJ7JKS+s4Gg/fU0Nw1MXc2hsbtdsduMs x9tNRjq5RduDfGBZLvNEikIoBndMU4esREkLtbSXrXp0TuvRpl3g5w5j +km7IImfv7KrfhZ16w6kKV8O1ye3yrQr9ow7/XBvUlvDnkcLXUphbfE3 M8vOF+5ABzb7KQp28S5WeI6mrC412jZQgGmdkdCVZArJtc+tKBOoLr64 0mwCMM+phVrLTkx9vdnZpnx9QBB7eqdSOqG9x09R7FiHVyaikueWedNs txIotQ==
-;; Received 1097 bytes from 127.0.0.1#53(127.0.0.1) in 19 ms
+.			187987	IN	NS	e.root-servers.net.
+.			187987	IN	NS	d.root-servers.net.
+.			187987	IN	NS	k.root-servers.net.
+.			187987	IN	NS	i.root-servers.net.
+.			187987	IN	NS	b.root-servers.net.
+.			187987	IN	NS	m.root-servers.net.
+.			187987	IN	NS	h.root-servers.net.
+<b>.			187987	IN	NS	f.root-servers.net.</b>
+.			187987	IN	NS	a.root-servers.net.
+.			187987	IN	NS	j.root-servers.net.
+.			187987	IN	NS	c.root-servers.net.
+.			187987	IN	NS	l.root-servers.net.
+.			187987	IN	NS	g.root-servers.net.
+.			187987	IN	RRSIG	NS 8 0 518400 20231129220000 20231116210000 46780 . wFuw1L2ORsgOuQwkD1Lb4Pq/H+Zm6M8K2nWBvq7yFOhTd29zbE7OYBBU bYGhuNb4Cqfm2WN4w6cs//h9/nxzmLorQ7bzP0Q+qH4ebrm0WNMf0ppY b9a0igsAqn/i6FczD6f0YEKaQo9A5pnNtL55lLrxts5CU8p/M5A2Ti/f IOZ4y4TjWQ3K3xqPMNoyoi9qLNJ78mC+rhCEEACADY9Sir5xB8u4hC5P zSuMUg5uq3mYlT/wNQFRGxA/ueDFsX9OXzdY7xQgdm3idb6RRlkWwJfn azwlevwtL3umNW1Pw0BQOl0Fnb00V76QWlb2fIWfww7lZGCJ55PIwYSQ JMultw==
+;; Received 1125 bytes from 128.110.100.4#53(128.110.100.4) in 0 ms
 </pre>
 
-Then it queries one of the root name servers ("c.root-servers.net" in this example), and _that_ returns a list of `.edu.` servers:
+Then it queries one of the root name servers ("f.root-servers.net" in this example), and _that_ returns a list of `.net.` servers:
 
 <pre>
-edu.            172800  IN  NS  f.edu-servers.net.
-<b>edu.            172800  IN  NS  c.edu-servers.net.</b>
-edu.            172800  IN  NS  g.edu-servers.net.
-edu.            172800  IN  NS  d.edu-servers.net.
-edu.            172800  IN  NS  l.edu-servers.net.
-edu.            172800  IN  NS  a.edu-servers.net.
-edu.            86400   IN  DS  28065 8 2 4172496CDE85534E51129040355BD04B1FCFEBAE996DFDDE652006F6 F8B2CE76
-edu.            86400   IN  RRSIG   DS 8 1 86400 20170411170000 20170329160000 61045 . RrZnh2YskIX8cXI1YuiVY9mBh79izFT8HuEc0dxU9B8fKbC5ddQZNPrw d2z0Rn/Bhym6yAAbY0u+5j1+RPXNMLcW2qAcktyw4i3wp4UiGowIcQIa dd5PMODvNrFc8IJpahPhwWcCbK8okgyP1AL9dNtWGcgv7+2zVB1e5vWN n5bOVtthU4p8/X4JI5zRZTyP9Mwz7hPkNFTeeAumjm+hlHJkRAQ211Bz 92f5nRgaJyyIfTq1w9AXRJjE9gnbYRVm32Bh0uEPh1wUddmsN788dYmc xzbbNjZDnAksPoopkupQinhvgSBO9Zf9d21dtR3WQLt1w2YoX46likoO rUJnNQ==
-;; Received 651 bytes from 192.33.4.12#53(<b>c.root-servers.net</b>) in 43 ms
+net.			172800	IN	NS	e.gtld-servers.net.
+net.			172800	IN	NS	b.gtld-servers.net.
+net.			172800	IN	NS	a.gtld-servers.net.
+net.			172800	IN	NS	d.gtld-servers.net.
+<b>net.			172800	IN	NS	i.gtld-servers.net.</b>
+net.			172800	IN	NS	f.gtld-servers.net.
+net.			172800	IN	NS	j.gtld-servers.net.
+net.			172800	IN	NS	k.gtld-servers.net.
+net.			172800	IN	NS	c.gtld-servers.net.
+net.			172800	IN	NS	g.gtld-servers.net.
+net.			172800	IN	NS	h.gtld-servers.net.
+net.			172800	IN	NS	l.gtld-servers.net.
+net.			172800	IN	NS	m.gtld-servers.net.
+net.			86400	IN	DS	37331 13 2 2F0BEC2D6F79DFBD1D08FD21A3AF92D0E39A4B9EF1E3F4111FFF2824 90DA453B
+net.			86400	IN	RRSIG	DS 8 1 86400 20231203170000 20231120160000 46780 . Gv2eB2bmNp4W7mQOBs79DZw0RPh99qDcThZqK14r2sN+Z9T55VpMVEuA YOMlWUewm3zPDQMriLrT7Xg9P/zl0PBtATi196QfPuoWsKsQ54EYAtq0 hHgZojY0Qukr51C+CYpGbv09A/ZTVHyRurijwfIbU9SpgcFLJ5NOdpM+ UUYCb5YwkwJaLnRN0sePLa4/tdU5FRlVEbgojSwyf88hUSEmAYT+hzhc nNgDSEgV8Nd3lcKilO7YjjIA4V+oLAFzkJmuI4h+sqChz5L0Z+o4TrPp 4gSmTgT2LFxG3/TX1648HxU62CIVS4ORtojaCMHB0MojMzFrbXnvegFE Bidpsw==
+;; Received 1203 bytes from 192.5.5.241#53(<b>f.root-servers.net</b>) in 20 ms
 </pre>
 
-Next, the "c.edu-servers.net." name server returns a list of name servers for the `umich.edu.` domain:
+Next, the "i.gtld-servers.net." name server returns a list of name servers for the `emulab.net.` domain:
 
 <pre>
-umich.edu.        172800  IN  NS  dns.cs.wisc.edu.
-<b>umich.edu.        172800  IN  NS  dns2.itd.umich.edu.</b>
-umich.edu.        172800  IN  NS  dns1.itd.umich.edu.
-9DHS4EP5G85PF9NUFK06HEK0O48QGK77.edu. 86400 IN NSEC3 1 1 0 - 9N4FQMDDEN9N9I8F7VUF86JHJF574LHS NS SOA RRSIG DNSKEY NSEC3PARAM
-9DHS4EP5G85PF9NUFK06HEK0O48QGK77.edu. 86400 IN RRSIG NSEC3 8 2 86400 20170405183649 20170329172649 43544 edu. unQy39EYi/666eEaXxmUQcsEgE/FtqxKCMVuODd4o8NhWp8gaTkukJNS OM1xfxo916xtQyVD2lXaoZ6pJCSENtYo8AUGja7Uvx2zGLpmH2a3gAWK gvZqHpkLchFQrlFcP3Qg6dqm6OJbjBBHDIcWyl8Q4ic5aYM1F15ewzA0 Y0Q=
-NOS8G1ANJ5QIKT46L3QM4OLBQD9V72K5.edu. 86400 IN NSEC3 1 1 0 - O9PNA7OPKKO436OEO034N6ANUNH47GJ5 NS DS RRSIG
-NOS8G1ANJ5QIKT46L3QM4OLBQD9V72K5.edu. 86400 IN RRSIG NSEC3 8 2 86400 20170405172140 20170329161140 43544 edu. ReOneHxFyyuuqcHaFrBftXfW5VCLGa0XCKWZAan1zW6vlQ3OtATJ0UHr +gR6UDb8nH8C+KAQCCdxanZM5feAOCsEDxl1X6D36nuMfVb86k3q8UZ/ jWy7OqDL2PMzRNjGI0Sdwl49BUx7VhGXjIt9ev87dFa1zHprJJHf8KCe mgU=
-;; Received 682 bytes from 192.26.92.30#53(<b>c.edu-servers.net</b>) in 30 ms
+emulab.net.		172800	IN	NS	ns.emulab.net.
+emulab.net.		172800	IN	NS	ns2.emulab.net.
+emulab.net.		172800	IN	NS	ns5.emulab.net.
+A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net. 86400 IN NSEC3 1 1 0 - A1RTLNPGULOGN7B9A62SHJE1U3TTP8DR NS SOA RRSIG DNSKEY NSEC3PARAM
+A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net. 86400 IN RRSIG NSEC3 13 2 86400 20231126081804 20231119070804 44222 net. XeOPnYJQbkl01ke0LVIYy0iETCK82ntHX/tkLmYeX/iADbhxXSEK5G4L zIIUgBHmfEYZemnAZR8POMj74+rwVQ==
+T5EELC66E4B0POQ7GVSMR0BBHLMDDNN8.net. 86400 IN NSEC3 1 1 0 - T5EHIB9IP2MOALEC60ELDJQM1D8HO89N NS DS RRSIG
+T5EELC66E4B0POQ7GVSMR0BBHLMDDNN8.net. 86400 IN RRSIG NSEC3 13 2 86400 20231126081935 20231119070935 44222 net. 72Fi0sXAjusZPXTDykLZOTcfH1sKcdh79bMI19OgOqVu5q8LT2OhlITL GFFs1GnZHsXW1wGRxO93pgTTov4OCg==
+;; Received 533 bytes from 192.43.172.30#53(<b>i.gtld-servers.net</b>) in 16 ms
 </pre>
 
-And then "dns2.itd.umich.edu" returns name servers for the subdomain `instageni.research.umich.edu.`:
+Finally, from "ns.emulab.net" we get the address of `website.ffund00-179676.cl-education.emulab.net.`:
 
 <pre>
-instageni.research.umich.edu. 300 IN    NS  ns.instageni.research.umich.edu.
-<b>instageni.research.umich.edu. 300 IN    NS  ns.emulab.net.</b>
-;; Received 141 bytes from 192.12.80.222#53(<b>dns2.itd.umich.edu</b>) in 43 ms
+<b>website.ffund00-179676.cl-education.emulab.net.	1 IN CNAME pcvm603-18.emulab.net.
+pcvm603-18.emulab.net.	30	IN	A	155.98.37.85</b>
+emulab.net.		30	IN	NS	ns2.emulab.net.
+emulab.net.		30	IN	NS	ns5.emulab.net.
+emulab.net.		30	IN	NS	ns.emulab.net.
+;; Received 245 bytes from 155.98.32.70#53(<b>ns.emulab.net</b>) in 4 ms
 </pre>
 
-Finally, from "ns.emulab.net" we get the address of `website.nat.ch-geni-net.instageni.research.umich.edu.`:
 
-<pre>
-<b>website.nat.ch-geni-net.instageni.research.umich.edu. 1    IN CNAME pcvm2-8.instageni.research.umich.edu.
-pcvm2-8.instageni.research.umich.edu. 30 IN A    192.41.233.62</b>
-instageni.research.umich.edu. 30 IN    NS  ns.emulab.net.
-instageni.research.umich.edu. 30 IN    NS  ns.instageni.research.umich.edu.
-;; Received 195 bytes from 155.98.32.70#53(<b>ns.emulab.net</b>) in 39 ms
-</pre>
+
+### Use NAT
+
 
 
 ### NAT
@@ -271,41 +279,23 @@ instageni.research.umich.edu. 30 IN    NS  ns.instageni.research.umich.edu.
 We see NAT rewriting packet headers. Here are the packets in the LAN:
 
 <pre>
-16:53:13.663719 IP <b>192.168.100.157</b>.57962 > 192.41.233.62.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
-16:53:14.231939 IP 192.41.233.62.80 > <b>192.168.100.157</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
-16:53:14.232738 IP <b>192.168.100.157</b>.57962 > 192.41.233.62.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
+16:53:13.663719 IP <b>192.168.100.157</b>.57962 > 155.98.37.85.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
+16:53:14.231939 IP 155.98.37.85.80 > <b>192.168.100.157</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
+16:53:14.232738 IP <b>192.168.100.157</b>.57962 > 155.98.37.85.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
 </pre>
+
 
 And here are the same packets on the WAN:
 
 <pre>
-16:53:14.032389 IP <b>172.17.3.4</b>.57962 > 192.41.233.62.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
-16:53:14.032440 IP 192.41.233.62.80 > <b>172.17.3.4</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
-16:53:14.299903 IP <b>172.17.3.4</b>.57962 > 192.41.233.62.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
+16:53:14.032389 IP <b>128.110.96.132</b>.57962 > 155.98.37.85.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
+16:53:14.032440 IP 155.98.37.85.80 > <b>128.110.96.132</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
+16:53:14.299903 IP <b>128.110.96.132</b>.57962 > 155.98.37.85.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
 </pre>
 
 ## Run my experiment
 
 First, you will need to reserve resources for your experiment.
-
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: Reserve resources</h4>
-
-<p>In the GENI Portal, create a new slice, then click "Add Resources". Scroll down to where it says "Choose RSpec" and select the "URL" option, the load the RSpec from the URL: <a href="https://git.io/JThp3">https://git.io/JThp3</a>.</p>
-
-<p>This should load a topology onto your canvas with:</p>
-
-<ul>
-<li>Two "client" nodes, connected to a LAN, and a "gateway" node also connected to the LAN. The "gateway" node has IP address 192.168.100.1 on the interface that is connected to the LAN; the clients have no IP address on this interface. (You can safely ignore the red "!" that alerts you to this.)</li>
-<li>A "website" node. In the RSpec, we request a "Publicly Routable IP" for this node.</li>
-</ul>
-
-<p>Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready) and then log in to each node.</p>
-
-<p>Wait for all of your nodes to become ready to log in (they will turn green on the canvas). Then, use the details given in the GENI Portal to SSH into each node, in four terminal windows.</p>
-
-</div>
-<br>
 
 <div class="cloudlab-specific">
 <h4 class="cloudlab-specific"> Cloudlab-specific instructions: Reserve resources</h4>
@@ -314,21 +304,13 @@ First, you will need to reserve resources for your experiment.
 
 <p>If you visit this link, you’ll see a brief description of the profile. Click “Next”. On the following page, you’ll see a diagram of your experiment topology, and on the left you’ll be asked to select the “Cluster” on which you want your experiment to run. For this experiment, you'll be asked to select <b>two</b> clusters, and they should be two <b>different</b> ones! The website host will be on one cluster, and the rest of the hosts will be on the other.</p>
 
-<p>This experiment can run on any pair of two different clusters. However, since CloudLab is a shared resource, on some occasions the cluster you select might not have enough available resources to support your experiment. The status indicator next to each cluster tells you roughly how heavily utilized it is at the moment - green indicates that there are not many users, orange means heavy load, and red means that it is almost fully utilized. You are more likely to be successful if you choose a cluster with a green indicator.</p>
+<p>This experiment can run on any two of the following clusters: Utah, Wisconsin, Clemson, Emulab, APT. However, since CloudLab is a shared resource, on some occasions the cluster you select might not have enough available resources to support your experiment. The status indicator next to each cluster tells you roughly how heavily utilized it is at the moment - green indicates that there are not many users, orange means heavy load, and red means that it is almost fully utilized. You are more likely to be successful if you choose a cluster with a green indicator.</p>
 
-<p>After you select two clusters, you can leave the "Name" field blank, or give your experiment a name - it’s your choice. Also make sure your "Project" is selected. Then, click "Next".</p>
-
-<p>On the last page, you’ll be asked to set the duration of your experiment. At the end of this duration, your resources will be deleted automatically - so make sure to give yourself enough time to finish.</p>
-
-<p>You can leave the start date/time on this page blank if you are ready to work on the experiment right now.</p>
-
-<p>When you have made all your choices, click "Finish" to ask CloudLab to reserve resources according to your configuration.</p>
-
-<p>Once you have successfully instantiated a profile, it will still take some time before your resources are ready for you to log in.</p>
+<p>Make your selections for the rest of the options, then continue to request resources. Once you have successfully instantiated a profile, it will still take some time before your resources are ready for you to log in.</p>
 
 <p>As your resources come online, you’ll see their progress on the CloudLab experiment page. Once each host in your experiment is "green" and has a "✓" icon in the top right corner, it is ready for you to log in!</p>
 
-<p>For <i>most</i> CloudLab experiments, you can log in with the terminal in the CloudLab web portal or using a terminal application that is installed on your laptop or PC. For this experiment, however, you should use the terminal in the CloudLab web portal. Right-click on each node in your topology, and open a shell on the CloudLab web portal.</p>
+<p>Use a terminal application installed on your laptop or PC (not the terminal in the CloudLab web portal) to log in to each node in your topology.</p>
 
 </div>
 <br>
@@ -339,62 +321,45 @@ First, you will need to reserve resources for your experiment.
 
 This experiment mimics clients connecting to a residential gateway and using the network services provided by that gateway (DHCP, DNS, NAT, for example). However, the clients in our experiment are _already_ set up to use a university gateway for those services. (Otherwise, they would not have a functional network connection and we would not be able to get in to them over SSH!) To run this experiment, we will tell the clients _not_ to use the university gateway for anything except our SSH session. 
 
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: Removing route via university gateway</h4>
-
-On GENI, once you remove the route via university gateway, <b>you should plan to finish the rest of the experiment involving these resources in the same SSH session</b>. Otherwise, if you stop and then resume the experiment from a new SSH session in a new location, you won't be able to access the clients anymore. 
-
-</div>
-<br>
 
 
 <div class="cloudlab-specific">
 <h4 class="cloudlab-specific"> CloudLab-specific instructions: Removing route via university gateway</h4>
 
-On CloudLab, once you remove the route via university gateway, you will only be able to log in to these client nodes using the shell in the CloudLab web portal. You won't be able to access them using the terminal application on your laptop or PC anymore.
+<p>On CloudLab, once you remove the route via university gateway, you will only be able to log in to these client nodes either:</p>
 
-</div>
-<br>
+<ul>
+<li>using the shell in the CloudLab web portal.</li>
+<li>or using the same network connection that you used to remove the university network settings on the clients.</li>
+</ul>
 
-When you're ready, on each of the two "client" nodes (and _only_ on the client nodes), run
+<p>You won't be able to access them using the terminal application on your laptop or PC anymore, unless you are on the same network connection.</p>
 
-```
-wget -qO- https://git.io/JTjLB | bash
-```
 
-to download and run a [script](https://gist.github.com/ffund/ebfa8f9eabbedd2bc4f26ee7f38ae2bd) that removes most of the network settings on the client that involve the university gateway.
+<p>When you're ready, on each of the two "client" nodes (and <i>only</i> on the client nodes), run</p>
 
-(The output will look something like:
+<pre>
+bash /local/repository/remove-default.sh
+</pre>
 
-```
+<p>to download and run a script that removes most of the network settings on the client that involve the university gateway.</p>
+
+<p>The output will look something like:</p>
+
+<pre>
 dhclient: no process found
 127.0.0.1     localhost
 sudo: unable to resolve host client-1
 127.0.0.1     client-1
-```
-)
-
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: If you lose access to resources</h4>
-
-<p><b>Note:</b> as mentioned above, if your own IP address changes, you may lose connectivity to your client nodes. Here's how to access your client nodes <i>if</i> that happens!</p>
-
-<ol>
-<li>If you are on Windows, first enable and start the SSH agent: Open Services (Start Menu > Services), then select OpenSSH Authentication Agent, then set StartupType to Automatic.</li>
-<li>If you are using Windows or Mac OS X: run <tt>ssh-add</tt> to start the SSH agent.</li>
-<li>Use SSH to log in to the "gateway" node, but add the <tt>-A</tt> argument to the SSH command. Also specify the path to your private key with <tt>-i</tt>, if you normally do so when using SSH to log in to GENI hosts. </li>
-<li>From the terminal on the "gateway" node, use the SSH command in the GENI Portal to log on to the "client" node. Do <i>not</i> use the <tt>-i</tt> argument and do not specify a path to a key, even if you normally do so when using SSH to log in to GENI hosts.</li>
-
-For example: <blockquote><pre>
-ffund@laptop:~$ ssh <b>-A</b> ffund01@pc1.instageni.metrodatacenter.com -p 25812
-ffund01@gateway:~$ ssh ffund01@pc1.instageni.metrodatacenter.com -p 25810
-ffund01@client-1:~$
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
 </pre>
-</blockquote>
-
 
 </div>
 <br>
+
 
 ### Set up gateway
 
@@ -409,10 +374,8 @@ sudo sysctl -w net.ipv4.ip_forward=1
 Next, we will install `dnsmasq`, a lightweight DNS and DHCP server. On the "gateway" node, run:
 
 <pre>
-echo "deb http://us.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
-
-sudo apt-get update
-sudo apt-get -y install dnsmasq dnsmasq-base
+sudo apt update
+sudo apt -y install dnsmasq dnsmasq-base
 </pre>
 
 Don't worry if you see an error message in the output that says:
@@ -423,7 +386,9 @@ failed to create listening socket for port 53: Address already in use
 
 we'll fix that in a moment with a new configuration file!
 
-We will now configure `dnsmasq`. On "gateway", run
+We will now configure `dnsmasq`.
+
+On "gateway", run
 
 ```
 sudo wget -O /etc/dnsmasq.conf https://git.io/JThhR
@@ -467,29 +432,19 @@ where
 
 * `-i eth1` sets the interface to listen on 
 * `-n` says to show numerical addresses, rather than trying to resolve them to hostnames in the output,
-* `-e` says to shoe MAC addresses, 
+* `-e` says to show MAC addresses, 
 * `-v` says to show verbose output (including details about the DHCP packets), and
 * `"udp port 67 or udp port 68"` is a filter that says to only show traffic using the DHCP ports (UDP port 67 for the DHCP server, UDP port 68 for the DHCP client).
 
 Now, from one of the client nodes, run:
 
 ```
-sudo dhclient -d eth1
+sudo dhclient eth1
 ```
 
-to initiate a request for an address from DHCP. (The `-d` argument is to specify debug mode; it keeps the `dhclient` process in the foreground, and lets us see its output.)
+to initiate a request for an address from DHCP. 
 
-In this terminal you should see something like:
-
-```
-DHCPDISCOVER on eth1 to 255.255.255.255 port 67 interval 3 (xid=0xf2a90c0)
-DHCPREQUEST of 192.168.100.157 on eth1 to 255.255.255.255 port 67 (xid=0xf2a90c0)
-DHCPOFFER of 192.168.100.157 from 192.168.100.1
-DHCPACK of 192.168.100.157 from 192.168.100.1
-bound to 192.168.100.157 -- renewal in 5679 seconds.
-```
-
-Meanwhile, in the `tcpdump` output, you should see each of those messages. 
+Meanwhile, in the `tcpdump` output, you should see each of the DHCP messages involved in an initial address assignment. 
 
 First, the client sends a "discover" request to try and find DHCP servers on the LAN. The client does not have an IP address yet, so this message has "0.0.0.0" (an invalid address) as the source IP address. Also, the client does not know the address of the DHCP server, so it uses the broadcast IP address "255.255.255.255" and the broadcast MAC address "ff:ff:ff:ff:ff:ff" in the destination fields of the Layer 2 and Layer 3 headers:
 
@@ -576,90 +531,65 @@ Finally, the server acknowledges the request, completing the process:
 If you run 
 
 ```
-ifconfig eth1
+ip addr show dev eth1
 ```
 
-on the client (you can use Ctrl+C to stop the running `dhclient` instance), you should observe that it is now using the IP address assigned to it by DHCP, e.g.:
+on the client, you should observe that it is now using the IP address assigned to it by DHCP, e.g.:
 
 <pre>
-eth1      Link encap:Ethernet  HWaddr 02:eb:60:57:10:ad  
-          inet addr:<b>192.168.100.157</b>  Bcast:192.168.100.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:67 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:40 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:6314 (6.3 KB)  TX bytes:3941 (3.9 KB)
+eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 02:eb:60:57:10:adbrd ff:ff:ff:ff:ff:ff
+    inet 192.168.100.157/24 brd 192.168.100.255 scope global eth1
+       valid_lft forever preferred_lft forever
 </pre>
 
-<div class="cloudlab-specific">
-<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Updating DNS configuration</h4>
-
-<p>If you are using CloudLab, you should run </p>
-
-<pre>sudo /lib/systemd/systemd-resolved &</pre>
-
-<p>on the client after running <tt>dhclient</tt>, to allow the system's name resolution configuration to be updated by the DHCP client. Hit Enter a few times to return to your regular terminal prompt.</p>
-
-</div><br>
-
 You can also see that the client has been configured to use the gateway as the name server, as specified in the DHCP options. On the client, run
+
+```
+resolvectl status
+```
+
+to see that the DNS server is listed for the experiment interface. 
+
+You may also see some secondary nameservers from the host testbed site on the control interface. To make sure that "our" nameserver is preferred, check the contents of `/etc/resolv.conf`:
 
 ```
 cat /etc/resolv.conf
 ```
 
-to see the address of the name server it uses. You should see:
+and make sure that "our" nameserver is listed first! If not, edit this file with
 
 ```
-nameserver 192.168.100.1
+sudo nano /etc/resolv.conf
 ```
 
-(You may also see some secondary nameservers from the host testbed site; that's OK!)
+so that "our" nameserver is listed first.
 
 
 Finally, we can see that the client uses the gateway as the default gateway for routing purposes. On the client, run
 
 ```
-route -n
+ip route show dev eth1
 ```
 
 to see routing rules. We should see two rules associated with the interface connected to the LAN:
 
 ```
-0.0.0.0         192.168.100.1   0.0.0.0         UG    0      0        0 eth1
-192.168.100.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
+default via 192.168.100.1 
+192.168.100.0/24 proto kernel scope link src 192.168.100.157 
 ```
 
-The first rule says to use "192.168.100.1" as the next hop for any traffic whose destination address does not meet any more specific rule, i.e. as the default rule. The second rule says to send traffic for the 192.168.100.0/24 subnet out of the <tt>eth1</tt> interface, which is connected to the LAN.
-
-<br><br>
-
+The first rule says to use "192.168.100.1" as the next hop for any traffic whose destination address does not meet any more specific rule, i.e. as the default rule. The second rule says to send traffic for the 192.168.100.0/24 subnet out of the <code>eth1</code> interface, which is connected to the LAN.
 
 On the second client node, use 
 
 ```
-sudo dhclient -d eth1
+sudo dhclient eth1
 ```
 
-to get an IP address on this node as well.
+to get an IP address on this node as well, and edit the `/etc/resolv.conf` file if necessary to specify that this interface's nameserver should be preferred.
 
-<br><br><br>
-
-<div class="cloudlab-specific">
-<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Updating DNS configuration</h4>
-
-<p>If you are using CloudLab, you should run </p>
-
-<pre>sudo /lib/systemd/systemd-resolved &</pre>
-
-<p>on the second client also, after running <tt>dhclient</tt>, to allow the system's name resolution configuration to be updated by the DHCP client. Hit Enter a few times to return to your regular terminal prompt.</p>
-
-</div><br>
-
-<div>
-</div>
-
-
+---
 
 ### Observe a DNS query and response
 
@@ -673,97 +603,106 @@ sudo tcpdump -i eth1 -n -v "udp port 53"
 
 On a client, we are going to look up the IP address associated with the "website" node in our topology. 
 
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: Find website hostname</h4>
+First, get the *hostname* of the "website" node. On "website", run
 
-In the GENI Portal, click "Details" on your slice page and find the hostname associated with the "website" node. In my slice, it is "website.nat.ch-geni-net.instageni.research.umich.edu":
+```
+hostname
+```
 
-<img width="100%" src="/blog/content/images/2017/03/gateway-hostname.png"/>
+and note the result. Make sure it is a *fully qualified domain name* - a hostname followed by a `.` and then a domain (with one or more subdomains) ending in a top-level domain such as `.us`, `.net`, `.org`, or similar. If it is not, use 
 
-</div></br>
+```
+hostname -A
+```
 
-<div class="cloudlab-specific">
-<h4 class="cloudlab-specific"> Cloudlab-specific instructions: Find website hostname</h4>
-
-<p>In the CloudLab Portal, click the "List View" tab on your experiment page and find the hostname associated with the "website" node.  In my experiment, it is "aptvm068-1.apt.emulab.net":</p>
-
-
-<img width="100%" src="/blog/content/images/2022/10/cloudlab-hostname.png"/>
-
-</div></br>
-<div>
-</div>
+to get an alternative hostname that is a *fully qualified domain name*.
 
 
 Then, on a client node, run
 
 <pre>
-dig <b>website.nat.ch-geni-net.instageni.research.umich.edu</b>
+dig <b>website.ffund00-179676.cl-education.emulab.net</b>
 </pre>
 
-substituting _your_ hostname in place of mine in the command above.
+substituting <i>your</i> hostname in place of mine in the command above.
 
 The output should look something like this:
 
 <pre>
-; <<>> DiG 9.9.5-3ubuntu0.2-Ubuntu <<>> website.nat.ch-geni-net.instageni.research.umich.edu
+; <<>> DiG 9.18.12-0ubuntu0.22.04.3-Ubuntu <<>> website.ffund00-179676.cl-education.emulab.net
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 29901
-;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 3
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 44699
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 092d59deb35bf169564c4259655bb886537259acb84dd8f6 (good)
 <b>;; QUESTION SECTION:
-;website.nat.ch-geni-net.instageni.research.umich.edu. IN A</b>
+;website.ffund00-179676.cl-education.emulab.net.	IN A</b>
 
 <b>;; ANSWER SECTION:
-website.nat.ch-geni-net.instageni.research.umich.edu. 1	IN CNAME pcvm2-8.instageni.research.umich.edu.
-pcvm2-8.instageni.research.umich.edu. 30 IN A	192.41.233.62</b>
+website.ffund00-179676.cl-education.emulab.net.	1 IN CNAME pcvm603-18.emulab.net.
+pcvm603-18.emulab.net.	30	IN	A	155.98.37.85</b>
 
-<b>;; AUTHORITY SECTION:
-instageni.research.umich.edu. 30 IN	NS	ns.emulab.net.
-instageni.research.umich.edu. 30 IN	NS	ns.instageni.research.umich.edu.
-
-;; ADDITIONAL SECTION:
-ns.emulab.net.		7238	IN	A	155.98.32.70
-ns.instageni.research.umich.edu. 30 IN	A	192.41.233.4</b>
-
-;; Query time: 7 msec
-;; SERVER: 192.168.100.1#53(192.168.100.1)
-;; WHEN: Wed Mar 29 15:53:33 EDT 2017
-;; MSG SIZE  rcvd: 195
+;; Query time: 3 msec
+;; SERVER: 192.168.100.1#53(192.168.100.1) (UDP)
+;; WHEN: Mon Nov 20 12:50:30 MST 2022
+;; MSG SIZE  rcvd: 154
 </pre>
+
+
 
 In particular, note:
 
-* the QUESTION section describes the query: we are seeking an address ("A" [record type](https://en.wikipedia.org/wiki/List_of_DNS_record_types)) for the name `website.nat.ch-geni-net.instageni.research.umich.edu.`.
-* the ANSWER section gives the address of the name that was the subject of the query. In this instance, it informs us (through a CNAME [record type](https://en.wikipedia.org/wiki/List_of_DNS_record_types)) that the name `website.nat.ch-geni-net.instageni.research.umich.edu.` is an alias for the host with "canonical name" `pcvm2-8.instageni.research.umich.edu.`, and then returns the address ("A" record) for `pcvm2-8.instageni.research.umich.edu.`.
-* the AUTHORITY section lists the DNS servers that are authoritative for answering queries about the name, and the ADDITIONAL section lists their addresses. Specifically, it lists "ns.emulab.net." at 155.98.32.70 and "ns.instageni.research.umich.edu." at 192.41.233.4 as authoritative name servers for any name ending in `instageni.research.umich.edu.`. (An authoritative nameserver is one that holds the actual records for a particular domain or address; if queried, it marks its response for that address as an authoritative response. Other non-authoritative nameservers may relay the information from a cache or from another nameserver.)
+* the QUESTION section describes the query: we are seeking an address ("A" [record type](https://en.wikipedia.org/wiki/List_of_DNS_record_types)) for the name `website.ffund00-179676.cl-education.emulab.net.`.
+* the ANSWER section gives the address of the name that was the subject of the query. In this instance, it informs us (through a CNAME [record type](https://en.wikipedia.org/wiki/List_of_DNS_record_types)) that the name `website.ffund00-179676.cl-education.emulab.net.` is an alias for the host with "canonical name" `pcvm603-18.emulab.net.`, and then returns the address ("A" record) for `pcvm603-18.emulab.net.`.
 
-You should also see the DNS traffic in your `tcpdump` output on the gateway. First the query from the client to the gateway, seeking the address of "website.nat.ch-geni-net.instageni.research.umich.edu.":
+We can ask the client to also return some information about the nameservers that are "authoritative" for this domain - re-run your query with `+auth`, as in
 
 <pre>
-15:56:51.703460 IP (tos 0x0, ttl 64, id 40389, offset 0, flags [none], proto UDP (17), length 109)
-    192.168.100.157.52370 > 192.168.100.1.53: 52641+ [1au] <b>A? website.nat.ch-geni-net.instageni.research.umich.edu</b>. (81)
+dig <b>website.ffund00-179676.cl-education.emulab.net</b> +auth
 </pre>
 
-and then the response from the gateway, that gives the address as "192.41.233.62" in my example:
+and note some additional sections added to the answer *if available*, for example:
 
 <pre>
-15:56:51.704291 IP (tos 0x0, ttl 64, id 37703, offset 0, flags [DF], proto UDP (17), length 223)
-    192.168.100.1.53 > 192.168.100.157.52370: 52641* 2/2/3 website.nat.ch-geni-net.instageni.research.umich.edu. CNAME pcvm2-8.instageni.research.umich.edu., pcvm2-8.instageni.research.umich.edu. <b>A 192.41.233.62</b> (195)
+;; AUTHORITY SECTION:
+emulab.net.		28	IN	NS	ns2.emulab.net.
+emulab.net.		28	IN	NS	ns.emulab.net.
+emulab.net.		28	IN	NS	ns5.emulab.net.
+
+;; ADDITIONAL SECTION:
+ns.emulab.net.		35329	IN	A	155.98.32.70
+ns2.emulab.net.		35329	IN	A	155.98.60.2
+ns5.emulab.net.		35329	IN	A	155.99.144.4
+</pre>
+
+* the AUTHORITY section lists the DNS servers that are authoritative for answering queries about the name, and the ADDITIONAL section lists their addresses. Specifically, it lists "ns.emulab.net." at 155.98.32.70 and several others as authoritative for names ending in `emulab.net`. (An authoritative nameserver is one that holds the actual records for a particular domain or address; if queried, it marks its response for that address as an authoritative response. Other non-authoritative nameservers may relay the information from a cache or from another nameserver.)
+
+You should also see the DNS traffic in your `tcpdump` output on the gateway. First the query from the client to the gateway, seeking the address of "website.ffund00-179676.cl-education.emulab.net.":
+
+<pre>
+15:56:51.703460 IP (tos 0x0, ttl 64, id 12987, offset 0, flags [none], proto UDP (17), length 115)
+    192.168.100.135.47145 > 192.168.100.1.53: 17368+ [1au] <b>A? website.ffund00-179676.cl-education.emulab.net.</b> (87)
+</pre>
+
+and then the response from the gateway, that gives the address as "155.98.37.85" in my example:
+
+<pre>
+15:56:51.704291 IP (tos 0x0, ttl 64, id 20344, offset 0, flags [DF], proto UDP (17), length 182)
+    192.168.100.1.53 > 192.168.100.135.47145: 17368* 2/0/1 website.ffund00-179676.cl-education.emulab.net. CNAME pcvm603-18.emulab.net., pcvm603-18.emulab.net. A <b>155.98.37.85</b> (154)
 </pre>
 
 
 With the addition of the `+trace` option, `dig` will show you each successive hierarchical step that the query takes, until it reaches the name server that is authoritative for the name. 
 
-Let's try it! We can't run hierarchical query on a client node in our experiment, because at this point, the client nodes don't have access to the Internet to query DNS servers. (The client won't have Internet access until the next section, when we set up NAT.) Therefore, we will try this on the gateway node.
+Let's try it! We can't run an iterative query on a client node in our experiment, because at this point, the client nodes don't have access to the Internet to query DNS servers. (The client won't have Internet access until the next section, when we set up NAT.) Therefore, we will try this on the gateway node.
 
-**On the "gateway"**, run:
+**On the "gateway"** (*not* on a client node), run:
 
 <pre>
-dig +trace <b>website.nat.ch-geni-net.instageni.research.umich.edu</b>
+dig +trace <b>website.ffund00-179676.cl-education.emulab.net</b>
 </pre>
 
 again, substituting your own "website" node's hostname. This time, you'll see much more output.
@@ -772,66 +711,66 @@ again, substituting your own "website" node's hostname. This time, you'll see mu
 First, the DNS server returns a list of root name servers:
 
 <pre>
-.            77637   IN  NS  e.root-servers.net.
-.            77637   IN  NS  a.root-servers.net.
-.            77637   IN  NS  h.root-servers.net.
-.            77637   IN  NS  j.root-servers.net.
-.            77637   IN  NS  b.root-servers.net.
-.            77637   IN  NS  m.root-servers.net.
-<b>.            77637   IN  NS  c.root-servers.net.</b>
-.            77637   IN  NS  i.root-servers.net.
-.            77637   IN  NS  g.root-servers.net.
-.            77637   IN  NS  l.root-servers.net.
-.            77637   IN  NS  f.root-servers.net.
-.            77637   IN  NS  d.root-servers.net.
-.            77637   IN  NS  k.root-servers.net.
-.            518071  IN  RRSIG   NS 8 0 518400 20170411170000 20170329160000 61045 . EhdIynzhYoqVrNs2csvZwCDUhQbDyUs8EujQ+XVKeQ02S2u0ZN39GY9h pBa7XpOyFAlNfYWNvWVLi1nkpJ7JKS+s4Gg/fU0Nw1MXc2hsbtdsduMs x9tNRjq5RduDfGBZLvNEikIoBndMU4esREkLtbSXrXp0TuvRpl3g5w5j +km7IImfv7KrfhZ16w6kKV8O1ye3yrQr9ow7/XBvUlvDnkcLXUphbfE3 M8vOF+5ABzb7KQp28S5WeI6mrC412jZQgGmdkdCVZArJtc+tKBOoLr64 0mwCMM+phVrLTkx9vdnZpnx9QBB7eqdSOqG9x09R7FiHVyaikueWedNs txIotQ==
-;; Received 1097 bytes from 127.0.0.1#53(127.0.0.1) in 19 ms
+.			187987	IN	NS	e.root-servers.net.
+.			187987	IN	NS	d.root-servers.net.
+.			187987	IN	NS	k.root-servers.net.
+.			187987	IN	NS	i.root-servers.net.
+.			187987	IN	NS	b.root-servers.net.
+.			187987	IN	NS	m.root-servers.net.
+.			187987	IN	NS	h.root-servers.net.
+<b>.			187987	IN	NS	f.root-servers.net.</b>
+.			187987	IN	NS	a.root-servers.net.
+.			187987	IN	NS	j.root-servers.net.
+.			187987	IN	NS	c.root-servers.net.
+.			187987	IN	NS	l.root-servers.net.
+.			187987	IN	NS	g.root-servers.net.
+.			187987	IN	RRSIG	NS 8 0 518400 20231129220000 20231116210000 46780 . wFuw1L2ORsgOuQwkD1Lb4Pq/H+Zm6M8K2nWBvq7yFOhTd29zbE7OYBBU bYGhuNb4Cqfm2WN4w6cs//h9/nxzmLorQ7bzP0Q+qH4ebrm0WNMf0ppY b9a0igsAqn/i6FczD6f0YEKaQo9A5pnNtL55lLrxts5CU8p/M5A2Ti/f IOZ4y4TjWQ3K3xqPMNoyoi9qLNJ78mC+rhCEEACADY9Sir5xB8u4hC5P zSuMUg5uq3mYlT/wNQFRGxA/ueDFsX9OXzdY7xQgdm3idb6RRlkWwJfn azwlevwtL3umNW1Pw0BQOl0Fnb00V76QWlb2fIWfww7lZGCJ55PIwYSQ JMultw==
+;; Received 1125 bytes from 128.110.100.4#53(128.110.100.4) in 0 ms
 </pre>
 
-Then it queries one of the root name servers ("c.root-servers.net" in this example), and _that_ returns a list of `.edu.` servers:
+Then it queries one of the root name servers ("f.root-servers.net" in this example), and _that_ returns a list of `.net.` servers:
 
 <pre>
-edu.            172800  IN  NS  f.edu-servers.net.
-<b>edu.            172800  IN  NS  c.edu-servers.net.</b>
-edu.            172800  IN  NS  g.edu-servers.net.
-edu.            172800  IN  NS  d.edu-servers.net.
-edu.            172800  IN  NS  l.edu-servers.net.
-edu.            172800  IN  NS  a.edu-servers.net.
-edu.            86400   IN  DS  28065 8 2 4172496CDE85534E51129040355BD04B1FCFEBAE996DFDDE652006F6 F8B2CE76
-edu.            86400   IN  RRSIG   DS 8 1 86400 20170411170000 20170329160000 61045 . RrZnh2YskIX8cXI1YuiVY9mBh79izFT8HuEc0dxU9B8fKbC5ddQZNPrw d2z0Rn/Bhym6yAAbY0u+5j1+RPXNMLcW2qAcktyw4i3wp4UiGowIcQIa dd5PMODvNrFc8IJpahPhwWcCbK8okgyP1AL9dNtWGcgv7+2zVB1e5vWN n5bOVtthU4p8/X4JI5zRZTyP9Mwz7hPkNFTeeAumjm+hlHJkRAQ211Bz 92f5nRgaJyyIfTq1w9AXRJjE9gnbYRVm32Bh0uEPh1wUddmsN788dYmc xzbbNjZDnAksPoopkupQinhvgSBO9Zf9d21dtR3WQLt1w2YoX46likoO rUJnNQ==
-;; Received 651 bytes from 192.33.4.12#53(<b>c.root-servers.net</b>) in 43 ms
+net.			172800	IN	NS	e.gtld-servers.net.
+net.			172800	IN	NS	b.gtld-servers.net.
+net.			172800	IN	NS	a.gtld-servers.net.
+net.			172800	IN	NS	d.gtld-servers.net.
+<b>net.			172800	IN	NS	i.gtld-servers.net.</b>
+net.			172800	IN	NS	f.gtld-servers.net.
+net.			172800	IN	NS	j.gtld-servers.net.
+net.			172800	IN	NS	k.gtld-servers.net.
+net.			172800	IN	NS	c.gtld-servers.net.
+net.			172800	IN	NS	g.gtld-servers.net.
+net.			172800	IN	NS	h.gtld-servers.net.
+net.			172800	IN	NS	l.gtld-servers.net.
+net.			172800	IN	NS	m.gtld-servers.net.
+net.			86400	IN	DS	37331 13 2 2F0BEC2D6F79DFBD1D08FD21A3AF92D0E39A4B9EF1E3F4111FFF2824 90DA453B
+net.			86400	IN	RRSIG	DS 8 1 86400 20231203170000 20231120160000 46780 . Gv2eB2bmNp4W7mQOBs79DZw0RPh99qDcThZqK14r2sN+Z9T55VpMVEuA YOMlWUewm3zPDQMriLrT7Xg9P/zl0PBtATi196QfPuoWsKsQ54EYAtq0 hHgZojY0Qukr51C+CYpGbv09A/ZTVHyRurijwfIbU9SpgcFLJ5NOdpM+ UUYCb5YwkwJaLnRN0sePLa4/tdU5FRlVEbgojSwyf88hUSEmAYT+hzhc nNgDSEgV8Nd3lcKilO7YjjIA4V+oLAFzkJmuI4h+sqChz5L0Z+o4TrPp 4gSmTgT2LFxG3/TX1648HxU62CIVS4ORtojaCMHB0MojMzFrbXnvegFE Bidpsw==
+;; Received 1203 bytes from 192.5.5.241#53(<b>f.root-servers.net</b>) in 20 ms
 </pre>
 
-Next, the "c.edu-servers.net." name server returns a list of name servers for the `umich.edu.` domain:
+Next, the "i.gtld-servers.net." name server returns a list of name servers for the `emulab.net.` domain:
 
 <pre>
-umich.edu.        172800  IN  NS  dns.cs.wisc.edu.
-<b>umich.edu.        172800  IN  NS  dns2.itd.umich.edu.</b>
-umich.edu.        172800  IN  NS  dns1.itd.umich.edu.
-9DHS4EP5G85PF9NUFK06HEK0O48QGK77.edu. 86400 IN NSEC3 1 1 0 - 9N4FQMDDEN9N9I8F7VUF86JHJF574LHS NS SOA RRSIG DNSKEY NSEC3PARAM
-9DHS4EP5G85PF9NUFK06HEK0O48QGK77.edu. 86400 IN RRSIG NSEC3 8 2 86400 20170405183649 20170329172649 43544 edu. unQy39EYi/666eEaXxmUQcsEgE/FtqxKCMVuODd4o8NhWp8gaTkukJNS OM1xfxo916xtQyVD2lXaoZ6pJCSENtYo8AUGja7Uvx2zGLpmH2a3gAWK gvZqHpkLchFQrlFcP3Qg6dqm6OJbjBBHDIcWyl8Q4ic5aYM1F15ewzA0 Y0Q=
-NOS8G1ANJ5QIKT46L3QM4OLBQD9V72K5.edu. 86400 IN NSEC3 1 1 0 - O9PNA7OPKKO436OEO034N6ANUNH47GJ5 NS DS RRSIG
-NOS8G1ANJ5QIKT46L3QM4OLBQD9V72K5.edu. 86400 IN RRSIG NSEC3 8 2 86400 20170405172140 20170329161140 43544 edu. ReOneHxFyyuuqcHaFrBftXfW5VCLGa0XCKWZAan1zW6vlQ3OtATJ0UHr +gR6UDb8nH8C+KAQCCdxanZM5feAOCsEDxl1X6D36nuMfVb86k3q8UZ/ jWy7OqDL2PMzRNjGI0Sdwl49BUx7VhGXjIt9ev87dFa1zHprJJHf8KCe mgU=
-;; Received 682 bytes from 192.26.92.30#53(<b>c.edu-servers.net</b>) in 30 ms
+emulab.net.		172800	IN	NS	ns.emulab.net.
+emulab.net.		172800	IN	NS	ns2.emulab.net.
+emulab.net.		172800	IN	NS	ns5.emulab.net.
+A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net. 86400 IN NSEC3 1 1 0 - A1RTLNPGULOGN7B9A62SHJE1U3TTP8DR NS SOA RRSIG DNSKEY NSEC3PARAM
+A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net. 86400 IN RRSIG NSEC3 13 2 86400 20231126081804 20231119070804 44222 net. XeOPnYJQbkl01ke0LVIYy0iETCK82ntHX/tkLmYeX/iADbhxXSEK5G4L zIIUgBHmfEYZemnAZR8POMj74+rwVQ==
+T5EELC66E4B0POQ7GVSMR0BBHLMDDNN8.net. 86400 IN NSEC3 1 1 0 - T5EHIB9IP2MOALEC60ELDJQM1D8HO89N NS DS RRSIG
+T5EELC66E4B0POQ7GVSMR0BBHLMDDNN8.net. 86400 IN RRSIG NSEC3 13 2 86400 20231126081935 20231119070935 44222 net. 72Fi0sXAjusZPXTDykLZOTcfH1sKcdh79bMI19OgOqVu5q8LT2OhlITL GFFs1GnZHsXW1wGRxO93pgTTov4OCg==
+;; Received 533 bytes from 192.43.172.30#53(<b>i.gtld-servers.net</b>) in 16 ms
 </pre>
 
-And then "dns2.itd.umich.edu" returns name servers for the subdomain `instageni.research.umich.edu.`:
+Finally, from "ns.emulab.net" we get the address of `website.ffund00-179676.cl-education.emulab.net.`:
 
 <pre>
-instageni.research.umich.edu. 300 IN    NS  ns.instageni.research.umich.edu.
-<b>instageni.research.umich.edu. 300 IN    NS  ns.emulab.net.</b>
-;; Received 141 bytes from 192.12.80.222#53(<b>dns2.itd.umich.edu</b>) in 43 ms
-</pre>
-
-Finally, from "ns.emulab.net" we get the address of `website.nat.ch-geni-net.instageni.research.umich.edu.`:
-
-<pre>
-<b>website.nat.ch-geni-net.instageni.research.umich.edu. 1    IN CNAME pcvm2-8.instageni.research.umich.edu.
-pcvm2-8.instageni.research.umich.edu. 30 IN A    192.41.233.62</b>
-instageni.research.umich.edu. 30 IN    NS  ns.emulab.net.
-instageni.research.umich.edu. 30 IN    NS  ns.instageni.research.umich.edu.
-;; Received 195 bytes from 155.98.32.70#53(<b>ns.emulab.net</b>) in 39 ms
+<b>website.ffund00-179676.cl-education.emulab.net.	1 IN CNAME pcvm603-18.emulab.net.
+pcvm603-18.emulab.net.	30	IN	A	155.98.37.85</b>
+emulab.net.		30	IN	NS	ns2.emulab.net.
+emulab.net.		30	IN	NS	ns5.emulab.net.
+emulab.net.		30	IN	NS	ns.emulab.net.
+;; Received 245 bytes from 155.98.32.70#53(<b>ns.emulab.net</b>) in 4 ms
 </pre>
 
 
@@ -863,16 +802,20 @@ and find out the public IP address associated with yours, e.g.
 
 <pre>
 {
-  "ip": "<b>192.41.233.23</b>",
-  "hostname": "No Hostname",
-  "city": "Ann Arbor",
-  "region": "Michigan",
+  "ip": "128.110.96.132",
+  "hostname": "apt132.apt.emulab.net",
+  "city": "Salt Lake City",
+  "region": "Utah",
   "country": "US",
-  "loc": "42.2734,-83.7133",
-  "org": "AS36375 University of Michigan",
-  "postal": "48104"
+  "loc": "40.7608,-111.8911",
+  "org": "AS17055 University of Utah",
+  "postal": "84101",
+  "timezone": "America/Denver",
+  "readme": "https://ipinfo.io/missingauth"
 }
 </pre>
+
+Note that because this "gateway" node itself may be behind a NAT, this "public" IP address is not necessarily the one you will see in the output of `ip addr` for the control interface.
 
 With NAT, to the rest of the Internet, all of the hosts in our "home" network will appear as if they are coming from that IP address. On the client nodes, run
 
@@ -884,14 +827,16 @@ Note that this connection will go to the Internet via the gateway, using interfa
 
 <pre>
 {
-  "ip": "<b>192.41.233.23</b>",
-  "hostname": "No Hostname",
-  "city": "Ann Arbor",
-  "region": "Michigan",
+  "ip": "128.110.96.132",
+  "hostname": "apt132.apt.emulab.net",
+  "city": "Salt Lake City",
+  "region": "Utah",
   "country": "US",
-  "loc": "42.2734,-83.7133",
-  "org": "AS36375 University of Michigan",
-  "postal": "48104"
+  "loc": "40.7608,-111.8911",
+  "org": "AS17055 University of Utah",
+  "postal": "84101",
+  "timezone": "America/Denver",
+  "readme": "https://ipinfo.io/missingauth"
 }
 </pre>
 
@@ -901,119 +846,121 @@ To further explore our NAT functionality, we'll configure a web server, then acc
 SSH into the "website" node and install the [Apache](https://en.wikipedia.org/wiki/Apache_HTTP_Server) web server application on it:
 
 ```
-sudo apt-get update
-sudo apt-get -y install apache2
+sudo apt update
+sudo apt -y install apache2
 ```
 
+We'll monitor traffic to and from the web server (which operates on TCP port 80) using tcpdump. We will monitor it in two places, on the LAN and on the WAN.
 
-<div class="geni-specific">
-<h4 class="geni-specific"> GENI-specific instructions: Open website in a web browser</h4>
-
-<p>On the client node, install a basic terminal-based web browser with:</p>
-
-<pre>
-sudo apt-get update
-sudo apt-get -y install lynx
-</pre>
-
-<p>We'll monitor traffic to and from the web server (which operates on TCP port 80) using tcpdump. We will monitor it in two places, on the LAN and on the WAN.</p>
-
-<p>On the "gateway" node, monitor traffic to and from the LAN:</p>
+On the "gateway" node, monitor traffic to and from the LAN:
 
 <pre>
 sudo tcpdump -i <b>eth1</b> -n "tcp port 80"
 </pre>
 
-<p>and on the "website" node, monitor traffic to and from the WAN:</p>
+and on the "website" node, monitor traffic to and from the WAN:
 
 <pre>
 sudo tcpdump -i <b>eth0</b> -n "tcp port 80"
 </pre>
 
-<p>Then, on the client, run </p>
-
-<pre>
-lynx http://<b>website.nat.ch-geni-net.instageni.research.umich.edu</b>/
-</pre>
-
-<p>(substituting the hostname of <i>your</i> "website" node in the URL above). You should see the website load in the terminal: </p>
-
-<img src="/blog/content/images/2017/03/lynx-apache2.png" width="100%"/>
-
-</div>
-<br>
 
 <div class="cloudlab-specific">
-<h4 class="cloudlab-specific"> CloudLab-specific instructions: Open website in a web browser</h4>
-
-<p>On the client node, install a web browser with:</p>
-
-<pre>
-sudo apt-get update
-sudo apt-get -y install firefox lynx
-</pre>
+<h4 class="cloudlab-specific"> CloudLab-specific instructions: Open website in a GUI web browser</h4>
 
 
-<p>We'll monitor traffic to and from the web server (which operates on TCP port 80) using tcpdump. We will monitor it in two places, on the LAN and on the WAN.</p>
-
-<p>On the "gateway" node, monitor traffic to and from the LAN:</p>
-
-<pre>
-sudo tcpdump -i <b>eth1</b> -n "tcp port 80"
-</pre>
-
-<p>and on the "website" node, monitor traffic to and from the WAN:</p>
-
-<pre>
-sudo tcpdump -i <b>eth0</b> -n "tcp port 80"
-</pre>
 <p>Firefox is a graphical web browser, so to use it, you will need a VNC session. Open a VNC session on the client, and run</p>
 
 <pre>
 firefox
 </pre>
 
-<p>Then, inside your Firefox session, put the URL http://<b>aptvm068-1.apt.emulab.net</b>/ in the address bar (substituting the hostname of _your_ "website" node in the URL) and hit Enter. You should see the website load in the browser.</p>
+<p>You may already see a lot of traffic in your <code>tcpdump</code> window on the gateway - the browser will start to load various resources and assets immediately when it is opened, even before you visit "your" website.</p>
 
-<p>As a fallback, in case your VNC session doesn't work out (it can be a little bit flaky), that's OK: we have also installed a terminal-based web browser that you can use inside your shell session. To try the terminal-based option, in a terminal session on the client run </p>
+<p>Then, inside your Firefox session, put the URL http://<b>website.ffund00-179676.cl-education.emulab.net</b>/ in the address bar (substituting the hostname of <i>your</i> "website" node in the URL) and hit Enter. You should see the website load in the browser.</p>
+
+<p>Then, close the browser and the VNC session.</p>
+
+<p>As an alternative, in case your VNC session doesn't work out (it can be a little bit flaky), that's OK: we have also installed a terminal-based web browser that you can use inside your shell session. To try the terminal-based option, in a terminal session on the client run </p>
 
 <pre>
-lynx http://<b>aptvm068-1.apt.emulab.net</b>/
+lynx http://<b>website.ffund00-179676.cl-education.emulab.net</b>/
 </pre>
 
 <p>(substituting the hostname of <i>your</i> "website" node in the URL above). You should see the website load in the terminal.</p>
+
 
 </div>
 <br>
 
 
 
-Meanwhile, in the `tcpdump` output you can see how the IP addresses are rewritten in the packet headers. On the LAN (the `tcpdump` running on the "gateway" interface facing the LAN), the Layer 3 packet header shows the connection between 192.168.100.157 (port 57962) and 192.41.233.62 (port 80):
+Meanwhile, in the `tcpdump` output you can see how the IP addresses are rewritten in the packet headers. On the LAN (the `tcpdump` running on the "gateway" interface facing the LAN), the Layer 3 packet header shows the connection between 192.168.100.157 (port 57962) and 155.98.37.85 (port 80):
 
 
 <pre>
-16:53:13.663719 IP <b>192.168.100.157</b>.57962 > 192.41.233.62.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
-16:53:14.231939 IP 192.41.233.62.80 > <b>192.168.100.157</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
-16:53:14.232738 IP <b>192.168.100.157</b>.57962 > 192.41.233.62.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
+16:53:13.663719 IP <b>192.168.100.157</b>.57962 > 155.98.37.85.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
+16:53:14.231939 IP 155.98.37.85.80 > <b>192.168.100.157</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
+16:53:14.232738 IP <b>192.168.100.157</b>.57962 > 155.98.37.85.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
 </pre>
 
-However, for the _same_ packets, the `tcpdump` running on the "website" node (on the WAN) shows the connection as being between 172.17.3.4 (port 57962) and 192.41.233.62 (port 80):
+However, for the _same_ packets, the `tcpdump` running on the "website" node (on the WAN) shows the connection as being between 128.110.96.132 (port 57962) and 155.98.37.85 (port 80):
 
 
 <pre>
-16:53:14.032389 IP <b>172.17.3.4</b>.57962 > 192.41.233.62.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
-16:53:14.032440 IP 192.41.233.62.80 > <b>172.17.3.4</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
-16:53:14.299903 IP <b>172.17.3.4</b>.57962 > 192.41.233.62.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
+16:53:14.032389 IP <b>128.110.96.132</b>.57962 > 155.98.37.85.80: Flags [S], seq 3245904370, win 29200, options [mss 1460,sackOK,TS val 1688452 ecr 0,nop,wscale 7], length 0
+16:53:14.032440 IP 155.98.37.85.80 > <b>128.110.96.132</b>.57962: Flags [S.], seq 3992044697, ack 3245904371, win 28960, options [mss 1460,sackOK,TS val 1691466 ecr 1688452,nop,wscale 7], length 0
+16:53:14.299903 IP <b>128.110.96.132</b>.57962 > 155.98.37.85.80: Flags [.], ack 1, win 229, options [nop,nop,TS val 1688595 ecr 1691466], length 0
 </pre>
 
 confirming that the packet headers are rewritten in the NAT gateway.
 
-**Note**: your "gateway" node may itself be located behind a NAT! So the WAN-facing IP address on the gateway may not be the same as the address you observe on the "website" node, and either or both of these addresses may not be the "public" IP address you identified previously.
+**Note**: your "gateway" node may itself be located behind a NAT! So the WAN-facing IP address on the gateway may not be the same as the address you observe on the "website" node.
+
+### Extra Section: HTTP exchange
+
+In the section above, we used the HTTP protocol to retrieve a web page from our "website" node. To get a closer look, we will use `telnet` to manually write and send an HTTP request, and observe the response from the HTTP server.
+
+On the "gateway" node, run
+
+```
+sudo tcpdump -i eth1 -w http-gateway.pcap 'tcp port 80'
+```
+
+While this is running, run
+
+<pre>
+telnet <b>website.ffund00-179676.cl-education.emulab.net</b> 80
+</pre>
+
+on a "client" node, but substitute the hostname of your own "website" host. You should see the following indication of a successful connection:
+
+<pre>
+Trying 155.98.37.85...
+Connected to pcvm603-18.emulab.net.
+Escape character is '^]'.
+</pre>
+
+(but with a different address and hostname.)
+
+At the console, type the following HTTP request line by line:
+
+<pre>
+GET /index.html HTTP/1.0
+From: guest@client
+User-Agent: HTTPTool/1.0
+
+</pre>
+
+Note that you need to type "Enter" to input the last line, which is blank, and then "Enter" again to send it. You should see that the page `index.html` is returned in the `telnet` client!
+
+Terminate `tcpdump` and transfer the packet capture to your laptop with `scp`. Analyze the captured HTTP packets. Identify the HTTP response header, and the HTML file sent from the HTTP server.
+
 
 
 ## Notes
 
-Updated September 2022: Added CloudLab instructions.
+Updated November 2023: Added CloudLab instructions, add HTTP section
 
 Updated November 2020: Thanks to Devesh Yadav and Professor Violet Syrotiuk at Arizona State University for corrections.
 
@@ -1034,12 +981,12 @@ Updated November 2020: Thanks to Devesh Yadav and Professor Violet Syrotiuk at A
 
 #### DNS
 
-* For the basic DNS resolution (not the one with `+trace`!) show the `dig` command and its output. Also show the DNS query and response from the `tcpdump` output. Answer the following questions using the `dig` output. No explanation is required - just copy and paste the relevant word from the `dig` output for each answer.
+* For the DNS resolution at the client with `+auth` (not the one with `+trace` at the gateway!) show the `dig` command and its output. Also show the DNS query and response from the `tcpdump` output. Answer the following questions using the `dig` output. No explanation is required - just copy and paste the relevant word from the `dig` output for each answer.
   * What is the hostname that you tried to resolve?
   * What is the DNS record *type* that your query relates to? ([Here is a list of DNS record types](https://en.wikipedia.org/wiki/List_of_DNS_record_types).)
   * What is the *address* for the hostname you asked to resolve?
-  * Give the name of the first "authoritative" server listed for this name, and the IP address of that "authoritative" server.
-  * What is the IP address of the server that the DNS response is from?
+  * If the result includes an "authority" section, give the name of the first "authoritative" server listed for this name, and the IP address of that "authoritative" server.
+  * What is the IP address of the *server* that the DNS response is from?
 * For the hierarchical DNS resolution with `+trace`, show the `dig` command and its output. Draw a diagram showing how the hostname was resolved iteratively, starting from the implied `.` at the end and moving toward the beginning.
  * At the top, show the nameservers for the root domain. Highlight the one that you queried for the top-level domain (as shown in the `dig +trace` output).
  * At the next level, show the nameservers for the top-level domain. Highlight the one that you queried for the second-level domain.
@@ -1052,6 +999,10 @@ Updated November 2020: Thanks to Devesh Yadav and Professor Violet Syrotiuk at A
 * Draw a diagram showing how NAT is used between client and website, similar to [this diagram](https://witestlab.poly.edu/blog/content/images/2017/03/gateway-nat-2.svg) but with the IP addresses, hostnames, and ports from *your* experiment.
 
 
+#### Extra Section: HTTP
 
-
-
+* Show the HTTP request and response headers (only the headers!).
+* In the HTTP response header, identify these key elements:
+ * the version of the HTTP protocol
+ * the status code and the status message (for a successful HTTP request, the standard is "200 OK")
+ * the header fields that indicate the type of file that is returned, and its length

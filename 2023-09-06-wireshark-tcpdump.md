@@ -274,7 +274,7 @@ Finally, `tcpdump` also supports capture *filters*, which limit which types of p
 Try running (with interface name in place of `XXX`):
 
 ```
-sudo tcpdump -i XXX src host 10.10.0.100
+sudo tcpdump -i XXX src host 10.0.1.100
 ```
 
 on "romeo", and on "juliet", run

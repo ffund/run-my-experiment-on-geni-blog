@@ -2,10 +2,18 @@ This is an experimental demonstration of two ways a malicious attacker might red
 
 It should take about 120 minutes to run this experiment.
 
-This experiment involves running a potentially disruptive application over a private network within your slice on GENI. Take special care not to use this application in ways that may adversely affect other infrastructure outside of your slice! Users of GENI are responsible for ensuring compliance with the [GENI Resource Recommended User Policy](http://groups.geni.net/geni/raw-attachment/wiki/RUP/RUP.pdf).
+This experiment involves running a potentially disruptive application over a private network, in a way that does not affect infrastructure outside of your slice. Take special care not to use this application in ways that may adversely affect other infrastructure. 
 
 
-To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+You can run this experiment on Cloudlab. Refer to the testbed-specific prerequisites listed below.
+
+
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Prerequisites</h4>
+
+To reproduce this experiment on Cloudlab, you will need an account on <a href="https://cloudlab.us/">Cloudlab</a>, you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._join-project%29">joined a project</a>, and you will need to have <a href="https://docs.cloudlab.us/users.html#%28part._ssh-access%29">set up SSH access</a>.
+</div>  
+<br>
 
 * Skip to [Results](#results)
 * Skip to [Run my experiment](#runmyexperiment)
@@ -51,31 +59,49 @@ Finally, we see how this attack can be used to transparently capture a user's lo
 
 ## Run my experiment
 
-First, reserve your resources. This experiment involves resources on *three* separate InstaGENI sites, which you will reserve using [two different RSpecs](https://gist.github.com/ffund/5751e9bb35dd93a4531e70947fefc5d3). (Note: you will need one publicly routable IP on each InstaGENI site. If you are having trouble getting resources, you may use [this monitoring page](https://fedmon.fed4fire.eu/overview/instageni) to find sites with publicly routable IPs available.)
+First, reserve your resources. This experiment involves resources on *three* separate sites.
 
-In the GENI Portal, create a new slice, then click "Add Resources". Load the RSpec from the URL: [https://git.io/J3IWO](https://git.io/J3IWO)
+* On the first site, your topology will include a client, a "good" network gateway implementing DHCP and DNS services, and a malicious attacker on the same LAN.
+* On the second site, you will reserve a node that will be the "malicious" banking website.
+* Finally, on a third site, you will reserve a node that will be the "good" banking website.
 
-This should load a topology onto your canvas, with a client, a "good" network gateway implementing DHCP and DNS services, and a malicious attacker on the same LAN. The RSpec also includes commands to install the necessary software (e.g. `dnsmasq` for DNS and DHCP service, an Apache web server, the `dsniff` package for ARP and DNS spoofing, etc.) on the nodes. Click on "Site 1" and choose an InstaGENI site to bind to, then reserve your resources. 
-
-Then, you will reserve a node on another InstaGENI site that will be the "malicious" banking website. In the same slice, click "Add Resources", and load the RSpec from the URL: [https://git.io/vShxD](https://git.io/vShxD)
-
-Click on "Site 1" and  choose a _different_ InstaGENI site to bind to, then reserve your resources.
-
-Then, you will reserve a node on another InstaGENI site that will be the "good" banking website. In the same slice, click "Add Resources", and load the RSpec from the URL: [https://git.io/vShxD](https://git.io/vShxD)
-
-Click on "Site 1" and  choose a third, _different_ InstaGENI site to bind to, then reserve your resources.
-
-Your complete topology should look like this (but with InstaGENI site names instead of "Site 1", etc.):
+Your complete topology will be -
 
 ![](/blog/content/images/2021/03/topology-dnsspoof.png)
 
-Wait for your nodes to boot up (they will turn green in the canvas display on your slice page in the GENI portal when they are ready). 
+Follow the instructions for the testbed you are using to reserve the resources and log in to each of the hosts in this experiment.
 
-Then, wait another couple of minutes for the software installation to finish. Finally, use SSH to log in to each node in your topology (using the login details given in the GENI Portal).
+<div style="border-color:#5e8a90; border-style:solid; padding: 15px;">  
+<h4 style="color:#5e8a90;"> Cloudlab-specific instructions: Reserve resources</h4>
+
+<p>To reserve these resources on Cloudlab, open this profile page: </p>
+
+<p><a https://www.cloudlab.us/instantiate.php?project=nyunetworks&profile=education&refspec=refs/heads/dns_spoof">https://www.cloudlab.us/instantiate.php?project=nyunetworks&profile=education&refspec=refs/heads/dns_spoof</a></p>
+
+<p>Click "next", then select the CloudLab project that you are part of.</p>
+
+<p>Assign each site to a cluster as follows:</p>
+
+<ul>
+<li>Assign "Site Site 1 Cluster" to Emulab, APT, or Utah,</li>
+<li>"Site Site 2 Cluster" to Wisconsin,</li>
+<li>and "Site Site 3 Cluster" to Clemson.</li>
+</ul>
+
+<p>Then click "next", and "finish".</p>
+
+<p>Wait until all of the sources have turned green and have a small check mark in the top right corner of the "topology view" tab, indicating that they are fully configured and ready to log in. Then, click on "list view" to get SSH login details for each host. Use these details to SSH into each.</p>
+
+<p>When you have logged in to each node, continue to the next section.</p>
+
+</div>  
+
+<p><br></p>
+
 
 ### Set up the "fake" website
 
-Your "bank" node has been set up with a publicly routable IP address, so that sites hosted on it can be reached from anywhere on the Internet. It will also have a basic web server stack installed on it already.
+Your "bank_fake" node has been set up with a publicly routable IP address, so that sites hosted on it can be reached from anywhere on the Internet. It will also have a basic web server stack installed on it already.
 
 To set it up, you will download the content of a banking website onto your new web server. You can choose between [Diamond Bank](http://diamondbanking.com) of Arkansas _or_ [Bank of Hamilton](http://bankofhamilton.com), North Dakota. (Choose only _one_ of the two sites.) Why these sites? Both of these sites have been vulnerable to impersonation because their home page does not use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) (HTTP with an SSL or TLS layer). With HTTPS, the server would have a certificate that is signed by a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (CA) that authenticates it, i.e. confirms that the site _is_ who it claims to be.
 
@@ -92,24 +118,25 @@ To use the Diamond Bank site for your experiment, run
 
 <pre>
 wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/diamondbanking.tgz
-sudo tar -xvzf diamondbanking.tgz -C /var/www/html/
+sudo tar -xvf diamondbanking.tgz -C /var/www/html/
 </pre>
 
-on the "bank" node. Alternatively, to use Bank of Hamilton, run
+on the "bank_fake" node. Alternatively, to use Bank of Hamilton, run
 
 <pre>
 wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files/bankofhamilton.tgz
-sudo tar -xvzf bankofhamilton.tgz -C /var/www/html/
+sudo tar -xvf bankofhamilton.tgz -C /var/www/html/
 </pre>
 
-on the "bank" node.
+on the "bank_fake" node.
 
+<!--
 > **Note**: if you get this error message at this stage 
 > 
 > `tar: /var/www/html: Cannot open: No such file or directory`
 > 
 > the software installation that runs automatically when the node boots hasn't finished yet. Wait a few more minutes, then try the command again.
-
+-->
 
 In the rest of this experiment, I will assume you are using the Bank of Hamilton site; if you are using Diamond Bank, replace "bankofhamilton.com" with "diamondbanking.com" wherever it appears in the instructions that follow.
 
@@ -125,7 +152,7 @@ To see your "fake" website, you can put the IP address in the address bar of you
 
 ### Set up the "good" website
 
-On the second "bank" node in your experiment topology, set up a "good" copy of the website. This is meant to represent the actual bank site, *not* the imposter site controlled by the attacker.
+On the "bank_good" node in your experiment topology, set up a "good" copy of the website. This is meant to represent the actual bank site, *not* the imposter site controlled by the attacker.
 
 To use the Diamond Bank site for your experiment, run
 
@@ -134,7 +161,7 @@ wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files
 sudo tar -xvzf diamondbanking.tgz -C /var/www/html/
 </pre>
 
-on the "bank" node. Then, run
+on the "bank_good" node. Then, run
 
 
 <pre>
@@ -148,7 +175,7 @@ wget https://bitbucket.org/ffund/run-my-experiment-on-geni-blog/raw/master/files
 sudo tar -xvzf bankofhamilton.tgz -C /var/www/html/
 </pre>
 
-on the "bank" node. Then, run
+on the "bank_good" node. Then, run
 
 <pre>
 sudo wget https://witestlab.poly.edu/blog/content/images/2021/03/true-boh-logo.jpg -O /var/www/html/images/bannerbkg_img.jpg
@@ -168,8 +195,9 @@ To see your "good" website, you can put the IP address in the address bar of you
 
 ### Open a browser on the client
 
-To see what our "client" node sees when it browses the Internet, we'll need to be able to open a web browser on our client node. We will set up a VNC connection so that we can run graphical applications on the client.
+To see what our "client" node sees when it browses the Internet, we'll need to be able to open a web browser on our client node. We will use a VNC connection so that we can run graphical applications on the client.
 
+<!--
 On the client node, run
 
 ```
@@ -222,7 +250,13 @@ Open this URL in a browser. (A recent version of Google Chrome is recommended.)
 > **Note**: Some InstaGENI racks have a firewall in place that will block incoming traffic on the noVNC port. If everything looks normal in the terminal output but you haven't been able to open the URL in a browser, you might want to try using a different InstaGENI rack. You don't have to delete your existing resources, or set up the bank websites again! Just click "Add Resources" on your slice, add reserve the topology from [https://git.io/fhpCT](https://git.io/fhpCT) - with the "good" gateway, attacker, and target - on a *different* InstaGENI site that you haven't used yet. 
 
 
-Click "Connect", and enter a password when prompted. Then, at the terminal, run
+Click "Connect", and enter a password when prompted. 
+
+-->
+
+In the CloudLab web interface, open a VNC session on the "client" node: Topology view > click on "client" > select "Open VNC window".
+
+Then, at the terminal inside the VNC session, run
 
 ```
 firefox -private
@@ -237,13 +271,13 @@ This browser is running on the "client" node, _not_ on your own laptop. (We are 
 
 **Disable DNS over HTTPS**: In 2020, Mozilla and Google both began to roll out [DNS over HTTPS](https://developers.cloudflare.com/1.1.1.1/dns-over-https/) by default in Firefox and Chrome respectively. If DoH is enabled, Firefox won't use the DNS resolver configured by the OS - it will use the DoH-supporting resolver configured in Firefox settings. To run this experiment, make sure DoH is *not* enabled in your Firefox browser, as follows.
 
-Use the "X" in the Firefox tab to close it, then in your noVNC terminal, run
+Use the "X" in the Firefox tab to close it, then in the VNC terminal, run
 
 ```
 firefox -preferences
 ```
 
-In the "General" section, scroll all the way down until you reach "Network Settings", then click "Settings".  Scroll down again and make sure the box for "Enable DNS over HTTPS" is _not_ checked. Then press "OK". 
+Click on "Privacy and Security", then scroll down until you reach "DNS over HTTPS." Click on "Manage Exceptions". Then enter the domain name `bankofhamilton.com` (or `diamondbanking.com`) in the text field and click "Add". The domain name will appear in the "Domain" list. Click "Save Changes".
 
 Close your Firefox tab and open a new session with
 
@@ -282,8 +316,40 @@ sudo tcpdump -n -i eth1 "ip"
 
 to monitor IP traffic to and from the "good" DNS/DHCP server on the private LAN.
 
-By default, the client node uses a DNS server from the GENI host site, rather than the one on our private experiment LAN. Clear this configuration by running the following on the client node:
+By default, the client node uses a DNS server from the testbed host site, rather than the one on our private experiment LAN. Clear this configuration by running the following on the client node:
 
+<!--
+Need this dhclient: 
+
+interface "eth1" {
+send host-name = "client";
+request subnet-mask, broadcast-address, domain-name, domain-name-servers, domain-search;
+}
+-->
+
+
+```
+echo "127.0.0.1 $(hostname -s)" | sudo tee -a /etc/hosts
+sudo systemctl disable systemd-resolved.service 
+sudo systemctl stop systemd-resolved
+```
+
+<!--
+read _ _ gateway _ < <(ip route list match 0/0)
+read _ _ _ _ peer _ < <(ss --no-header -n -o state established '( dport = :ssh or sport = :ssh )')
+
+sudo route add $(echo $peer | cut -f1 -d: ) gw $gateway
+sudo ip route del default via 10.10.1.2
+
+-->
+
+Then, release the current IP address on the experiment interface, if there is any:
+
+```
+sudo dhclient -r eth1
+```
+
+<!--
 ```
 # kill  running dhclient processes, if any
 sudo killall dhclient
@@ -293,11 +359,10 @@ sudo dhclient -r eth1
 # clear DNS resolution info
 sudo resolvconf -d eth0.dhclient
 ```
+-->
 
-(Note: the lines that begin with a `#` are comments - you don't have to run them, but if you do, they won't do anything!)
 
-
-Then, on the client node, run
+and finally, on the client node, run
 
 ```
 # request IP address
@@ -341,7 +406,6 @@ nslookup bankofhamilton.com
 Server:		10.10.1.2
 Address:   	10.10.1.2#53
 
-Non-authoritative answer:
 Name:	bankofhamilton.com
 Address: 66.55.106.88
 ```
@@ -353,7 +417,7 @@ In the `tcpdump` output on the server, you should also see the DNS query and res
 14:10:20.931615 IP 10.10.1.2.53 > 10.10.1.21.56094: 28276 1/4/4 A 66.55.106.88 (198)
 ```
 
-Finally, we'll visit `bankofhamilton.com` (or: `diamondbanking.com`) using the browser window that is running _on our client_, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
+Finally, we'll visit `bankofhamilton.com` (or: `diamondbanking.com`) using the browser window that is running _on our client_ inside the VNC session, and verify that name lookup again. Again, you should see the name lookup in the `tcpdump` output on the server. (You may also see lookups for additional assets - images and scripts - that are hosted on other domains.)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/dMIDt59_-N0" frameborder="0" allowfullscreen></iframe>
 
@@ -371,10 +435,7 @@ These attacks work most reliably when packets from the attacker reach the client
 Stop the `tcpdump` process on the "good" DNS/DHCP server, and run
 
 <pre>
-sudo tc qdisc del dev eth1 root 
-# don't worry if this command returns 
-# 'RTNETLINK answers: No such file or directory'
-sudo tc qdisc add dev eth1 root netem delay 500ms 2ms distribution normal
+sudo tc qdisc replace dev eth1 root netem delay 300ms
 </pre>
 
 on it. 
@@ -393,27 +454,19 @@ Here, we specifically look at ARP and DNS traffic (using UDP port 53), and we al
 
 
 
-Check the client's ARP table to see what MAC address is currently associated with the server's IP address:
+Check the client's ARP table to see what MAC address is currently associated with the "good" server's IP address:
 
 ```
-arp -a -i eth1
+ip neigh show dev eth1
 ```
 
 You should see the "good" server's actual MAC address, e.g. in my experiment:
 
 ```
-dns-good-link-0 (10.10.1.2) at 02:b7:c8:cf:b7:ce [ether] on eth1
+10.10.1.2 lladdr 02:b7:c8:cf:b7:ce STALE
 ```
 
 Next, we are going to use ARP spoofing to make the client associate the attacker's MAC address with the IP address of the "good" server, and make the server associate the attacker's MAC address with the IP address of the client. We'll need four terminal windows on the attacker.
-
-On the attacker, run:
-
-
-```
-# Enable packet forwarding
-sudo sysctl -w net.ipv4.ip_forward=1
-```
 
 In one terminal on the attacker node, run
 
@@ -438,21 +491,21 @@ and leave this running.
 
 In the terminal output, you can see that the attacker sends ARPs to the client impersonating the "good" DNS server (which is at 10.10.1.2), and also sends ARPs to the "good" server impersonating the client:
 
-```
+<pre>
 2:60:70:39:bf:e2 2:b7:c8:cf:b7:ce 0806 42: arp reply 10.10.1.37 is-at 2:60:70:39:bf:e2
 2:60:70:39:bf:e2 2:f:7:a6:c6:d8 0806 42: arp reply 10.10.1.2 is-at 2:60:70:39:bf:e2
-```
+</pre>
 
 On the client node, check the ARP table again with
 
 ```
-arp -a -i eth1
+ip neigh show dev eth1
 ```
 
 You should see that what the client now believes that the "good" DNS/DHCP server's MAC address, is actually the attackers' MAC address!
 
 ```
-dns-good-link-0 (10.10.1.2) at 02:60:70:39:bf:e2 [ether] on eth1
+10.10.1.2 lladdr 02:60:70:39:bf:e2 REACHABLE
 ```
 
 Finally, we're ready to offer up some bad name resolution. In a fourth terminal on the attacker, run
@@ -481,7 +534,6 @@ Check the IP address returned from `nslookup`  - is it the same one as before?
 Server:		10.10.1.2
 Address:	   10.10.1.2#53
 
-Non-authoritative answer:
 Name:	bankofhamilton.com
 Address: <b>66.104.96.102</b>
 </pre>
@@ -540,15 +592,8 @@ Clear the existing DHCP and DNS settings on the client node:
 
 
 ```
-# kill  running dhclient processes, if any
-sudo killall dhclient  
-# release current IP address, if any
 sudo dhclient -r eth1
-
-# clear DNS resolution info
-sudo resolvconf -d eth0.dhclient  
 ```
-
 
 Now, on the attacker, start a `dnsmasq` instance:
 
@@ -659,7 +704,7 @@ You should see OFFER messages from both `dnsmasq` instances - on the "good" serv
 On the client, check the actual IP now used with
 
 ```
-ifconfig eth1
+ip addr show dev eth1
 ```
 
 Also, on the client run
@@ -732,7 +777,7 @@ Meanwhile, in the browser, the user has been redirected to the regular (secure) 
 
 ### Delete your resources
 
-When you have finished this experiment, delete your resources in the Portal to free them for other experimenters.
+When you have finished this experiment, delete your testbed resources to free them for other experimenters.
 
 ## Notes
 
